@@ -67,6 +67,7 @@
         <entry key="cheetah" value="2.4.4" />
         <entry key="cherrypy" value="3.8.0" />
         <entry key="chest" value="0.2.3" />
+        <entry key="cio-bt" value="1.0.0" />
         <entry key="click" value="6.6" />
         <entry key="cligj" value="0.4.0" />
         <entry key="cloudpickle" value="0.2.1" />
@@ -285,7 +286,7 @@
         <entry key="numba" value="0.26.0" />
         <entry key="numbapro" value="0.23.1" />
         <entry key="numbapro_cudalib" value="0.2" />
-        <entry key="numexpr" value="2.5.2" />
+        <entry key="numexpr" value="2.6.0" />
         <entry key="numpy" value="1.11.0" />
         <entry key="numpydoc" value="0.5" />
         <entry key="odo" value="0.5.0" />
@@ -308,9 +309,10 @@
         <entry key="pastedeploy" value="1.5.2" />
         <entry key="patch" value="2.5.9" />
         <entry key="path.py" value="8.2.1" />
+        <entry key="pathlib2" value="2.1.0" />
         <entry key="patsy" value="0.4.1" />
         <entry key="pbkdf2" value="1.3" />
-        <entry key="pbr" value="1.8.0" />
+        <entry key="pbr" value="1.10.0" />
         <entry key="pcre" value="8.31" />
         <entry key="peace" value="1.0" />
         <entry key="pep381client" value="1.5" />
@@ -318,7 +320,7 @@
         <entry key="perl" value="5.20.3.1" />
         <entry key="persistent" value="4.1.1" />
         <entry key="phantomjs" value="2.1.1" />
-        <entry key="pickleshare" value="0.5" />
+        <entry key="pickleshare" value="0.7.2" />
         <entry key="pil" value="1.1.7" />
         <entry key="pillow" value="3.2.0" />
         <entry key="pip" value="8.1.1" />
@@ -1237,6 +1239,13 @@
             <list>
               <option value="0.2.2" />
               <option value="0.2.3" />
+            </list>
+          </value>
+        </entry>
+        <entry key="cio-bt">
+          <value>
+            <list>
+              <option value="1.0.0" />
             </list>
           </value>
         </entry>
@@ -3609,6 +3618,7 @@
               <option value="2.0.1" />
               <option value="2.5" />
               <option value="2.5.1" />
+              <option value="2.6.0" />
             </list>
           </value>
         </entry>
@@ -3846,6 +3856,13 @@
             </list>
           </value>
         </entry>
+        <entry key="pathlib2">
+          <value>
+            <list>
+              <option value="2.1.0" />
+            </list>
+          </value>
+        </entry>
         <entry key="patsy">
           <value>
             <list>
@@ -3870,6 +3887,7 @@
               <option value="1.8.0" />
               <option value="0.11.0" />
               <option value="1.3.0" />
+              <option value="1.10.0" />
             </list>
           </value>
         </entry>
@@ -3934,6 +3952,7 @@
           <value>
             <list>
               <option value="0.5" />
+              <option value="0.7.2" />
             </list>
           </value>
         </entry>
@@ -5757,6 +5776,6 @@
     <option name="CONDA_CHANNELS">
       <set />
     </option>
-    <option name="LAST_TIME_CHECKED" value="1464457687320" />
+    <option name="LAST_TIME_CHECKED" value="1464985330495" />
   </component>
 </application>
