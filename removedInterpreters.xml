@@ -1,0 +1,9 @@
+<application>
+  <component name="PySdkService">
+    <option name="REMOVED_SDKS">
+      <set>
+        <option value="C:\Anaconda2\python.exe" />
+      </set>
+    </option>
+  </component>
+</application>
