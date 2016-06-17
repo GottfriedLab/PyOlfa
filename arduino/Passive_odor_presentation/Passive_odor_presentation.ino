@@ -8,9 +8,9 @@
 
 // include the library code:
 #include <SPI.h>
-#include <C:\Users\SAM-PC\Documents\Arduino\voyeur_timer_lib.pde>
-#include <C:\Users\SAM-PC\Documents\Arduino\ioFunctions_external_timers.pde>
-#include <C:\Users\SAM-PC\Documents\Arduino\voyeur_serial_stream_tools.pde>
+#include <C:\Users\Jay Gottfried\Documents\GitHub\Mod_Voyeur\arduino\voyeur_timer_lib.pde>
+#include <C:\Users\Jay Gottfried\Documents\GitHub\Mod_Voyeur\arduino\ioFunctions_external_timers.pde>
+#include <C:\Users\Jay Gottfried\Documents\GitHub\Mod_Voyeur\arduino\voyeur_serial_stream_tools.pde>
 
 #define LED_PIN   13
 
@@ -71,7 +71,7 @@
 #define WATERVALVE1 SOLENOID8
 #define WATERVALVE2 SOLENOID5
 #define FV_T DIGITAL5
-#define LICK_SENSOR DIGITAL8
+//#define LICK_SENSOR DIGITAL8
 
 
 // Phases of the sniff signal and the codes for each phases.
@@ -162,7 +162,7 @@ void setup() {
 	pinMode(DIGITAL7,OUTPUT);
 	pinMode(DIGITAL8,OUTPUT);
 	//pinMode(DIGITAL9,OUTPUT);
-	pinMode(LICK_SENSOR,INPUT);
+	//pinMode(LICK_SENSOR,INPUT);
 	pinMode(DIGITAL10,OUTPUT);
 	pinMode(DIGITAL11,OUTPUT);
 	pinMode(DIGITAL12,OUTPUT);
@@ -261,7 +261,7 @@ void setup() {
 	start_analog_timer(); //(ioFunctions).
 	// start lick recording timer. Creates a buffer to store the lick event timestamps and defines which pin to sample from.
   // Argument 1 is channel 1 (first lick port), argument 2 is channel 2 (if you are using 2 licking sensors).
-	startLick(LICK_SENSOR_MRI,BEAM2);
+	startLick(BEAM1,BEAM2);
 	// first argument is how many channels to look for licking. 1 = only first channel. 2 = both.
   // function is found at ioFunctions.pde . Second argument is the inter sample interval 0 = every ms
 	lickOn(3, 0);

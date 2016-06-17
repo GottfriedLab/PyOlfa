@@ -3,7 +3,7 @@
 // 2013_06_05 CW - made a CueLowOnTimer for LED mask
 
 // Functions that handle comm. with I/O devices
-#include <C:\Users\SAM-PC\Documents\Arduino\ADfunctions.pde>
+#include <C:\Users\Jay Gottfried\Documents\GitHub\Mod_Voyeur\arduino\ADfunctions.pde>
 // Analog input ring buffer parameters
 #define BUFFERS 500 //buffer size
 #define LICKBUFF 100 // lick buffer
@@ -104,10 +104,10 @@ void setupBuffers(unsigned int sniffbuff, unsigned int treadmillbuff, unsigned i
   lickb = lickbuff;
   trigb = trigbuff;
   
-  #define BUFFERS sniffb
-  #define TMBUFF treadmillb
-  #define LICKBUFF lickb
-  #define TRIGBUFF trigb
+ // #define BUFFERS sniffb
+ // #define TMBUFF treadmillb
+//  #define LICKBUFF lickb
+ // #define TRIGBUFF trigb
 }
 
 
