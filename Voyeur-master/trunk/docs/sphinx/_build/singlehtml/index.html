@@ -1,0 +1,974 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Voyeur v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="None" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="#">Voyeur v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="voyeur-data-acquisition-system">
+<h1>Voyeur — Data acquisition system<a class="headerlink" href="#voyeur-data-acquisition-system" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<span id="document-installation"></span><div class="section" id="installing-voyeur">
+<h2>Installing Voyeur<a class="headerlink" href="#installing-voyeur" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>You can check out the latest Voyeur code from SVN::</dt>
+<dd>svn checkout <a class="reference external" href="https://svn.physionconsulting.com/voyeur/trunk">https://svn.physionconsulting.com/voyeur/trunk</a> voyeur</dd>
+</dl>
+<div class="section" id="os-x">
+<h3>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="dependencies">
+<h4>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt>Voyeur requires</dt>
+<dd>1. OS X 10.6 (Snow Leopard) or greater
+3. Arduino <a class="reference external" href="http://www.arduino.cc/en/Main/Software">0021</a> or greater.
+4. Nokia <a class="reference external" href="http://qt.nokia.com/downloads/sdk-mac-os-cpp">Qt 4.7.1</a> or greater.</dd>
+</dl>
+</div>
+<div class="section" id="install">
+<h4>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h4>
+<ol class="arabic">
+<li><p class="first">Install the dependencies above.</p>
+</li>
+<li><p class="first">Run the Voyeur OS X <a class="reference external" href="https://code.physionconsulting.com/projects/dudman-acq/files">installer</a></p>
+</li>
+<li><p class="first">From within the Voyeur source root directory, run the following command in the terminal:</p>
+<div class="highlight-python"><pre>python setup.py install</pre>
+</div>
+</li>
+</ol>
+<p>#. There is a bug in the Enthought Traits UI for Qt module in version 3.6.0. You may need to change the 2 to a 1 at
+line XXX of
+/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/enthought/qt/__init__.py after installation.</p>
+<p>Installation on OS X requires administrator privileges.</p>
+</div>
+</div>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h4>Dependencies<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<ol class="arabic simple">
+<li>Windows XP or later (we have not tested on Vista or Windows 7)</li>
+<li>Arduino <a class="reference external" href="http://www.arduino.cc/en/Main/Software">0021</a></li>
+<li>The <a class="reference external" href="http://www.enthought.com/products/getepd.php">Enthought Python Distribution</a> (32-bit)</li>
+<li>Nokia <a class="reference external" href="http://qt.nokia.com/downloads/sdk-windows-cpp">Qt 4.7.1</a> or greater.</li>
+<li><a class="reference external" href="http://www.riverbankcomputing.co.uk/software/pyqt/download">PyQt</a></li>
+</ol>
+</div>
+<div class="section" id="id5">
+<h4>Install<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<ol class="arabic">
+<li><p class="first">Install the dependencies above.</p>
+</li>
+<li><p class="first">From within the Voyeur source root directory, run the following command in the terminal:</p>
+<div class="highlight-python"><pre>python setup.py install</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<span id="document-python_environment"></span><div class="section" id="setting-up-a-python-development-environment">
+<h2>Setting up a Python development environment<a class="headerlink" href="#setting-up-a-python-development-environment" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="learning-python">
+<h3>Learning Python<a class="headerlink" href="#learning-python" title="Permalink to this headline">¶</a></h3>
+<p>The best (complete, well written, and relatively short) tutorial on Python is the
+<a class="reference external" href="http://docs.python.org/tutorial/index.html">Python Tutorial</a> at python.org.</p>
+<p>The tutorial uses the standard Python interpreter (what you get if you type <tt class="docutils literal"><span class="pre">python</span></tt> at the command line), but virtually everyone uses
+<a class="reference external" href="http://ipython.scipy.org">IPython</a>, an enhanced interpreter with nice things like tab completion, better integration with help etc. You can install IPython using EasyInstall, the python package manager. At the command line:</p>
+<div class="highlight-python"><pre>sudo easy_install -U ipython</pre>
+</div>
+<p>IPython is started via <tt class="docutils literal"><span class="pre">ipython</span></tt>. On Windows, IPython is included with the <a class="reference external" href="http://www.enthought.com/products/getepd.php">Enthought Python Distribution</a>, which we recommend for Voyeur on Windows.</p>
+</div>
+<div class="section" id="a-python-development-environment">
+<h3>A Python Development Environment<a class="headerlink" href="#a-python-development-environment" title="Permalink to this headline">¶</a></h3>
+<p>Python does not require a dedicated development environment or compiler. You can write Python code in any text editor.</p>
+<p>Python uses whitespace instead of delimiters (e.g. { and }) to define blocks of code. Thus whitespace is significant in Python. Community convention is to use spaces instead of tabs for indentation. Thus a text editor with the ability to select tabs vs. spaces for indentation is useful. If you are an Emacs or vi user, both have excellent Python support. If not, we recommend
+<a class="reference external" href="http://macromates.com/">Text Mate</a> on OS X. There are many
+<a class="reference external" href="http://wiki.python.org/moin/PythonEditors">editors and IDEs</a> with Python support, however, and you may want to explore a bit.</p>
+<p>Voyeur&#8217;s distribution includes a protocol plugin template which you can copy and customize. This template includes support for unit testing your protocol. To do so, add any test functions that you would like to the module. You can then run the tests at the command line:</p>
+<div class="highlight-python"><pre>nosetests my_plugin.py</pre>
+</div>
+<p>or by running the plugin module directly:</p>
+<div class="highlight-python"><pre>python my_plugin.py</pre>
+</div>
+<p>Many Python editors/IDEs, including <tt class="docutils literal"><span class="pre">IPython</span></tt> will also let you run unit tests directly in the editor or interpreter.</p>
+<p>The development workflow then consists of writing code and tests, running the tests at the command-line, editing code to fix errors and re-running tests at the command line.</p>
+</div>
+</div>
+<span id="document-architecture"></span><div class="section" id="voyeur-architecture">
+<h2>Voyeur architecture<a class="headerlink" href="#voyeur-architecture" title="Permalink to this headline">¶</a></h2>
+<p>The Voyeur system is a multi-component system, comprised of the Arduino hardware, a communication
+module (<tt class="xref py py-mod docutils literal"><span class="pre">arduino</span></tt>) for talking to the hardware, a data storage system (<tt class="xref py py-mod docutils literal"><span class="pre">db</span></tt>),
+a user interface (<tt class="xref py py-mod docutils literal"><span class="pre">ui</span></tt>) and a software <tt class="xref py py-mod docutils literal"><span class="pre">monitor</span></tt>.
+The <tt class="xref py py-class docutils literal"><span class="pre">monitor.Monitor</span></tt> class is responsible for coordinating the action of the rest of the components.</p>
+<p>Specific experimental protocol details, including the parameters of the protocol are provided by user-written plugins called Protocols.</p>
+</div>
+<span id="document-configuration"></span><div class="section" id="configuring-voyeur">
+<h2>Configuring Voyeur<a class="headerlink" href="#configuring-voyeur" title="Permalink to this headline">¶</a></h2>
+<p>The <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">VOYEUR_CONFIG</span></tt> environment variable specifies the path to the config file.</p>
+<p>TODO: Describe configuration system parameters</p>
+</div>
+<span id="document-protocols"></span><div class="section" id="user-protocols">
+<h2>User protocols<a class="headerlink" href="#user-protocols" title="Permalink to this headline">¶</a></h2>
+<p>Voyeur is a general data acquisition system. To describe the experimental protocol, users write protocol plugins for the system. A protocol plugin provides three necessary pieces of information to Voyeur. The <a class="reference internal" href="index.html#voyeur.monitor.Monitor" title="voyeur.monitor.Monitor"><tt class="xref py py-class docutils literal"><span class="pre">voyeur.monitor.Monitor</span></tt></a> class uses this information to coordinate the actions of the Arduino controller, the user interface, and the data persistence modules. This description is used to parse the controller&#8217;s output and to describe the data written to disk:</p>
+<blockquote>
+<ol class="arabic">
+<li><dl class="first docutils">
+<dt>The user-configurable <em>protocol parameters</em></dt>
+<dd><p class="first last">The user interface module (<a class="reference internal" href="index.html#module-voyeur.ui" title="voyeur.ui"><tt class="xref py py-mod docutils literal"><span class="pre">voyeur.ui</span></tt></a>) uses the described parameters to present a user interface for manipulating those parameters. Protocol parameters are declared in the protocol class as types from the <a class="reference internal" href="index.html#module-voyeur.ui" title="voyeur.ui"><tt class="xref py py-mod docutils literal"><span class="pre">voyeur.ui</span></tt></a> module.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>The <em>controller parameters</em>—the values sent to the hardware controller—for each trial</dt>
+<dd><p class="first">The protocol must provide a dictionary describing the type and order of these parameters and a method that returns the parameters for the next trial. For example, a protocol that sends two values, a 16-bit integer and a floating-point value, to the controller with each trial would describe the format of these parameters in a type dictionary:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;integer-value&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">db</span><span class="o">.</span><span class="n">Int16</span><span class="p">),</span>
+    <span class="s">&#39;float-value&#39;</span>   <span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">db</span><span class="o">.</span><span class="n">Float</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>When the <a class="reference internal" href="index.html#voyeur.monitor.Monitor" title="voyeur.monitor.Monitor"><tt class="xref py py-class docutils literal"><span class="pre">voyeur.monitor.Monitor</span></tt></a> request the parameters for the next trial, this same protocol would provide them as, for example:</p>
+<div class="last highlight-python"><pre>{
+    'integer-value' : (1, db.Int16, 10)
+    'float-value'   : (2, db.Float, 1.141)
+}</pre>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>The <em>event parameters</em> describing results returned from the controller at the end of the trial.</dt>
+<dd><p class="first last">Similarly, the protocol must provide a type dictionary describing format of results returned from the controller and the particular values for a given trial.</p>
+</dd>
+</dl>
+</li>
+</ol>
+</blockquote>
+<div class="section" id="monitor-s-interaction-with-user-protocols">
+<h3>Monitor&#8217;s interaction with user protocols<a class="headerlink" href="#monitor-s-interaction-with-user-protocols" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference internal" href="index.html#voyeur.monitor.Monitor" title="voyeur.monitor.Monitor"><tt class="xref py py-class docutils literal"><span class="pre">voyeur.monitor.Monitor</span></tt></a> calls the current user protocol using a specific API, defined in <tt class="xref py py-class docutils literal"><span class="pre">voyeur.protocol.IProtocol</span></tt>.
+User protocols must implement the methods defined in this abstract base class. The interaction between the Monitor
+and the current user protocol for a single trial are summarized in the image below:</p>
+<img alt="..\Monitor-Protocol.pdf" src="..\Monitor-Protocol.pdf" />
+</div>
+<div class="section" id="writing-a-protocol">
+<h3>Writing a protocol<a class="headerlink" href="#writing-a-protocol" title="Permalink to this headline">¶</a></h3>
+<p>The tasks for writing an experimental protocol for use with the Voyeur system are:</p>
+<ol class="arabic simple">
+<li>Subclass <tt class="xref py py-mod docutils literal"><span class="pre">voyeur.protocol.Protocol</span></tt></li>
+<li>Define <em>protocol parameters</em> as class instance variables of types defined in the <a class="reference internal" href="index.html#module-voyeur.ui" title="voyeur.ui"><tt class="xref py py-mod docutils literal"><span class="pre">voyeur.ui</span></tt></a> module</li>
+<li>Describe the <em>protocol parameters</em> that you want to persist in the database by name and type in <a class="reference internal" href="index.html#module-voyeur.db" title="voyeur.db"><tt class="xref py py-mod docutils literal"><span class="pre">voyeur.db</span></tt></a></li>
+<li>Describe the <em>controller parameters</em> by index (the order sent to the Arduino controller) and type in <a class="reference internal" href="index.html#module-voyeur.db" title="voyeur.db"><tt class="xref py py-mod docutils literal"><span class="pre">voyeur.db</span></tt></a></li>
+</ol>
+<p>5. Provide a TrialParameters instance with protocol and controller parameter valuesfor the next trial, when requested
+4. Describe and provide the <em>event parameters</em> for the most recently completed trial, when requested</p>
+<p>A simple <tt class="docutils literal"><span class="pre">Protocol</span></tt> implementation that performs these tasks is shown below:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">ExampleProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Example protocol demonstrating a minimal user protocol implementation</span>
+
+<span class="sd">    This protocol describes a fictional protocol with two parameters, count and value.</span>
+<span class="sd">    For illustration, we may consider an experimental protocol where a stimulus is presented</span>
+<span class="sd">    count times, at intensity value.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c"># The protocol parameters are described as class members of types defined in the</span>
+    <span class="c"># voyeur.ui module. These parameters will be automatically presented by the UI module</span>
+
+    <span class="n">count</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;count&#39;</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
+    <span class="n">lastEvent1</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Event Param 1 from last trial&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">protocol_parameters_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a python dictionary defining the parameters of this protocol.</span>
+
+<span class="sd">        The protocol parameters definition dictionary describes the type of each</span>
+<span class="sd">        protocol parameter. Types must be one of the types defined in :mod:`voyeur.db`.</span>
+
+
+<span class="sd">        Example::</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;trialNumber&quot; : db.Int, # an integer value</span>
+<span class="sd">                &quot;param1&quot; : db.Float, # a floating-point value</span>
+<span class="sd">                &quot;param2&quot; : db.Time # a time stamp value</span>
+<span class="sd">            }</span>
+
+<span class="sd">        In this example, this protocol defines three parameters of types db.Int and db.Float.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&#39;trialNumber&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+            <span class="s">&#39;count&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+            <span class="s">&#39;value&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Float</span><span class="p">),</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">controller_parameters_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a python dictionary defining the controller sent by this protocol.</span>
+
+<span class="sd">        The controller parameters definition dictionary describes the type and index of each</span>
+<span class="sd">        parameter sent to the Arduino controller at the start of each trial. The index defines</span>
+<span class="sd">         the order in the serial stream of the parameter. The index defined here, *not the order of</span>
+<span class="sd">         definition within the dictionary* define the order parameters are sent to the Arduino controller.</span>
+<span class="sd">        Types must be one of the types defined in :mod:`voyeur.db`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&#39;value&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+            <span class="s">&#39;count&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">trial_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a :class:`TrialParameters` instance describing the values of</span>
+<span class="sd">        the protocol parameters and controller parameters for the next trial.</span>
+
+<span class="sd">        The protocol parameters dictionary is a key=&gt;value dictionary, using the keys defined in protocol_parameters_definition.</span>
+<span class="sd">        The controller parameters dictionary is a key=&gt;(index,value) dictionary, using the keys defined</span>
+<span class="sd">        in controller_parameters_definition. The index here must also match the index defined in controller_parameters_definition</span>
+<span class="sd">         for the given key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">protocolParams</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;trialNumber&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trialNumber</span><span class="p">,</span>
+            <span class="s">&quot;count&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span>
+            <span class="s">&quot;value&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">}</span>
+
+        <span class="n">controllerParams</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;value&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)),</span>
+            <span class="s">&#39;count&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">TrialParameters</span><span class="p">(</span><span class="n">protocolParams</span><span class="o">=</span><span class="n">protocolParams</span><span class="p">,</span>
+                               <span class="n">controllerParams</span><span class="o">=</span><span class="n">controllerParams</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">event_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        At the end of each trial, the controller returns a set of &quot;event parameters&quot;</span>
+<span class="sd">        describing events that occured during that trial. This method returns a dictionary</span>
+<span class="sd">        defining the event defintiion for this protocol. This dictionary is, in essence, a</span>
+<span class="sd">        template for the event parameters for each trial. The description format is a python</span>
+<span class="sd">        dictionary. The keys are the names of each event parameter. They will be used</span>
+<span class="sd">        elsewhere in the protocol to refer to the event parameters. The values of the</span>
+<span class="sd">        dictionary are tuples of the form (index,type) where index gives ordered the</span>
+<span class="sd">        position of this parameter in the stream received from the Arduino controller. Thus,</span>
+<span class="sd">        the index, **not** the order of the parameters in the type dictionary dictates the</span>
+<span class="sd">        order in which parameters are expected to be sent by the controller.</span>
+
+<span class="sd">         The type of the parameter must be one of the types defined in the :mod:`voyeur.db`</span>
+<span class="sd">         module.</span>
+
+<span class="sd">         In this example, the event parameters are three integers, eventParam1-3.</span>
+
+<span class="sd">         Returns a dictionary of {name =&gt; (index,db.Type)} of event parameters for this</span>
+<span class="sd">         protocol.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&quot;eventParam1&quot;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+            <span class="s">&quot;eventParam2&quot;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+            <span class="s">&quot;eventParam3&quot;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">stream_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Upon request the controller returns a set of &quot;stream parameters&quot; describing</span>
+<span class="sd">        readins that occured during that trial. This method returns a dictionary</span>
+<span class="sd">        defining the stream defintiion for this protocol. This dictionary is, in essence, a</span>
+<span class="sd">        template for the stream parameters for each trial. The description format is a python</span>
+<span class="sd">        dictionary. The keys are the names of each event parameter. They will be used</span>
+<span class="sd">        elsewhere in the protocol to refer to the event parameters. The values of the</span>
+<span class="sd">        dictionary are tuples of the form (index,type) where index gives ordered the</span>
+<span class="sd">        position of this parameter in the stream received from the Arduino controller. Thus,</span>
+<span class="sd">        the index, **not** the order of the parameters in the type dictionary dictates the</span>
+<span class="sd">        order in which parameters are expected to be sent by the controller.</span>
+
+<span class="sd">         The type of the parameter must be one of the types defined in the :mod:`voyeur.db`</span>
+<span class="sd">         module.</span>
+
+<span class="sd">         In this example, the event parameters are three integers, streamParam1-3.</span>
+
+<span class="sd">         Returns a dictionary of {name =&gt; (index,db.Type)} of stream parameters for this</span>
+<span class="sd">         protocol.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&quot;streamParam1&quot;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+            <span class="s">&quot;streamParam2&quot;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+            <span class="s">&quot;streamParam3&quot;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">process_event_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process completed stream data.</span>
+
+<span class="sd">        At the completion of each trial, the Monitor passes an event dictionary</span>
+<span class="sd">        to the protocol for processing. Each event dictionary is described by the</span>
+<span class="sd">        result of this protocol&#39;s event_definition() method: each event dictionary</span>
+<span class="sd">        has the same keys and values of the same type as the type dictionary.</span>
+
+<span class="sd">        In this method, the protocol may update class members, automatically udpating</span>
+<span class="sd">        UI elements or may perform any needed calculations at the conclusion of each trial.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            events : list</span>
+<span class="sd">                List of (single) event dictionary, matching event_parameters_type()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastEvent</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s">&#39;eventParam1&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">process_stream_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process completed stream data.</span>
+
+<span class="sd">        At the completion of each trial, the Monitor passes a stream dictionary</span>
+<span class="sd">        to the protocol for processing. Each stream dictionary is described by the</span>
+<span class="sd">        result of this protocol&#39;s stream_definition() method: each event dictionary</span>
+<span class="sd">        has the same keys and values of the same type as the type dictionary.</span>
+
+<span class="sd">        In this method, the protocol may update class members, automatically udpating</span>
+<span class="sd">        UI elements or may perform any needed calculations at the conclusion of each trial.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            events : list</span>
+<span class="sd">                List of (single) event dictionary, matching stream_parameters_type()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastEvent1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stream</span><span class="p">[</span><span class="s">&#39;streamParam1&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">start_of_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by Monitor before trial starts to perform intialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">end_of_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by Monitor before trial starts to perform post trial operations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">trialNumber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trialNumber</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">trial_iti_milliseconds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the number of millisecods of inter-trial interval following the trial whose parameters</span>
+<span class="sd">        were most recently supplied&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="mi">1000</span>
+</pre></div>
+</div>
+</div>
+</div>
+<span id="document-persistence_format"></span><div class="section" id="persistence-format">
+<h2>Persistence Format<a class="headerlink" href="#persistence-format" title="Permalink to this headline">¶</a></h2>
+<p>Voyeur stores the data for a recording session in a single <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> file.
+Voyeur uses HDF5&#8217;s hierarchical format to organize the Protocols and Trials in a recording session.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="31%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head" colspan="2">Inputs</th>
+<th class="head">Output</th>
+</tr>
+<tr><th class="head">A</th>
+<th class="head">B</th>
+<th class="head">A or B</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>False</td>
+<td>False</td>
+<td>False</td>
+</tr>
+<tr><td>True</td>
+<td>False</td>
+<td>True</td>
+</tr>
+<tr><td>False</td>
+<td>True</td>
+<td>True</td>
+</tr>
+<tr><td>True</td>
+<td>True</td>
+<td>True</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="session-1-j">
+<h3>Session[1...j]/<a class="headerlink" href="#session-1-j" title="Permalink to this headline">¶</a></h3>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">creationDate:</th><td class="field-body">[UTC timestamp]</td>
+</tr>
+<tr class="field"><th class="field-name">timeZone:</th><td class="field-body">(needed?)</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="indent-trials">
+<h4>  Trials/<a class="headerlink" href="#indent-trials" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="32%" />
+<col width="36%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head" colspan="3">Parameters Table</th>
+</tr>
+<tr><th class="head">param1</th>
+<th class="head">param2</th>
+<th class="head">param3</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>trial1</td>
+<td>trial1</td>
+<td>trial1</td>
+</tr>
+<tr><td>trial2</td>
+<td>trial2</td>
+<td>trial2</td>
+</tr>
+<tr><td>trial[m]</td>
+<td>trial[m]</td>
+<td>trial[m]</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p> </p>
+<div class="section" id="indent-indent-trial-1-k">
+<h5>    Trial[1...k]/<a class="headerlink" href="#indent-indent-trial-1-k" title="Permalink to this headline">¶</a></h5>
+<blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">trialIndex:</th><td class="field-body"><p class="first">row in containing Protocol&#8217;s parameters tables</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="32%" />
+<col width="36%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head" colspan="3"><p class="first last">Event Table</p>
+</th>
+</tr>
+<tr><th class="head"><p class="first last">param1</p>
+</th>
+<th class="head"><p class="first last">param2</p>
+</th>
+<th class="head"><p class="first last">param3</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><p class="first last">event1</p>
+</td>
+<td><p class="first last">event1</p>
+</td>
+<td><p class="first last">event1</p>
+</td>
+</tr>
+<tr><td><p class="first last">event2</p>
+</td>
+<td><p class="first last">event2</p>
+</td>
+<td><p class="first last">event2</p>
+</td>
+</tr>
+<tr><td><p class="first last">event[m]</p>
+</td>
+<td><p class="first last">event[m]</p>
+</td>
+<td><p class="first last">event[m]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<table border="1" class="last docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head" colspan="3"><p class="first last">Stream Table</p>
+</th>
+</tr>
+<tr><th class="head"><p class="first last">param1</p>
+</th>
+<th class="head"><p class="first last">param2</p>
+</th>
+<th class="head"><p class="first last">param3</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><p class="first last">sample1</p>
+</td>
+<td><p class="first last">sample1</p>
+</td>
+<td><p class="first last">sample1</p>
+</td>
+</tr>
+<tr><td><p class="first last">sample2</p>
+</td>
+<td><p class="first last">sample2</p>
+</td>
+<td><p class="first last">sample2</p>
+</td>
+</tr>
+<tr><td><p class="first last">sample[m]</p>
+</td>
+<td><p class="first last">sample[m]</p>
+</td>
+<td><p class="first last">sample[m]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="variable-length-arrays">
+<h3>Variable-length arrays<a class="headerlink" href="#variable-length-arrays" title="Permalink to this headline">¶</a></h3>
+<p>Columns in parameter tables must be fixed in size. To accommodate variable-length parameters, Voyeur stores a
+Universally Unique Identifier (UUID) in the corresponding parameter column and adds an HDF5 array with the same
+UUID for its name to the same group containing the parameter table.</p>
+</div>
+</div>
+<span id="document-iteration_2_usage"></span><div class="section" id="running-a-trial-from-python">
+<h2>Running a trial from Python<a class="headerlink" href="#running-a-trial-from-python" title="Permalink to this headline">¶</a></h2>
+<p>You can now run individual trials from within the Python interpreter, making use of the entire Voyeur stack except
+the UI. Making use of the <tt class="docutils literal"><span class="pre">ExampleProtocol</span></tt> described in <em class="xref std std-ref">User protocols</em>, we can run a single trial:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">voyeur.db</span> <span class="kn">import</span> <span class="n">Persistor</span><span class="p">,</span> <span class="n">Int</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">voyeur.protocol</span> <span class="kn">import</span> <span class="n">Protocol</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">voyeur.arduino</span> <span class="kn">import</span> <span class="n">SerialPort</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Set up Voyeur persistence and Adruino stack</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">persistor</span> <span class="o">=</span> <span class="n">Persistor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">persistor</span><span class="o">.</span><span class="n">create_database</span><span class="p">(</span><span class="s">&#39;monitor_demo&#39;</span><span class="p">,</span><span class="s">&#39;Demo database&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">serial</span> <span class="o">=</span> <span class="n">SerialPort</span><span class="p">(</span><span class="s">&#39;osx.conf&#39;</span><span class="p">)</span> <span class="c">#path to configuration file</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Create the protocol instance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protocol</span> <span class="o">=</span> <span class="n">ExampleProtocol</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Create a Monitor instance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">voyeur.monitor</span> <span class="kn">import</span> <span class="n">Monitor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monitor</span> <span class="o">=</span> <span class="n">Monitor</span><span class="p">(</span><span class="n">persistor</span><span class="o">=</span><span class="n">persistor</span><span class="p">,</span> <span class="n">serial</span><span class="o">=</span><span class="n">serial</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">protocol</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Set the protocol parameters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protocol</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protocol</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Acquire a trial</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monitor</span><span class="o">.</span><span class="n">acquire_trial</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<span id="document-modules"></span><div class="section" id="voyeur-s-python-modules">
+<h2>Voyeur&#8217;s Python modules<a class="headerlink" href="#voyeur-s-python-modules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<span id="document-modules/arduino"></span><div class="section" id="module-voyeur.arduino">
+<span id="voyeur-arduino"></span><h3>voyeur.arduino<a class="headerlink" href="#module-voyeur.arduino" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="voyeur.arduino.SerialCallThread">
+<em class="property">class </em><tt class="descclassname">voyeur.arduino.</tt><tt class="descname">SerialCallThread</tt><big>(</big><em>monitor=None</em>, <em>max_queue_size=1</em>, <em>QObject_parent=None</em><big>)</big><a class="reference internal" href="_modules/voyeur/arduino.html#SerialCallThread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.arduino.SerialCallThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>This thread serializes communication across a single serial port.</p>
+<p>Calls are serialized and performed on a separate thread.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.arduino.convert_format">
+<tt class="descclassname">voyeur.arduino.</tt><tt class="descname">convert_format</tt><big>(</big><em>parameters</em><big>)</big><a class="reference internal" href="_modules/voyeur/arduino.html#convert_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.arduino.convert_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts dictionary database type format to serial transmission format</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.arduino.convert_type">
+<tt class="descclassname">voyeur.arduino.</tt><tt class="descname">convert_type</tt><big>(</big><em>kind</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/voyeur/arduino.html#convert_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.arduino.convert_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts string to python type</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.arduino.pack_integer">
+<tt class="descclassname">voyeur.arduino.</tt><tt class="descname">pack_integer</tt><big>(</big><em>format</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/voyeur/arduino.html#pack_integer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.arduino.pack_integer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Packs integer as a binary string
+I = python 4 byte unsigned integer to an arduino unsigned long
+h = python 2 byte short to an arduino integer</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.arduino.parse_serial">
+<tt class="descclassname">voyeur.arduino.</tt><tt class="descname">parse_serial</tt><big>(</big><em>packets</em>, <em>protocol_def</em><big>)</big><a class="reference internal" href="_modules/voyeur/arduino.html#parse_serial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.arduino.parse_serial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse serial read</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.arduino.strip_2tuple">
+<tt class="descclassname">voyeur.arduino.</tt><tt class="descname">strip_2tuple</tt><big>(</big><em>dict</em><big>)</big><a class="reference internal" href="_modules/voyeur/arduino.html#strip_2tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.arduino.strip_2tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strips the second value of the tuple out of a dictionary
+{key: (first, second)} =&gt; {key: first}</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.arduino.strip_3tuple">
+<tt class="descclassname">voyeur.arduino.</tt><tt class="descname">strip_3tuple</tt><big>(</big><em>dict</em><big>)</big><a class="reference internal" href="_modules/voyeur/arduino.html#strip_3tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.arduino.strip_3tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strips the third value of the tuple out of a dictionary
+{key: (first, second, third)} =&gt; {key: first, second}</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.arduino.strip_tuple">
+<tt class="descclassname">voyeur.arduino.</tt><tt class="descname">strip_tuple</tt><big>(</big><em>dict</em><big>)</big><a class="reference internal" href="_modules/voyeur/arduino.html#strip_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.arduino.strip_tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures the tuple in the dictionary does not have third value</p>
+</dd></dl>
+
+</div>
+<span id="document-modules/monitor"></span><div class="section" id="module-voyeur.monitor">
+<span id="voyeur-monitor"></span><h3>voyeur.monitor<a class="headerlink" href="#module-voyeur.monitor" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="voyeur.monitor.Monitor">
+<em class="property">class </em><tt class="descclassname">voyeur.monitor.</tt><tt class="descname">Monitor</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/voyeur/monitor.html#Monitor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.monitor.Monitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Central manager for CPU-side of Voyeur system</p>
+<dl class="method">
+<dt id="voyeur.monitor.Monitor.acquire_events">
+<tt class="descname">acquire_events</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/voyeur/monitor.html#Monitor.acquire_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.monitor.Monitor.acquire_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run event acquisition</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.monitor.Monitor.acquire_stream">
+<tt class="descname">acquire_stream</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/voyeur/monitor.html#Monitor.acquire_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.monitor.Monitor.acquire_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run stream acquisition</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.monitor.Monitor.pause_acquisition">
+<tt class="descname">pause_acquisition</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/voyeur/monitor.html#Monitor.pause_acquisition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.monitor.Monitor.pause_acquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pauses acquisition</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.monitor.Monitor.send_command">
+<tt class="descname">send_command</tt><big>(</big><em>command</em><big>)</big><a class="reference internal" href="_modules/voyeur/monitor.html#Monitor.send_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.monitor.Monitor.send_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a user command to arduino</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.monitor.Monitor.start_new_trial">
+<tt class="descname">start_new_trial</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/voyeur/monitor.html#Monitor.start_new_trial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.monitor.Monitor.start_new_trial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start New Trial</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.monitor.Monitor.stop_acquisition">
+<tt class="descname">stop_acquisition</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/voyeur/monitor.html#Monitor.stop_acquisition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.monitor.Monitor.stop_acquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops acquisition</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.monitor.Monitor.unpause_acquisition">
+<tt class="descname">unpause_acquisition</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/voyeur/monitor.html#Monitor.unpause_acquisition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.monitor.Monitor.unpause_acquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unpauses acquisition</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span id="document-modules/db"></span><div class="section" id="module-voyeur.db">
+<span id="voyeur-db"></span><h3>voyeur.db<a class="headerlink" href="#module-voyeur.db" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="voyeur.db.Persistor">
+<em class="property">class </em><tt class="descclassname">voyeur.db.</tt><tt class="descname">Persistor</tt><a class="reference internal" href="_modules/voyeur/db.html#Persistor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Database helper class</p>
+<dl class="method">
+<dt id="voyeur.db.Persistor.add_trial">
+<tt class="descname">add_trial</tt><big>(</big><em>trial_number</em>, <em>protocol_parameters</em>, <em>controller_parameters</em>, <em>stream_definition</em>, <em>session_group</em>, <em>description</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.add_trial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.add_trial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a trial</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.create_VLFloatArray">
+<tt class="descname">create_VLFloatArray</tt><big>(</big><em>name</em>, <em>array</em>, <em>group</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.create_VLFloatArray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.create_VLFloatArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores a homogenous variable length float array in a group</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.create_VLIntArray">
+<tt class="descname">create_VLIntArray</tt><big>(</big><em>name</em>, <em>array</em>, <em>group</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.create_VLIntArray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.create_VLIntArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores a homogenous variable length integer array in a group</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.create_database">
+<tt class="descname">create_database</tt><big>(</big><em>filename</em>, <em>animal_id</em>, <em>session_number</em>, <em>rig</em>, <em>user</em>, <em>experiment_notes</em>, <em>voyeur_version</em>, <em>usercode_version</em>, <em>arduino_protocol_name</em>, <em>user_protocol_name</em>, <em>start_date</em>, <em>timezone</em>, <em>user_metadata</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.create_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.create_database" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an HDF5 database and defines metadata</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.create_trials">
+<tt class="descname">create_trials</tt><big>(</big><em>protocol_parameters_definition</em>, <em>controller_parameters_definition</em>, <em>event_definition</em>, <em>session_group</em>, <em>description</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.create_trials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.create_trials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates trial</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.database_file">
+<tt class="descname">database_file</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.database_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.database_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to h5file. None if no database has been created.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.insert_event">
+<tt class="descname">insert_event</tt><big>(</big><em>event</em>, <em>trial_group</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.insert_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.insert_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts event values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.insert_stream">
+<tt class="descname">insert_stream</tt><big>(</big><em>stream</em>, <em>trial_group</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.insert_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.insert_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts stream data values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.open_database">
+<tt class="descname">open_database</tt><big>(</big><em>name</em>, <em>mode</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.open_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.open_database" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open HDF5 database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.session_parameters_definition">
+<tt class="descname">session_parameters_definition</tt><big>(</big><em>session_grp</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.session_parameters_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.session_parameters_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the parameters definition (column types) for given protocol groups</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.store_array">
+<tt class="descname">store_array</tt><big>(</big><em>name</em>, <em>description</em>, <em>array</em>, <em>group</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.store_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.store_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores a homogenous array in a group</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.timestamp">
+<tt class="descname">timestamp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a UTC timestamp</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="voyeur.db.Persistor.trial_parameters">
+<tt class="descname">trial_parameters</tt><big>(</big><em>trial_grp</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#Persistor.trial_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.Persistor.trial_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the parameters for the trial group from its trial parameters table</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="voyeur.db.ProtocolGroup">
+<tt class="descclassname">voyeur.db.</tt><tt class="descname">ProtocolGroup</tt><a class="headerlink" href="#voyeur.db.ProtocolGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persistent Format And Database Operations</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.db.strip_2tuple_from_dict">
+<tt class="descclassname">voyeur.db.</tt><tt class="descname">strip_2tuple_from_dict</tt><big>(</big><em>dict</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#strip_2tuple_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.strip_2tuple_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strips the first value of the tuple out of a dictionary
+{key: (first, second)} =&gt; {key: second}</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.db.strip_3tuple_from_dict">
+<tt class="descclassname">voyeur.db.</tt><tt class="descname">strip_3tuple_from_dict</tt><big>(</big><em>dict</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#strip_3tuple_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.strip_3tuple_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strips the first and second values of the tuple out of a dictionary
+{key: (first, second, third)} =&gt; {key: third}</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="voyeur.db.strip_tuple_from_dict">
+<tt class="descclassname">voyeur.db.</tt><tt class="descname">strip_tuple_from_dict</tt><big>(</big><em>dict</em><big>)</big><a class="reference internal" href="_modules/voyeur/db.html#strip_tuple_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.db.strip_tuple_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls the correct tuple stripper</p>
+</dd></dl>
+
+</div>
+<span id="document-modules/plugins"></span><div class="section" id="module-voyeur.plugins">
+<span id="voyeur-plugins"></span><h3>voyeur.plugins<a class="headerlink" href="#module-voyeur.plugins" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="voyeur.plugins.IPlugin">
+<em class="property">class </em><tt class="descclassname">voyeur.plugins.</tt><tt class="descname">IPlugin</tt><a class="reference internal" href="_modules/voyeur/plugins.html#IPlugin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.plugins.IPlugin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root interface for plugins.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="voyeur.plugins.PluginManager">
+<em class="property">class </em><tt class="descclassname">voyeur.plugins.</tt><tt class="descname">PluginManager</tt><a class="reference internal" href="_modules/voyeur/plugins.html#PluginManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.plugins.PluginManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple plugin manager.</p>
+<p>Allows loading plugins at path, and retrieving implementations of each interface.</p>
+<p>From within distribution root:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">voyeur.plugins</span> <span class="kn">import</span> <span class="n">PluginManager</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">voyeur.plugins</span> <span class="kn">import</span> <span class="n">IPlugin</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">PluginManager</span><span class="o">.</span><span class="n">load_plugins</span><span class="p">(</span><span class="s">&#39;test/python/fixtures/&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">PluginManager</span><span class="o">.</span><span class="n">plugins_for_interface</span><span class="p">(</span><span class="n">IPlugin</span><span class="p">)</span>
+<span class="go">set([&lt;class &#39;voyeur.plugins.IProtocol&#39;&gt;, &lt;class &#39;voyeur.plugins.ExamplePlugin&#39;&gt;])</span>
+</pre></div>
+</div>
+<dl class="classmethod">
+<dt id="voyeur.plugins.PluginManager.load_plugins">
+<em class="property">classmethod </em><tt class="descname">load_plugins</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/voyeur/plugins.html#PluginManager.load_plugins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.plugins.PluginManager.load_plugins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load plugins in folder at path</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="voyeur.plugins.PluginManager.plugins_for_interface">
+<em class="property">classmethod </em><tt class="descname">plugins_for_interface</tt><big>(</big><em>interfaceClass</em><big>)</big><a class="reference internal" href="_modules/voyeur/plugins.html#PluginManager.plugins_for_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voyeur.plugins.PluginManager.plugins_for_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of plugin classes that implement interfaceClass</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span id="document-modules/protocol"></span><div class="section" id="voyeur-protocol">
+<h3>voyeur.protocol<a class="headerlink" href="#voyeur-protocol" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-voyeur.protocol"></span></div>
+<span id="document-modules/ui"></span><div class="section" id="module-voyeur.ui">
+<span id="voyeur-ui"></span><h3>voyeur.ui<a class="headerlink" href="#module-voyeur.ui" title="Permalink to this headline">¶</a></h3>
+<p>Potentially Encapsulate Enthought Here</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-installation">Installing Voyeur</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#os-x">OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-python_environment">Setting up a Python development environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#learning-python">Learning Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#a-python-development-environment">A Python Development Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-architecture">Voyeur architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-configuration">Configuring Voyeur</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-protocols">User protocols</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#monitor-s-interaction-with-user-protocols">Monitor&#8217;s interaction with user protocols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#writing-a-protocol">Writing a protocol</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-persistence_format">Persistence Format</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#session-1-j">Session[1...j]/</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#variable-length-arrays">Variable-length arrays</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-iteration_2_usage">Running a trial from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#document-modules">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-modules/arduino">voyeur.arduino</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-modules/monitor">voyeur.monitor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-modules/db">voyeur.db</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-modules/plugins">voyeur.plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-modules/protocol">voyeur.protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#document-modules/ui">voyeur.ui</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="#">Voyeur v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Howard Hughes Medical Institute.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>
