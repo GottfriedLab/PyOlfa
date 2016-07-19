@@ -1,6 +1,6 @@
 '''
 Created on 2011-03-11, 
-Updated on 2015-08-07
+Uportdated on 2015-08-07
 version: 1.2
 
 @author: Admir Resulaj
