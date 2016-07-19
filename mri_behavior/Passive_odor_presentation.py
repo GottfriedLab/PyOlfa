@@ -6,6 +6,9 @@ Created on 2015_08_04
 This protocol implements a passive odor paradigm for the Voyeur/Arduino 
 platform. This includes the protocol behaviour as well as visualization (GUI).
 '''
+# GITHUB TEST
+
+# Test for GitHub Intergrate
 
 # Python library imports
 from numpy import append, arange, hstack, nan, isnan, copy, negative
@@ -541,10 +544,10 @@ class Passive_odor_presentation(Protocol):
                        ),
                 title='Voyeur - Go/NoGo protocol',
                 width=1024,
-                height=900,
+                height=700,
                 x=30,
                 y=70,
-                resizable=False,
+                resizable=True,
                 )
     
     def _stream_plots_default(self):
@@ -1162,7 +1165,7 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.__class__.__name__
         
         #get a configuration object with the default settings.
-        self.config = parse_rig_config("C:\Users\JoJo\PycharmProjects\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
+        self.config = parse_rig_config("C:\Users\Pei\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
         self.rig = self.config['rigName']
         self.water_duration = self.config['waterValveDurations']['valve_1_left']['0.25ul']
         self.olfas = self.config['olfas']
@@ -1311,7 +1314,7 @@ class Passive_odor_presentation(Protocol):
             "sniff_samples"    : (2, 'unsigned int', db.Int),
             "sniff"            : (3, 'int', db.FloatArray),
             #"sniff_ttl"        : (4, db.FloatArray),
-            #"lick1"            : (4, 'unsigned long', db.FloatArray),
+            "lick1"            : (4, 'unsigned long', db.FloatArray),
         }
 
     def process_event_request(self, event):
@@ -1403,6 +1406,8 @@ class Passive_odor_presentation(Protocol):
             num_sniffs = stream['sniff_samples']
             packet_sent_time = stream['packet_sent_time']
 
+            #print stream
+
             #print "Num sniffs:", num_sniffs
 
             if packet_sent_time > self._last_stream_index + num_sniffs:
@@ -1421,9 +1426,11 @@ class Passive_odor_presentation(Protocol):
                 self.sniff = new_sniff
             self.stream_plot_data.set_data("sniff", self.sniff)
             
-            '''
+
             if stream['lick1'] is not None or (self._last_stream_index - self._last_lick_index < self.STREAM_SIZE):
                 [self.lick1] = self._process_licks(stream, ('lick1',), [self.lick1])
+
+            '''
 
             if "light_ON_time" in self.event_definition().keys():
                 lasershift = int(packet_sent_time - self._last_stream_index)
