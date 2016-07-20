@@ -1162,7 +1162,7 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.__class__.__name__
         
         #get a configuration object with the default settings.
-        self.config = parse_rig_config("C:\Users\Pei\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
+        self.config = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
         self.rig = self.config['rigName']
         self.water_duration = self.config['waterValveDurations']['valve_1_left']['0.25ul']
         self.olfas = self.config['olfas']
