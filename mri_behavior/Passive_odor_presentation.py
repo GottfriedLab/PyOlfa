@@ -6,7 +6,6 @@ Created on 2015_08_04
 This protocol implements a passive odor paradigm for the Voyeur/Arduino 
 platform. This includes the protocol behaviour as well as visualization (GUI).
 '''
-# TEST 10:28
 
 # Python library imports
 from numpy import append, arange, hstack, nan, isnan, copy, negative
