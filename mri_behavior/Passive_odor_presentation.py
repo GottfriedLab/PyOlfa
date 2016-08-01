@@ -511,21 +511,22 @@ class Passive_odor_presentation(Protocol):
                   Item('event_plot',
                        editor=ComponentEditor(),
                        show_label=False,
-                       height=150,
+                       height=100,
                        padding=-15),
-                  label='Performance', padding=2,
-                  show_border=True
+                  label='Performance',
+                  padding=2,
+                  show_border=False,
                   )
 
     stream = Group(
                    Item('stream_plots',
                         editor=ComponentEditor(),
                         show_label=False,
-                        height=300,
+                        height=400,
                         padding=2),
                    label='Streaming',
                    padding=2,
-                   show_border=True,
+                   show_border=False,
                    )
     
     # Arrangement of all the graphical component groups.
@@ -554,7 +555,8 @@ class Passive_odor_presentation(Protocol):
         container = VPlotContainer(bgcolor="transparent",
                                    fill_padding=False,
                                    padding=0)
-        
+
+
         # TODO: Make the plot interactive (zoom, pan, re-scale)
 
         # Add the plots and their data to each container.
@@ -569,8 +571,8 @@ class Passive_odor_presentation(Protocol):
                                               sniff=self.sniff,
                                               laser=self.laser)
         # Create the Plot object for the streaming data.
-        plot = Plot(self.stream_plot_data, padding=25,
-                    padding_top=0, padding_bottom=35, padding_left=60)
+        plot = Plot(self.stream_plot_data, padding=20,
+                    padding_top=0, padding_bottom=45, padding_left=50, border_visible=False)
         
         # Initialize the data arrays and re-assign the values to the
         # ArrayPlotData collection.
@@ -581,36 +583,36 @@ class Passive_odor_presentation(Protocol):
         # This is so that no data is plotted until we receive it and append it
         # to the right of the screen.
         self.sniff = [0] * len(self.iteration)
-        self.laser = [0] * len(self.iteration)
+        #self.laser = [0] * len(self.iteration)
         self.stream_plot_data.set_data("iteration", self.iteration)
         self.stream_plot_data.set_data("sniff", self.sniff)
-        self.stream_plot_data.set_data("laser", self.laser)
+        #self.stream_plot_data.set_data("laser", self.laser)
         
         # Change plot properties.
         
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-2500, high=2500)
-        plot.fixed_preferred_size = (100, 100)
+        y_range = DataRange1D(low=-750,high=-710)
+        plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
-        y_axis = plot.y_axis
-        y_axis.title = "Signal (mV)"
+        plot.y_axis.visible = False
+        plot.x_axis.visible = False
+        plot.y_grid=None
+        plot.title = "Sniff"
+        plot.title_position = "left"
+
         # Make a custom abscissa axis object.
         bottom_axis = PlotAxis(plot, orientation="bottom",
-                               tick_generator=ScalesTickGenerator(
-                                                    scale=TimeScale(
-                                                            seconds=1)))
-        # TODO: change the axis mapper to be static
+                            tick_generator=ScalesTickGenerator(
+                                scale=TimeScale(
+                                    seconds=1)))
         plot.x_axis = bottom_axis
-        plot.x_axis.title = "Time"
-        plot.legend.visible = True
-        plot.legend.bgcolor = "transparent"
         
         # Add the lines to the Plot object using the data arrays that it
         # already knows about.
         plot.plot(('iteration', 'sniff'), type='line', color='black',
-                  name="Sniff")
-        plot.plot(("iteration", "laser"), name="Laser", color="blue",
-                  line_width=2)
+                  name="Sniff", line_width=0.5)
+        #plot.plot(("iteration", "laser"), name="Laser", color="blue",
+        #         line_width=2)
         
         # Keep a reference to the streaming plot so that we can update it in
         # other methods.
@@ -644,8 +646,8 @@ class Passive_odor_presentation(Protocol):
         self.stream_events_data = ArrayPlotData(iteration=self.iteration,
                                                 lick1=self.lick1)
         # Plot object created with the data definition above.
-        plot = Plot(self.stream_events_data, padding=25, padding_bottom=0,
-                    padding_left=60, index_mapper=self.stream_plot.index_mapper)
+        plot = Plot(self.stream_events_data, padding=20, padding_bottom=0, padding_top=0,
+                    padding_left=50, index_mapper=self.stream_plot.index_mapper,border_visible=False)
         
         # Data array for the lick signal.
         # The last value is not nan so that the first incoming streaming value
@@ -656,24 +658,22 @@ class Passive_odor_presentation(Protocol):
         self.stream_events_data.set_data("lick1", self.lick1)
         
         # Change plot properties.
-        plot.fixed_preferred_size = (100, 50)
-        y_range = DataRange1D(low=0, high=3)
+        plot.fixed_preferred_size = (100, 20)
+        y_range = DataRange1D(low=0.95, high=1.05)
         plot.value_range = y_range
-        plot.x_axis.orientation = "top"
-        plot.x_axis.title = "Events"
-        plot.x_axis.title_spacing = 5
+        plot.y_axis.visible = False
+        plot.x_axis.visible = False
         plot.x_axis.tick_generator = self.stream_plot.x_axis.tick_generator
-        plot.legend.visible = True
-        plot.legend.bgcolor = "transparent"
-        # Upper left corner for the legend as the plots will scroll from the
-        # right edge of the screen.
-        plot.legend.align = 'ul'
-        
+        plot.y_grid = None
+        plot.title="Lick"
+        plot.title_position = "left"
+
+
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "lick1"),
                                name="Lick Events",
                                color="red", 
-                               line_width=5,
+                               line_width=8,
                                render_style="hold")[0]
         # Add the trials overlay to the streaming events plot too.          
         event_plot.overlays.append(rangeselector)
@@ -683,6 +683,7 @@ class Passive_odor_presentation(Protocol):
         # Finally add both plot containers to the vertical plot container.
         container.add(self.stream_plot)
         container.add(self.stream_event_plot)
+
 
         return container
 
@@ -1186,16 +1187,17 @@ class Passive_odor_presentation(Protocol):
         # Setup the performance plots
         self.event_plot_data = ArrayPlotData(trial_number_tick=self.trial_number_tick, _go_trials_line=self._go_trials_line,
                                              _nogo_trials_line = self._nogo_trials_line)
-        plot = Plot(self.event_plot_data, padding=10, padding_top=5, padding_bottom=30, padding_left=60)
+        plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=70, border_visible=False)
         self.event_plot = plot
         plot.plot(('trial_number_tick', '_go_trials_line'), type = 'scatter', color = 'blue',
-                   name = "Go Trials % correct")
+                   name = "Go Trials")
         plot.plot(('trial_number_tick', '_nogo_trials_line'), type = 'scatter', color = 'red',
-                   name = "No-Go Trials % correct")
+                   name = "No-Go Trials")
         plot.legend.visible = True
         plot.legend.bgcolor = "transparent"
-        plot.legend.align = "ll"
-        plot.y_axis.title = "Performance - % Correct"
+        plot.legend.align = "ul"
+        plot.legend.border_visible = False
+        plot.y_axis.title = "% Correct"
         y_range = DataRange1D(low=0, high=100)
         plot.value_range = y_range
         self.trial_number_tick = [0]
