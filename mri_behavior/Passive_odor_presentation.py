@@ -586,18 +586,16 @@ class Passive_odor_presentation(Protocol):
         #self.laser = [0] * len(self.iteration)
         self.stream_plot_data.set_data("iteration", self.iteration)
         self.stream_plot_data.set_data("sniff", self.sniff)
-        #s
-
-        # elf.stream_plot_data.set_data("laser", self.laser)
+        #self.stream_plot_data.set_data("laser", self.laser)
         
         # Change plot properties.
         
         # y-axis range. Change this if you want to re-scale or offset it.
-        # y_range = DataRange1D(low=-750,high=-710)
-        y_range = DataRange1D(low=-700,high=-300) # For mri pressure sensor
+        #y_range = DataRange1D(low=-750,high=-710)
+        y_range = DataRange1D(low=-700, high=-300)
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
-        plot.y_axis.visible = False
+        plot.y_axis.visible = True
         plot.x_axis.visible = False
         plot.y_grid=None
         plot.title = "Sniff"
