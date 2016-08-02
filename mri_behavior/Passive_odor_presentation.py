@@ -591,8 +591,8 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
         
         # y-axis range. Change this if you want to re-scale or offset it.
-        #y_range = DataRange1D(low=-750,high=-710)
-        y_range = DataRange1D(low=-700, high=-300)
+        y_range = DataRange1D(low=-740,high=-710) # for training non-mri sniff sensor
+        # y_range = DataRange1D(low=-700, high=-300) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
         plot.y_axis.visible = True
