@@ -595,7 +595,7 @@ class Passive_odor_presentation(Protocol):
         # y_range = DataRange1D(low=-700, high=-300) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
-        plot.y_axis.visible = True
+        plot.y_axis.visible = False
         plot.x_axis.visible = False
         plot.y_grid=None
         plot.title = "Sniff"
