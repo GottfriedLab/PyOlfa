@@ -586,7 +586,9 @@ class Passive_odor_presentation(Protocol):
         #self.laser = [0] * len(self.iteration)
         self.stream_plot_data.set_data("iteration", self.iteration)
         self.stream_plot_data.set_data("sniff", self.sniff)
-        #self.stream_plot_data.set_data("laser", self.laser)
+        #s
+
+        # elf.stream_plot_data.set_data("laser", self.laser)
         
         # Change plot properties.
         
