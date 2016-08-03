@@ -582,7 +582,8 @@ class Passive_odor_presentation(Protocol):
         # Sniff data array initialization to nans.
         # This is so that no data is plotted until we receive it and append it
         # to the right of the screen.
-        self.laser = [0] * len(self.iteration)
+        self.sniff = [0] * len(self.iteration)
+        #self.laser = [0] * len(self.iteration)
         self.stream_plot_data.set_data("iteration", self.iteration)
         self.stream_plot_data.set_data("sniff", self.sniff)
         #self.stream_plot_data.set_data("laser", self.laser)
@@ -590,11 +591,11 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
         
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-740,high=300) # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-740,high=-710) # for training non-mri sniff sensor
         # y_range = DataRange1D(low=-700, high=-300) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
-        plot.y_axis.visible = Ture
+        plot.y_axis.visible = False
         plot.x_axis.visible = False
         plot.y_grid=None
         plot.title = "Sniff"
