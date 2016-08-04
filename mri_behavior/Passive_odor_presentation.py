@@ -60,7 +60,7 @@ class Passive_odor_presentation(Protocol):
     """Protocol and GUI for a Go/No-go behavioral paradigm."""
 
     # Streaming plot window size in milliseconds.
-    STREAM_SIZE = 5000
+    STREAM_SIZE = 4000
     
     # Number of trials in a block.
     BLOCK_SIZE = 20
