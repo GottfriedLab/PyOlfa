@@ -572,7 +572,7 @@ class Passive_odor_presentation(Protocol):
                                               laser=self.laser)
         # Create the Plot object for the streaming data.
         plot = Plot(self.stream_plot_data, padding=20,
-                    padding_top=0, padding_bottom=45, padding_left=50, border_visible=False)
+                    padding_top=0, padding_bottom=45, padding_left=120, border_visible=False)
         
         # Initialize the data arrays and re-assign the values to the
         # ArrayPlotData collection.
@@ -591,13 +591,13 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
         
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-740,high=-710) # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-740,high=-700) # for training non-mri sniff sensor
         # y_range = DataRange1D(low=700, high=300) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
-        plot.y_axis.visible = False
+        plot.y_axis.visible = True
         plot.x_axis.visible = False
-        plot.y_grid=None
+        #plot.y_grid(True)
         plot.title = "Sniff"
         plot.title_position = "left"
 
@@ -610,7 +610,7 @@ class Passive_odor_presentation(Protocol):
         
         # Add the lines to the Plot object using the data arrays that it
         # already knows about.
-        plot.plot(('iteration', 'sniff'), type='line', color='black',
+        plot.plot(('iteration', 'sniff'), type='line', color='blue',
                   name="Sniff", line_width=0.5)
         #plot.plot(("iteration", "laser"), name="Laser", color="blue",
         #         line_width=2)
@@ -649,7 +649,7 @@ class Passive_odor_presentation(Protocol):
                                                 lick1=self.lick1)
         # Plot object created with the data definition above.
         plot = Plot(self.stream_events_data, padding=20, padding_bottom=0, padding_top=0,
-                    padding_left=50, index_mapper=self.stream_plot.index_mapper,border_visible=False)
+                    padding_left=120, index_mapper=self.stream_plot.index_mapper,border_visible=False)
         
         # Data array for the lick signal.
         # The last value is not nan so that the first incoming streaming value
@@ -1189,7 +1189,7 @@ class Passive_odor_presentation(Protocol):
         # Setup the performance plots
         self.event_plot_data = ArrayPlotData(trial_number_tick=self.trial_number_tick, _go_trials_line=self._go_trials_line,
                                              _nogo_trials_line = self._nogo_trials_line)
-        plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=70, border_visible=False)
+        plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=120, border_visible=False)
         self.event_plot = plot
         plot.plot(('trial_number_tick', '_go_trials_line'), type = 'scatter', color = 'blue',
                    name = "Go Trials")
