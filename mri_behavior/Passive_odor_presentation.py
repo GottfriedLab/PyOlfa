@@ -552,7 +552,7 @@ class Passive_odor_presentation(Protocol):
     def _stream_plots_default(self):
         """ Build and return the container for the streaming plots."""
         
-        # Two plots will be arranged vertically with no separation.
+        # Two plots will be overlaid with no separation.
         container = OverlayPlotContainer(bgcolor="transparent",
                                    fill_padding=False,
                                    padding=0)
@@ -598,12 +598,10 @@ class Passive_odor_presentation(Protocol):
         plot.value_range = y_range
         plot.y_axis.visible = True
         plot.x_axis.visible = False
-        #plot.y_grid(True)
         plot.legend.visible = True
         plot.legend.bgcolor = "transparent"
         plot.legend.align = "ll"
         plot.legend.border_visible = False
-
 
         # Make a custom abscissa axis object.
         bottom_axis = PlotAxis(plot, orientation="bottom",
@@ -620,7 +618,6 @@ class Passive_odor_presentation(Protocol):
         #         line_width=2)
         
         # Keep a reference to the streaming plot so that we can update it in
-        # other methods.
         # other methods.
         self.stream_plot = plot
 
@@ -676,10 +673,9 @@ class Passive_odor_presentation(Protocol):
         plot.legend.align = "ul"
         plot.legend.border_visible = False
 
-
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "lick1"),
-                               name="Lick Events",
+                               name="Lick",
                                color="red", 
                                line_width=8,
                                render_style="hold")[0]
@@ -689,12 +685,10 @@ class Passive_odor_presentation(Protocol):
         self.stream_event_plot = plot
         
         # Finally add both plot containers to the vertical plot container.
-        container.add(self.stream_plot)
-        container.add(self.stream_event_plot)
+        container.add(self.stream_plot, self.stream_event_plot)
 
 
         return container
-
 
 
     def _addtrialmask(self):
