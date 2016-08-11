@@ -56,6 +56,7 @@ from traits.has_traits import on_trait_change
 
 
 
+
 class Passive_odor_presentation(Protocol):
     """Protocol and GUI for a Go/No-go behavioral paradigm."""
 
@@ -591,8 +592,8 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
         
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-740,high=-700) # for training non-mri sniff sensor
-        # y_range = DataRange1D(low=700, high=300) # for mri pressure sensor
+        y_range = DataRange1D(low=-20,high=20) # for training non-mri sniff sensor
+        # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
         plot.y_axis.visible = True
