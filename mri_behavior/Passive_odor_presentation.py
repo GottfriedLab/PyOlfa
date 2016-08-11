@@ -40,7 +40,7 @@ from traits.trait_types import Button
 from traits.api import Int, Str, Array, Float, Enum, Bool, Range,\
                                 Instance, HasTraits, Trait, Dict, DelegatesTo
 from traitsui.api import View, Group, HGroup, VGroup, Item, spring, Label
-from chaco.api import ArrayPlotData, Plot, VPlotContainer,\
+from chaco.api import ArrayPlotData, Plot, OverlayPlotContainer,\
                                 DataRange1D
 from enable.component_editor import ComponentEditor
 from enable.component import Component
@@ -553,7 +553,7 @@ class Passive_odor_presentation(Protocol):
         """ Build and return the container for the streaming plots."""
         
         # Two plots will be arranged vertically with no separation.
-        container = VPlotContainer(bgcolor="transparent",
+        container = OverlayPlotContainer(bgcolor="transparent",
                                    fill_padding=False,
                                    padding=0)
 
@@ -573,7 +573,7 @@ class Passive_odor_presentation(Protocol):
                                               laser=self.laser)
         # Create the Plot object for the streaming data.
         plot = Plot(self.stream_plot_data, padding=20,
-                    padding_top=0, padding_bottom=45, padding_left=120, border_visible=False)
+                    padding_top=20, padding_bottom=45, padding_left=70, border_visible=False)
         
         # Initialize the data arrays and re-assign the values to the
         # ArrayPlotData collection.
@@ -599,8 +599,11 @@ class Passive_odor_presentation(Protocol):
         plot.y_axis.visible = True
         plot.x_axis.visible = False
         #plot.y_grid(True)
-        plot.title = "Sniff"
-        plot.title_position = "left"
+        plot.legend.visible = True
+        plot.legend.bgcolor = "transparent"
+        plot.legend.align = "ll"
+        plot.legend.border_visible = False
+
 
         # Make a custom abscissa axis object.
         bottom_axis = PlotAxis(plot, orientation="bottom",
@@ -649,8 +652,8 @@ class Passive_odor_presentation(Protocol):
         self.stream_events_data = ArrayPlotData(iteration=self.iteration,
                                                 lick1=self.lick1)
         # Plot object created with the data definition above.
-        plot = Plot(self.stream_events_data, padding=20, padding_bottom=0, padding_top=0,
-                    padding_left=120, index_mapper=self.stream_plot.index_mapper,border_visible=False)
+        plot = Plot(self.stream_events_data, padding=20,
+                    padding_top=20, padding_bottom=45, padding_left=70, border_visible=False, index_mapper=self.stream_plot.index_mapper)
         
         # Data array for the lick signal.
         # The last value is not nan so that the first incoming streaming value
@@ -661,15 +664,17 @@ class Passive_odor_presentation(Protocol):
         self.stream_events_data.set_data("lick1", self.lick1)
         
         # Change plot properties.
-        plot.fixed_preferred_size = (100, 20)
-        y_range = DataRange1D(low=0.95, high=1.05)
+        plot.fixed_preferred_size = (100, 70)
+        y_range = DataRange1D(low=-5, high=1.2)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
         plot.x_axis.tick_generator = self.stream_plot.x_axis.tick_generator
         plot.y_grid = None
-        plot.title="Lick"
-        plot.title_position = "left"
+        plot.legend.visible = True
+        plot.legend.bgcolor = "transparent"
+        plot.legend.align = "ul"
+        plot.legend.border_visible = False
 
 
         # Add the lines to the plot and grab one of the plot references.
@@ -689,6 +694,8 @@ class Passive_odor_presentation(Protocol):
 
 
         return container
+
+
 
     def _addtrialmask(self):
         """ Add a masking overlay to mark the time windows when a trial was \
@@ -1190,7 +1197,7 @@ class Passive_odor_presentation(Protocol):
         # Setup the performance plots
         self.event_plot_data = ArrayPlotData(trial_number_tick=self.trial_number_tick, _go_trials_line=self._go_trials_line,
                                              _nogo_trials_line = self._nogo_trials_line)
-        plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=120, border_visible=False)
+        plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=70, border_visible=False)
         self.event_plot = plot
         plot.plot(('trial_number_tick', '_go_trials_line'), type = 'scatter', color = 'blue',
                    name = "Go Trials")
