@@ -28,7 +28,7 @@ from voyeur.exceptions import SerialException, ProtocolException
 from olfactometer_arduino import Olfactometers
 
 # Utilities
-from Stimulus import LaserStimulus, LaserTrainStimulus  # OdorStimulus
+from Stimulus import OdorStimulus, LaserStimulus, LaserTrainStimulus  # OdorStimulus
 from range_selections_overlay import RangeSelectionsOverlay
 from Voyeur_utilities import save_data_file, parse_rig_config, find_odor_vial
 
@@ -40,7 +40,7 @@ from traits.trait_types import Button
 from traits.api import Int, Str, Array, Float, Enum, Bool, Range,\
                                 Instance, HasTraits, Trait, Dict, DelegatesTo
 from traitsui.api import View, Group, HGroup, VGroup, Item, spring, Label
-from chaco.api import ArrayPlotData, Plot, OverlayPlotContainer,\
+from chaco.api import ArrayPlotData, Plot, VPlotContainer,\
                                 DataRange1D
 from enable.component_editor import ComponentEditor
 from enable.component import Component
@@ -238,6 +238,8 @@ class Passive_odor_presentation(Protocol):
     sniff = Array
     lick1 = Array
     laser = Array
+    odor = Array
+    trigger = Array
 
     # Internal indices uses for the streaming plots.
     _last_stream_index = Float(0)
@@ -278,7 +280,7 @@ class Passive_odor_presentation(Protocol):
     # GUI elements.
     event_plot = Instance(Plot, label="Success Rate")
     stream_plots = Instance(Component)   # Container for the streaming plots.
-    # This plot contains the continuous signals (sniff and laser currently).
+    # This plot contains the continuous signals (sniff, odor and laser currently).
     stream_plot = Instance(Plot, label="Sniff")
     # This is the plot that has the event signals (licks, etc.)
     stream_event_plot = Instance(Plot, label="Events")
@@ -553,7 +555,7 @@ class Passive_odor_presentation(Protocol):
         """ Build and return the container for the streaming plots."""
         
         # Two plots will be overlaid with no separation.
-        container = OverlayPlotContainer(bgcolor="transparent",
+        container = VPlotContainer(bgcolor="transparent",
                                    fill_padding=False,
                                    padding=0)
 
@@ -570,10 +572,12 @@ class Passive_odor_presentation(Protocol):
         # for updating the data. iteration is the abscissa values of the plots.
         self.stream_plot_data = ArrayPlotData(iteration=self.iteration,
                                               sniff=self.sniff,
-                                              laser=self.laser)
+                                              laser=self.laser,
+                                              odor=self.odor,
+                                              trigger=self.trigger)
         # Create the Plot object for the streaming data.
         plot = Plot(self.stream_plot_data, padding=20,
-                    padding_top=20, padding_bottom=45, padding_left=70, border_visible=False)
+                    padding_top=0, padding_bottom=45, padding_left=70, border_visible=False)
         
         # Initialize the data arrays and re-assign the values to the
         # ArrayPlotData collection.
@@ -585,9 +589,13 @@ class Passive_odor_presentation(Protocol):
         # to the right of the screen.
         self.sniff = [0] * len(self.iteration)
         #self.laser = [0] * len(self.iteration)
+        self.odor = [0] * len(self.iteration)
+        self.trigger = [0] * len(self.iteration)
         self.stream_plot_data.set_data("iteration", self.iteration)
         self.stream_plot_data.set_data("sniff", self.sniff)
         #self.stream_plot_data.set_data("laser", self.laser)
+        self.stream_plot_data.set_data("odor", self.odor)
+        self.stream_plot_data.set_data("trigger", self.trigger)
         
         # Change plot properties.
         
@@ -596,12 +604,8 @@ class Passive_odor_presentation(Protocol):
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
-        plot.y_axis.visible = True
+        plot.y_axis.visible = False
         plot.x_axis.visible = False
-        plot.legend.visible = True
-        plot.legend.bgcolor = "transparent"
-        plot.legend.align = "ll"
-        plot.legend.border_visible = False
 
         # Make a custom abscissa axis object.
         bottom_axis = PlotAxis(plot, orientation="bottom",
@@ -616,6 +620,10 @@ class Passive_odor_presentation(Protocol):
                   name="Sniff", line_width=0.5)
         #plot.plot(("iteration", "laser"), name="Laser", color="blue",
         #         line_width=2)
+        plot.plot(('iteration', 'odor'), type='line', color='blue',
+                  name="Odor", line_width=0.5)
+        plot.plot(('iteration', 'trigger'), type='line', color='blue',
+                  name="MRI trigger", line_width=0.5)
         
         # Keep a reference to the streaming plot so that we can update it in
         # other methods.
@@ -650,7 +658,7 @@ class Passive_odor_presentation(Protocol):
                                                 lick1=self.lick1)
         # Plot object created with the data definition above.
         plot = Plot(self.stream_events_data, padding=20,
-                    padding_top=20, padding_bottom=45, padding_left=70, border_visible=False, index_mapper=self.stream_plot.index_mapper)
+                    padding_top=0, padding_bottom=45, padding_left=70, border_visible=False, index_mapper=self.stream_plot.index_mapper)
         
         # Data array for the lick signal.
         # The last value is not nan so that the first incoming streaming value
@@ -661,17 +669,13 @@ class Passive_odor_presentation(Protocol):
         self.stream_events_data.set_data("lick1", self.lick1)
         
         # Change plot properties.
-        plot.fixed_preferred_size = (100, 70)
-        y_range = DataRange1D(low=-5, high=1.2)
+        plot.fixed_preferred_size = (100, 20)
+        y_range = DataRange1D(low=-0.99, high=1.01)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
         plot.x_axis.tick_generator = self.stream_plot.x_axis.tick_generator
         plot.y_grid = None
-        plot.legend.visible = True
-        plot.legend.bgcolor = "transparent"
-        plot.legend.align = "ul"
-        plot.legend.border_visible = False
 
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "lick1"),
