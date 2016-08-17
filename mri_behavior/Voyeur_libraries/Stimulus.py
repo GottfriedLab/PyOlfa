@@ -56,42 +56,6 @@ class Stimulus:
                 "\tintervals: " + str(self.intervals) + "\tid: " + str(self.id) + "\tnumber of intervals: " + \
                 str(self.num_intervals) + "\tdillution: " + str(self.dillution)
 
-class OdorStimulus(object):
-    ''' Objects representing an odor stimulus '''
-    
-    #An id number for the stimulus
-    id = int()
-    
-    #Stimulus description
-    description = str()
-    
-    #odor valves
-    odorvalves = []
-    #MFC flow rates as tuples for each MFC (e.g [(air1,nitrogen1),..,(airN,nitrogenN)])
-    flows = []
-    #Extra dillution
-    dillution = int()
-    
-    def __init__(self, odorvalves, flows, id=0, description = "",dillution=1):
-        ''' Constructor '''
-        
-        self.id = id
-        self.description = description
-        self.dillution = dillution
-        
-        self.flows = []
-        self.odorvalves = []
-        
-        for ov in odorvalves:
-            self.odorvalves.append(ov)
-        for flow in flows:
-            self.flows.append(flow)
-        
-        return None
-    
-    def __str__(self):
-        return "Stimulus: " + self.description + "\todor valves: " + str(self.odorvalves) + \
-               "\tmfc flows: " + str(self.flows) + "\tid: " + str(self.id) + "\tdillution: " + str(self.dillution)
 
 class LaserStimulus(object):
     ''' Objects representing a stimulus set '''
