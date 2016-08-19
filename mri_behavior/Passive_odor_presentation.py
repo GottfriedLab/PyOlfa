@@ -1009,6 +1009,10 @@ class Passive_odor_presentation(Protocol):
             #self.experiment_label = 'training'
         # return
 
+    def _training_button_fired(self):
+        # Change parameters to training mode.
+
+
     def _start_button_fired(self):
         #self.test_data_generator.start()
         #return
@@ -1330,12 +1334,13 @@ class Passive_odor_presentation(Protocol):
         """Returns a dictionary of {name => (index,db.Type} of event parameters for this protocol"""
 
         return {
-            "response"                : (1, db.Int),
-            "parameters_received_time": (2, db.Int),
-            "trial_start"             : (3, db.Int),
-            "trial_end"               : (4, db.Int),
-            "lost_sniff"              : (7, db.Int),
-            "final_valve_onset"       : (8, db.Int)
+            #"response"                : (1, db.Int),
+            "parameters_received_time": (1, db.Int),
+            "trial_start"             : (2, db.Int),
+            "trial_end"               : (3, db.Int),
+            "lost_sniff"              : (4, db.Int),
+            "final_valve_onset"       : (5, db.Int),
+            "mri_trigger_edge"        : (6, db.Int)
         }
 
     def stream_definition(self):
