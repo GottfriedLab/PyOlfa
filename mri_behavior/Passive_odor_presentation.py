@@ -61,7 +61,7 @@ class Passive_odor_presentation(Protocol):
     """Protocol and GUI for a Go/No-go behavioral paradigm."""
 
     # Streaming plot window size in milliseconds.
-    STREAM_SIZE = 4000
+    STREAM_SIZE = 5000
     
     # Number of trials in a block.
     BLOCK_SIZE = 20
@@ -237,7 +237,6 @@ class Passive_odor_presentation(Protocol):
     iteration = Array
     sniff = Array
     lick1 = Array
-    laser = Array
     odor = Array
     trigger = Array
 
@@ -587,7 +586,6 @@ class Passive_odor_presentation(Protocol):
         # for updating the data. iteration is the abscissa values of the plots.
         self.stream_plot_data = ArrayPlotData(iteration=self.iteration,
                                               sniff=self.sniff,
-                                              laser=self.laser,
                                               odor=self.odor,
                                               trigger=self.trigger)
         # Create the Plot object for the streaming data.
@@ -608,14 +606,13 @@ class Passive_odor_presentation(Protocol):
         self.trigger = [0] * len(self.iteration)
         self.stream_plot_data.set_data("iteration", self.iteration)
         self.stream_plot_data.set_data("sniff", self.sniff)
-        #self.stream_plot_data.set_data("laser", self.laser)
         self.stream_plot_data.set_data("odor", self.odor)
         self.stream_plot_data.set_data("trigger", self.trigger)
 
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-20,high=20) # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-100,high=100) # for training non-mri sniff sensor
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
@@ -1009,7 +1006,7 @@ class Passive_odor_presentation(Protocol):
             #self.experiment_label = 'training'
         # return
 
-    def _training_button_fired(self):
+    #def _training_button_fired(self):
         # Change parameters to training mode.
 
 
