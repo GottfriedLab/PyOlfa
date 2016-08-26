@@ -238,7 +238,7 @@ class Passive_odor_presentation(Protocol):
     sniff = Array
     lick1 = Array
     odor = Array
-    trigger = Array
+    mri_trigger = Array
 
     # Internal indices uses for the streaming plots.
     _last_stream_index = Float(0)
@@ -281,15 +281,13 @@ class Passive_odor_presentation(Protocol):
     stream_plots = Instance(Component)   # Container for the streaming plots.
     # This plot contains the continuous signals (sniff, and laser currently).
     stream_plot = Instance(Plot, label="Sniff")
+    stream_plot = Instance(Plot, label="MRI_Trigger")
     # This is the plot that has the event signals (licks, etc.)
     stream_event_plot = Instance(Plot, label="Events")
+
     start_button = Button()
     start_label = Str('Start')
-    # Different parameters for training and fMRI experiment
-    training_button = Button()
-    training_label = str('Training')
-    fmri_button = Button()
-    fmri_label = str('fMRI')
+
     # Used to cycle final valve ON/OFF automatically.
     auto_final_valve = Button()
     auto_final_valve_label = Str('Final valve cycling (OFF)')
@@ -331,16 +329,6 @@ class Passive_odor_presentation(Protocol):
     # GUI layout
     #--------------------------------------------------------------------------
     control = VGroup(
-                     HGroup(
-                         Item('training_button',
-                              editor=ButtonEditor(label_value='training_label'),
-                              show_label=False),
-                         Item('fmri_button',
-                                 editor=ButtonEditor(label_value='fmri_label'),
-                                 show_label=False),
-                             label='Experiment',
-                             show_border=True
-                            ),
                      HGroup(
                             Item('start_button',
                                  editor=ButtonEditor(label_value='start_label'),
@@ -545,8 +533,8 @@ class Passive_odor_presentation(Protocol):
                    padding=2,
                    show_border=False,
                    )
-    
-    # Arrangement of all the graphical component groups.
+
+    # Arrangement of all the component groups.
     main = View(
                 VGroup(
                        HGroup(control, arduino_group),
@@ -586,8 +574,8 @@ class Passive_odor_presentation(Protocol):
         # for updating the data. iteration is the abscissa values of the plots.
         self.stream_plot_data = ArrayPlotData(iteration=self.iteration,
                                               sniff=self.sniff,
-                                              odor=self.odor,
-                                              trigger=self.trigger)
+                                              mri_trigger=self.mri_trigger)
+
         # Create the Plot object for the streaming data.
         plot = Plot(self.stream_plot_data, padding=20,
                     padding_top=0, padding_bottom=45, padding_left=70, border_visible=False)
@@ -600,19 +588,16 @@ class Passive_odor_presentation(Protocol):
         # Sniff data array initialization to nans.
         # This is so that no data is plotted until we receive it and append it
         # to the right of the screen.
-        self.sniff = [0] * len(self.iteration)
-        #self.laser = [0] * len(self.iteration)
-        self.odor = [0] * len(self.iteration)
-        self.trigger = [0] * len(self.iteration)
+        self.sniff = [nan] * len(self.iteration)
+        self.mri_trigger = [nan] * len(self.iteration)
         self.stream_plot_data.set_data("iteration", self.iteration)
         self.stream_plot_data.set_data("sniff", self.sniff)
-        self.stream_plot_data.set_data("odor", self.odor)
-        self.stream_plot_data.set_data("trigger", self.trigger)
+        self.stream_plot_data.set_data("mri_trigger", self.mri_trigger)
 
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-100,high=100) # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-30,high=30) # for training non-mri sniff sensor
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
@@ -630,14 +615,8 @@ class Passive_odor_presentation(Protocol):
 
         # Add the lines to the Plot object using the data arrays that it
         # already knows about.
-        plot.plot(('iteration', 'sniff'), type='line', color='blue',
-                  name="Sniff", line_width=0.5)
-        #plot.plot(("iteration", "laser"), name="Laser", color="blue",
-        #         line_width=2)
-        #plot.plot(('iteration', 'odor'), type='line', color='green',
-        #          name="Odor", line_width=0.5)
-        #plot.plot(('iteration', 'trigger'), type='line', color='red',
-        #          name="MRI trigger", line_width=0.5)
+        plot.plot(('iteration', 'sniff'), type='line', color='blue', name="Sniff", line_width=0.5)
+        plot.plot(('iteration', 'mri_trigger'), type='line', color='red', name="MRI trigger", line_width=0.5)
 
         # Keep a reference to the streaming plot so that we can update it in
         # other methods.
@@ -745,7 +724,7 @@ class Passive_odor_presentation(Protocol):
             return
         # Currently this code is dependent on the sniff signal. Needs to change.
         # TODO: Uncouple the dependence on a particular signal.
-        if 'sniff' in streams.keys():
+        if 'Sniff' in streams.keys():
             # Get the sniff plot and update the selection overlay mask.
             if 'Sniff' in self.stream_plot.plots.keys():
                 sniff = self.stream_plot.plots['Sniff'][0]
@@ -1337,18 +1316,19 @@ class Passive_odor_presentation(Protocol):
             "trial_end"               : (3, db.Int),
             "lost_sniff"              : (4, db.Int),
             "final_valve_onset"       : (5, db.Int),
-            "mri_trigger_edge"        : (6, db.Int)
+            "hrf_phase"               : (6, db.Int),
         }
 
     def stream_definition(self):
         """Returns a dictionary of {name => (index,db.Type} of streaming data parameters for this protocol"""
              
         return {
-            "packet_sent_time" : (1, 'unsigned long', db.Int),
-            "sniff_samples"    : (2, 'unsigned int', db.Int),
-            "sniff"            : (3, 'int', db.FloatArray),
-            #"sniff_ttl"        : (4, db.FloatArray),
-            "lick1"            : (4, 'unsigned long', db.FloatArray),
+            "packet_sent_time"         : (1, 'unsigned long', db.Int),
+            "sniff_samples"            : (2, 'unsigned int', db.Int),
+            "sniff"                    : (3, 'int', db.FloatArray),
+            "lick1"                    : (4, 'unsigned long', db.FloatArray),
+            "mri_trigger_samples"      : (5, 'unsigned int', db.Int),
+            "mri_trigger"              : (6, 'int', db.FloatArray),
         }
 
     def process_event_request(self, event):
@@ -1438,6 +1418,7 @@ class Passive_odor_presentation(Protocol):
         if stream:
             # newtime = time.clock()
             num_sniffs = stream['sniff_samples']
+            num_mri_triggers = stream['mri_trigger_samples']
             packet_sent_time = stream['packet_sent_time']
 
             #print stream
@@ -1457,23 +1438,18 @@ class Passive_odor_presentation(Protocol):
             else:
                 if stream['sniff'] is not None:
                     new_sniff = hstack((self.sniff[-self.STREAM_SIZE + num_sniffs:], negative(stream['sniff'])))
-                self.sniff = new_sniff
+            self.sniff = new_sniff
             self.stream_plot_data.set_data("sniff", self.sniff)
             
 
             if stream['lick1'] is not None or (self._last_stream_index - self._last_lick_index < self.STREAM_SIZE):
                 [self.lick1] = self._process_licks(stream, ('lick1',), [self.lick1])
 
-            '''
+            if stream['mri_trigger'] is not None:
+               new_mri_trigger = hstack((self.mri_trigger[-self.STREAM_SIZE + num_mri_triggers:], negative(stream['mri_trigger'])))
+            self.mri_trigger = new_mri_trigger
+            self.stream_plot_data.set_data("mri_trigger", self.mri_trigger)
 
-            if "light_ON_time" in self.event_definition().keys():
-                lasershift = int(packet_sent_time - self._last_stream_index)
-                if lasershift > self.STREAM_SIZE:
-                    lasershift = self.STREAM_SIZE
-                new_laser = hstack((self.laser[-self.STREAM_SIZE + lasershift:], [0] * lasershift))
-                self.laser = new_laser
-                self.stream_plot_data.set_data('laser', self.laser)
-            '''
             self._last_stream_index = packet_sent_time
 
             # if we haven't received results by MAX_TRIAL_DURATION, pause and unpause as there was probably some problem with comm.
