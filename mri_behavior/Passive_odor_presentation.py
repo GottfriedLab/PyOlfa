@@ -616,7 +616,7 @@ class Passive_odor_presentation(Protocol):
         # Add the lines to the Plot object using the data arrays that it
         # already knows about.
         plot.plot(('iteration', 'sniff'), type='line', color='blue', name="Sniff", line_width=0.5)
-        plot.plot(('iteration', 'mri_trigger'), type='line', color='red', name="MRI trigger", line_width=0.5)
+        # plot.plot(('iteration', 'mri_trigger'), type='line', color='red', name="MRI trigger", line_width=0.5)
 
         # Keep a reference to the streaming plot so that we can update it in
         # other methods.
