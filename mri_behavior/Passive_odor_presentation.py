@@ -1327,8 +1327,8 @@ class Passive_odor_presentation(Protocol):
             "sniff_samples"            : (2, 'unsigned int', db.Int),
             "sniff"                    : (3, 'int', db.FloatArray),
             "lick1"                    : (4, 'unsigned long', db.FloatArray),
-            "mri_trigger_samples"      : (5, 'unsigned int', db.Int),
-            "mri_trigger"              : (6, 'int', db.FloatArray),
+            # "mri_trigger_samples"      : (5, 'unsigned long', db.Int),
+            # "mri_trigger"              : (6, 'int', db.FloatArray),
         }
 
     def process_event_request(self, event):
@@ -1418,7 +1418,7 @@ class Passive_odor_presentation(Protocol):
         if stream:
             # newtime = time.clock()
             num_sniffs = stream['sniff_samples']
-            num_mri_triggers = stream['mri_trigger_samples']
+            # num_mri_triggers = stream['mri_trigger_samples']
             packet_sent_time = stream['packet_sent_time']
 
             #print stream
@@ -1445,10 +1445,10 @@ class Passive_odor_presentation(Protocol):
             if stream['lick1'] is not None or (self._last_stream_index - self._last_lick_index < self.STREAM_SIZE):
                 [self.lick1] = self._process_licks(stream, ('lick1',), [self.lick1])
 
-            if stream['mri_trigger'] is not None:
-               new_mri_trigger = hstack((self.mri_trigger[-self.STREAM_SIZE + num_mri_triggers:], negative(stream['mri_trigger'])))
-            self.mri_trigger = new_mri_trigger
-            self.stream_plot_data.set_data("mri_trigger", self.mri_trigger)
+            # if stream['mri_trigger'] is not None:
+            #    new_mri_trigger = hstack((self.mri_trigger[-self.STREAM_SIZE + num_mri_triggers:], negative(stream['mri_trigger'])))
+            # self.mri_trigger = new_mri_trigger
+            # self.stream_plot_data.set_data("mri_trigger", self.mri_trigger)
 
             self._last_stream_index = packet_sent_time
 
