@@ -281,7 +281,7 @@ class Passive_odor_presentation(Protocol):
     stream_plots = Instance(Component)   # Container for the streaming plots.
     # This plot contains the continuous signals (sniff, and laser currently).
     stream_plot = Instance(Plot, label="Sniff")
-    stream_plot = Instance(Plot, label="MRI_Trigger")
+    # stream_plot = Instance(Plot, label="MRI_Trigger")
     # This is the plot that has the event signals (licks, etc.)
     stream_event_plot = Instance(Plot, label="Events")
 
