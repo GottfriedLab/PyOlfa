@@ -243,6 +243,7 @@ class Passive_odor_presentation(Protocol):
     # Internal indices uses for the streaming plots.
     _last_stream_index = Float(0)
     _last_lick_index = 0
+    _last_mri_index = 0
     _previous_last_stream_index = 0
     
     # Running total of each trial result type.
@@ -595,7 +596,7 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-500,high=500) # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-200,high=200) # for training non-mri sniff sensor
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
@@ -605,10 +606,9 @@ class Passive_odor_presentation(Protocol):
         plot.title_position = "left"
 
         # Make a custom abscissa axis object.
-        bottom_axis = PlotAxis(plot, orientation="bottom",
-                            tick_generator=ScalesTickGenerator(
-                                scale=TimeScale(
-                                    seconds=1)))
+        bottom_axis = PlotAxis(plot,
+                               orientation="bottom",
+                               tick_generator=ScalesTickGenerator(scale=TimeScale(seconds=1)))
         plot.x_axis = bottom_axis
 
         # Add the lines to the Plot object using the data arrays that it
@@ -645,11 +645,16 @@ class Passive_odor_presentation(Protocol):
         # It shares the same timescale as the streaming plot.
         # Data definiton.
         self.stream_lick_data = ArrayPlotData(iteration=self.iteration,
-                                                lick1=self.lick1)
+                                              lick1=self.lick1)
 
         # Plot object created with the data definition above.
-        plot = Plot(self.stream_lick_data, padding=20,
-                    padding_top=0, padding_bottom=5, padding_left=70, border_visible=False, index_mapper=self.stream_plot.index_mapper)
+        plot = Plot(self.stream_lick_data,
+                    padding=20,
+                    padding_top=0,
+                    padding_bottom=5,
+                    padding_left=70,
+                    border_visible=False,
+                    index_mapper=self.stream_plot.index_mapper)
 
         # Data array for the signal.
         # The last value is not nan so that the first incoming streaming value
@@ -688,9 +693,14 @@ class Passive_odor_presentation(Protocol):
                                                 mri=self.mri)
 
         # Plot object created with the data definition above.
-        plot = Plot(self.stream_mri_data, padding=20,
-                    padding_top=0, padding_bottom=5, padding_left=70, border_visible=False,
-                    index_mapper=self.stream_plot.index_mapper)
+        plot = Plot(self.stream_mri_data,
+                    padding=20,
+                    padding_top=0,
+                    padding_bottom=5,
+                    padding_left=70,
+                    border_visible=False,
+                    index_mapper=self.stream_plot.index_mapper,
+                    bgcolor = "lightgray")
 
         # Data array for the signal.
         # The last value is not nan so that the first incoming streaming value
@@ -701,7 +711,7 @@ class Passive_odor_presentation(Protocol):
         self.stream_mri_data.set_data("mri", self.mri)
 
         # Change plot properties.
-        plot.fixed_preferred_size = (100, 10)
+        plot.fixed_preferred_size = (100, 6)
         y_range = DataRange1D(low=0.99, high=1.01)
         plot.value_range = y_range
         plot.y_axis.visible = False
@@ -713,8 +723,8 @@ class Passive_odor_presentation(Protocol):
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "mri"),
                                name="MRI",
-                               color="green",
-                               line_width=8,
+                               color="gray",
+                               line_width=20,
                                render_style="hold")[0]
 
         # Add the trials overlay to the streaming events plot too.
