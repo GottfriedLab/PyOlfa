@@ -688,6 +688,7 @@ class Passive_odor_presentation(Protocol):
         self.stream_lick_plot = plot
 
 
+
         # MRI trigger signal plot
         self.stream_mri_data = ArrayPlotData(iteration=self.iteration,
                                                 mri=self.mri)
@@ -711,8 +712,8 @@ class Passive_odor_presentation(Protocol):
         self.stream_mri_data.set_data("mri", self.mri)
 
         # Change plot properties.
-        plot.fixed_preferred_size = (100, 6)
-        y_range = DataRange1D(low=0.99, high=1.01)
+        plot.fixed_preferred_size = (100, 10)
+        y_range = DataRange1D(low=-2, high=2)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
@@ -723,9 +724,9 @@ class Passive_odor_presentation(Protocol):
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "mri"),
                                name="MRI",
-                               color="gray",
-                               line_width=20,
-                               render_style="hold")[0]
+                               line_color="gray",
+                               line_style="dot",
+                               line_width=20)[0]
 
         # Add the trials overlay to the streaming events plot too.
         event_plot.overlays.append(rangeselector)
@@ -1603,8 +1604,8 @@ class Passive_odor_presentation(Protocol):
                 if streamsignal is not None and streamsignal[-1] > maxtimestamp:
                         maxtimestamp = streamsignal[-1]
                         print "**************************************************************"
-                        print "WARNING! Lick timestamp exceeds timestamp of received packet: "
-                        print "Packet sent timestamp: ", packet_sent_time, "Lick timestamp: ", streamsignal[-1]
+                        print "WARNING! MRI timestamp exceeds timestamp of received packet: "
+                        print "Packet sent timestamp: ", packet_sent_time, "MRI timestamp: ", streamsignal[-1]
                         print "**************************************************************"
         maxshift = int(packet_sent_time - self._last_stream_index)
         if maxshift > self.STREAM_SIZE:
