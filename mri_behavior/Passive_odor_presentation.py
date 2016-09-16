@@ -141,7 +141,7 @@ class Passive_odor_presentation(Protocol):
     #-------------------------------------------------------------------------- 
     # Controller parameters.
     # These are trial parameters sent to Arduino. By default trial_number is
-    # not sent to Arduino, but it is still logged in the database file.
+    # not sent to Arduino(???), but it is still logged in the database file.
     #--------------------------------------------------------------------------
     trial_number = Int(0, label='Trial Number')
     # Mapped trait. trial type keyword: code sent to Arduino.
@@ -631,7 +631,7 @@ class Passive_odor_presentation(Protocol):
             datasource = getattr(first_plot, "index", None)
             # Add the trial timestamps as metadata to the x values datasource.
             datasource.metadata.setdefault("trials_mask", [])
-            # Testing code of how to include a mask. 
+            # Testing code of how to include a mask.
             # mask = [2,3]
             # datasource.metadata['trials_mask'] = mask
             # datasource.metadata_changed = {"first_plot": mask}
@@ -763,7 +763,7 @@ class Passive_odor_presentation(Protocol):
                 start = data[-self._last_stream_index + self.trial_start - 1]
             end = data[-self._last_stream_index + self.trial_end - 1]
             # Add the new trial bounds to the masking overlay.
-            datasource.metadata['trials_mask'] += (start, end)
+            # datasource.metadata['trials_mask'] += (start, end)
 
     def __last_stream_index_changed(self):
         """ The end time tick in our plots has changed. Recompute signals. """
@@ -795,10 +795,10 @@ class Passive_odor_presentation(Protocol):
                         new_mask.append(mask_point)
                 datasource.metadata['trials_mask'] = new_mask
                 
-    def _updatelaser(self, lasertime):
-        self.laser[-(self._last_stream_index - lasertime)] = self.pulse_amplitude1
-        self.stream_plot_data.set_data('laser', self.laser)
-        return
+    # def _updatelaser(self, lasertime):
+    #     self.laser[-(self._last_stream_index - lasertime)] = self.pulse_amplitude1
+    #     self.stream_plot_data.set_data('laser', self.laser)
+    #     return
 
     def _restart(self):
 
@@ -1029,17 +1029,6 @@ class Passive_odor_presentation(Protocol):
 
 #-------------------------------------------------------------------------------
 #--------------------------Button events----------------------------------------
-    # def _experiment(self):
-        # if self.monitor.running:
-            #self.experiment_label = 'fMRI'
-        # else:
-            #self.experiment_label = 'training'
-        # return
-
-    #def _training_button_fired(self):
-        # Change parameters to training mode.
-
-
     def _start_button_fired(self):
         #self.test_data_generator.start()
         #return
@@ -1242,6 +1231,7 @@ class Passive_odor_presentation(Protocol):
         self.final_valve_duration = final_valve_duration
         self.trial_duration = trial_duration
         self.lick_grace_period = lick_grace_period
+        self.odorant_trigger_phase_code = odorant_trigger_phase_code
         
         self.block_size = self.BLOCK_SIZE
         self.pulse_amplitude1 = laseramp
@@ -1249,7 +1239,8 @@ class Passive_odor_presentation(Protocol):
         self.max_rewards = max_rewards
         
         # Setup the performance plots
-        self.event_plot_data = ArrayPlotData(trial_number_tick=self.trial_number_tick, _go_trials_line=self._go_trials_line,
+        self.event_plot_data = ArrayPlotData(trial_number_tick=self.trial_number_tick,
+                                             _go_trials_line=self._go_trials_line,
                                              _nogo_trials_line = self._nogo_trials_line)
         plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=70, border_visible=False)
         self.event_plot = plot
@@ -1313,9 +1304,9 @@ class Passive_odor_presentation(Protocol):
                "final_valve_duration" : (2, db.Int, self.final_valve_duration),
                "trial_duration"       : (3, db.Int, self.trial_duration),
                "inter_trial_interval" : (4, db.Int, self.inter_trial_interval),
-               "odorant_trigger_phase_code": (5, db.Int,
-                                              self.odorant_trigger_phase_),
-               "max_no_sniff_time"    : (6, db.Int, self.max_no_sniff_time),
+               # "odorant_trigger_phase_code": (5, db.Int,
+               #                                self.odorant_trigger_phase_code),
+               "max_no_sniff_time"    : (5, db.Int, self.max_no_sniff_time),
                            }
    
         return TrialParameters(
@@ -1361,13 +1352,13 @@ class Passive_odor_presentation(Protocol):
         """Returns a dictionary of {name => (index,db.Type} of event parameters for this protocol"""
 
         return {
-            #"response"                : (1, db.Int),
             "parameters_received_time": (1, db.Int),
             "trial_start"             : (2, db.Int),
             "trial_end"               : (3, db.Int),
             "lost_sniff"              : (4, db.Int),
             "final_valve_onset"       : (5, db.Int),
             "hrf_phase"               : (6, db.Int),
+            "response"                : (7, db.Int),
         }
 
     def stream_definition(self):
@@ -1390,7 +1381,6 @@ class Passive_odor_presentation(Protocol):
         self.parameters_received_time = int(event['parameters_received_time'])
         self.trial_start = int(event['trial_start'])
         self.trial_end = int(event['trial_end'])
-        lasertime = int(event['light_ON_time'])
 
         # update trials mask
         if self.trial_end > self._last_stream_index:
@@ -1398,13 +1388,13 @@ class Passive_odor_presentation(Protocol):
             self._shiftmris(self.trial_end - self._last_stream_index)
             self._last_stream_index = self.trial_end
 
-        if lasertime != 0:
-            self._updatelaser(lasertime)
+        # if lasertime != 0:
+        #     self._updatelaser(lasertime)
 
         self._addtrialmask()
 
-#        print "****Next Trial: ",  self.trial_number
-#        print "****Stimulus_process_event: ", self.current_stimulus
+        # print "****Next Trial: ",  self.trial_number
+        # print "****Stimulus_process_event: ", self.current_stimulus
 
         self.lost_sniff = int(event['lost_sniff']) == 1
         if self.lost_sniff and self.max_no_sniff_time > 0:
@@ -1686,7 +1676,7 @@ class Passive_odor_presentation(Protocol):
     def start_of_trial(self):
 
         self.timestamp("start")
-        print "***** Trial: ", self.trial_number, "\tStimulus: ", self.current_stimulus, " *****"
+        print "***** Trial: ", self.trial_number, "\nStimulus: ", self.current_stimulus, " *****"
 
     def _odorvalveon(self):
         """ Turn on odorant valve """
@@ -1797,8 +1787,8 @@ class Passive_odor_presentation(Protocol):
         
         # For the first trial recalculate the next trial parameters again
         # so that the second trial is also prepared and ready.
-        if self.trial_number == 1:
-            self.calculate_next_trial_parameters()
+        # if self.trial_number == 1:
+        self.calculate_next_trial_parameters()
         
         print "Current stimulus: ", self.current_stimulus
     
@@ -1880,6 +1870,7 @@ if __name__ == '__main__':
     final_valve_duration = 500
     trial_duration = 2500
     lick_grace_period = 0
+    odorant_trigger_phase_code = 1
     laseramp = 1500
     max_rewards = 400
 
