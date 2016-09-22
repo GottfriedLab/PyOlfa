@@ -166,6 +166,7 @@ class Passive_odor_presentation(Protocol):
     odorant_trigger_phase = Trait(sniff_phases.keys()[0],
                                 sniff_phases,
                                 label="Odorant onset after")
+    odorant_trigger_phase_code = Int(1, label = "Odorant trigger phase code")
     
     # Other trial parameters. These are not recording in the database file.
     # but are displayed and/or computed trial to trial.
@@ -596,11 +597,12 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-200,high=200) # for training non-mri sniff sensor
+        #y_range = DataRange1D(low=-200,high=200) # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-10, high=10)  # for training non-mri sniff sensor
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
-        plot.y_axis.visible = False
+        plot.y_axis.visible = True
         plot.x_axis.visible = False
         plot.title = "Sniff"
         plot.title_position = "left"
@@ -1201,6 +1203,7 @@ class Passive_odor_presentation(Protocol):
                         max_rewards,
                         final_valve_duration,
                         trial_duration,
+                        odorant_trigger_phase_code,
                         stimindex=0,
                         **kwtraits):
         
@@ -1304,9 +1307,7 @@ class Passive_odor_presentation(Protocol):
                "final_valve_duration" : (2, db.Int, self.final_valve_duration),
                "trial_duration"       : (3, db.Int, self.trial_duration),
                "inter_trial_interval" : (4, db.Int, self.inter_trial_interval),
-               # "odorant_trigger_phase_code": (5, db.Int,
-               #                                self.odorant_trigger_phase_code),
-               "max_no_sniff_time"    : (5, db.Int, self.max_no_sniff_time),
+               "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
                            }
    
         return TrialParameters(
@@ -1870,9 +1871,9 @@ if __name__ == '__main__':
     final_valve_duration = 500
     trial_duration = 2500
     lick_grace_period = 0
-    odorant_trigger_phase_code = 1
     laseramp = 1500
     max_rewards = 400
+    odorant_trigger_phase_code = 1
 
 
     # protocol parameter defaults
@@ -1892,7 +1893,8 @@ if __name__ == '__main__':
                                          max_rewards,
                                          final_valve_duration,
                                          trial_duration,
-                                         )        
+                                         odorant_trigger_phase_code
+                                         )
     # Testing code when no hardware attached.
     # GUI
     protocol.configure_traits()
