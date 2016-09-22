@@ -92,12 +92,12 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial Go trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_GO_TRIALS = 10
+    INITIAL_GO_TRIALS = 2
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
-                          "Odorant_on" : 1,
-                          "Odorant_off": 0,
+                          "Go" : 1,
+                          "NoGo": 0,
                           }
     # Dictionary of all stimuli defined (arranged by category), with each
     # category having a list of stimuli.
@@ -148,6 +148,9 @@ class Passive_odor_presentation(Protocol):
     trial_type = Trait(stimuli_categories.keys()[0],
                        stimuli_categories,
                        label="Trial type")
+    trial_type_code = {
+                       sniff_phase: [] for sniff_phase in sniff_phases.keys()[0]
+                      }
     water_duration = Int(0, label="Water reward duration")
     final_valve_duration = Int(0, label="Final valve duration")
     trial_duration = Int(0, label="Trial duration")
@@ -155,9 +158,6 @@ class Passive_odor_presentation(Protocol):
     # Amount of time in ms to not count a lick response as the trial choice.
     # If the mouse is impulsive, this prevents uninformed false alarms.
     lick_grace_period = Int(0, label="Lick grace period")
-    # Maximum time to wait for a sniff phase change before assuming that
-    # sniff is lost.
-    max_no_sniff_time = Int(1200, label="Sniff max delay")
     # Sniff phase from the onset of which the latency of triggering the light
     # stimulation pulse/pulses is measured. Default value is "Inhalation".
     light_trigger_phase = Trait(sniff_phases.keys()[1],
@@ -166,7 +166,9 @@ class Passive_odor_presentation(Protocol):
     odorant_trigger_phase = Trait(sniff_phases.keys()[0],
                                 sniff_phases,
                                 label="Odorant onset after")
-    odorant_trigger_phase_code = Int(1, label = "Odorant trigger phase code")
+    odorant_trigger_phase_code = {
+                                  sniff_phase: [] for sniff_phase in sniff_phases.keys()[0]
+                                  }
     
     # Other trial parameters. These are not recording in the database file.
     # but are displayed and/or computed trial to trial.
@@ -493,9 +495,8 @@ class Passive_odor_presentation(Protocol):
                                        Item('nitrogen_flow', width=-40),
                                        Item('air_flow', width=-40)
                                        ),
-                                Item('max_no_sniff_time'),
                                 HGroup(
-                                       Item('light_trigger_phase'),
+                                       # Item('light_trigger_phase'),
                                        Item('odorant_trigger_phase')
                                        ),
                                 label='Current Trial',
@@ -840,8 +841,8 @@ class Passive_odor_presentation(Protocol):
 
     def _build_stimulus_set(self):
 
-        self.stimuli["Odorant_off"] = []
-        self.stimuli["Odorant_on"] = []
+        self.stimuli["NoGo"] = []
+        self.stimuli["Go"] = []
         
         
         self.lick_grace_period = 200 # grace period after FV open where responses are recorded but not scored.
@@ -865,7 +866,7 @@ class Passive_odor_presentation(Protocol):
                                 num_lasers=2,  # the number of channels that the arduino should look for in laserstims.
                                 numPulses=[1, 1],  # number of pulses that you want.
                                 pulseOffDuration=[500, 500],  # interval between pulses if you want more than one pulse.
-                                trial_type = "Odorant_on"
+                                trial_type = "Go"
                                 )
         no_odor_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'Ethyl_Tiglate', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
                                 flows=[(0, 0)],  # [(AIR, Nitrogen)] 
@@ -876,11 +877,11 @@ class Passive_odor_presentation(Protocol):
                                 num_lasers=0,  # the number of channels that the arduino should look for in laserstims.
                                 numPulses=[0,0],  # number of pulses that you want.
                                 pulseOffDuration=[0,0],  # interval between pulses if you want more than one pulse.
-                                trial_type = "Odorant_off"
+                                trial_type = "NoGo"
                                 )
             
-        self.stimuli['Odorant_off'].append(no_odor_stimulus)
-        self.stimuli['Odorant_on'].append(odor_stimulus)
+        self.stimuli['NoGo'].append(no_odor_stimulus)
+        self.stimuli['Go'].append(odor_stimulus)
 
         print "---------- Stimuli changed ----------"
         for stimulus in self.stimuli.values():
@@ -1233,8 +1234,9 @@ class Passive_odor_presentation(Protocol):
         self.inter_trial_interval = inter_trial_interval
         self.final_valve_duration = final_valve_duration
         self.trial_duration = trial_duration
-        self.lick_grace_period = lick_grace_period
+        # self.lick_grace_period = lick_grace_period
         self.odorant_trigger_phase_code = odorant_trigger_phase_code
+        self.trial_type_code = trial_type_code
         
         self.block_size = self.BLOCK_SIZE
         self.pulse_amplitude1 = laseramp
@@ -1303,12 +1305,14 @@ class Passive_odor_presentation(Protocol):
         
         # Parameters sent to the controller (Arduino)
         controller_dict = {
-               "trialNumber"          : (1, db.Int, self.trial_number),
-               "final_valve_duration" : (2, db.Int, self.final_valve_duration),
-               "trial_duration"       : (3, db.Int, self.trial_duration),
-               "inter_trial_interval" : (4, db.Int, self.inter_trial_interval),
-               "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
-                           }
+                    "trialNumber"               : (1, db.Int, self.trial_number),
+                    "final_valve_duration"      : (2, db.Int, self.final_valve_duration),
+                    "trial_duration"            : (3, db.Int, self.trial_duration),
+                    "inter_trial_interval"      : (4, db.Int, self.inter_trial_interval),
+                    "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
+                    "trial_type_code"           : (6, db.Int, self.trial_type_code),
+                    "lick_grace_period"         : (7, db.Int, self.lick_grace_period)
+        }
    
         return TrialParameters(
                     protocolParams=protocol_params,
@@ -1329,8 +1333,7 @@ class Passive_odor_presentation(Protocol):
             "stimulus_id"         : db.Int,
             "description"         : db.String32,
             "trial_category"      : db.String32,
-            "odorant_trigger_phase"  : db.String32,
-            "trial_category"      : db.String32
+            "odorant_trigger_phase"  : db.String32
         }
 
         return params_def
@@ -1344,7 +1347,8 @@ class Passive_odor_presentation(Protocol):
             "trial_duration"             : db.Int,
             "inter_trial_interval"       : db.Int,
             "odorant_trigger_phase_code" : db.Int,
-            "max_no_sniff_time"          : db.Int
+            "trial_type_code"            : db.Int,
+            "lick_grace_period"          : db.Int
         }
            
         return params_def
@@ -1356,10 +1360,10 @@ class Passive_odor_presentation(Protocol):
             "parameters_received_time": (1, db.Int),
             "trial_start"             : (2, db.Int),
             "trial_end"               : (3, db.Int),
-            "lost_sniff"              : (4, db.Int),
-            "final_valve_onset"       : (5, db.Int),
-            "hrf_phase"               : (6, db.Int),
-            "response"                : (7, db.Int),
+            "final_valve_onset"       : (4, db.Int),
+            "hrf_phase"               : (5, db.Int),
+            "response"                : (6, db.Int),
+            "first_lick"              : (7, db.Int)
         }
 
     def stream_definition(self):
@@ -1370,7 +1374,7 @@ class Passive_odor_presentation(Protocol):
             "sniff_samples"            : (2, 'unsigned int', db.Int),
             "sniff"                    : (3, 'int', db.FloatArray),
             "lick1"                    : (4, 'unsigned long', db.FloatArray),
-            "mri"                      : (5, 'unsigned long', db.FloatArray),
+            "mri"                      : (5, 'unsigned long', db.FloatArray)
         }
 
     def process_event_request(self, event):
@@ -1397,22 +1401,13 @@ class Passive_odor_presentation(Protocol):
         # print "****Next Trial: ",  self.trial_number
         # print "****Stimulus_process_event: ", self.current_stimulus
 
-        self.lost_sniff = int(event['lost_sniff']) == 1
-        if self.lost_sniff and self.max_no_sniff_time > 0:
-            print "LOST SNIFF!!!"
-            # Only pause and unpause iff running
-            if self.pause_label == "Pause" and self.lost_sniff_run < self.MAX_CLEAN_ROUNDS:
-                self._sniff_cleaning = True
-                self._clean_o_matic()
-                self.lost_sniff_run += 1
-
-        response = int(event['response'])  # 1 is right, 2 is left, 3 left 4 right
+        response = int(event['response'])
         if (response == 1): # a hit.
             self.rewards += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
                 self._start_button_fired()  # ends the session if the reward target has been reached.
 
-        if response == 4: # a false alarm
+        if (response == 4): # a false alarm
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
         else:
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
@@ -1741,7 +1736,7 @@ class Passive_odor_presentation(Protocol):
         if self.INITIAL_GO_TRIALS and \
                     self.trial_number < self.INITIAL_GO_TRIALS:
             block_size = self.INITIAL_GO_TRIALS + 1 - self.trial_number
-            self.stimulus_block = [self.stimuli["Odorant_on"][0]] * block_size
+            self.stimulus_block = [self.stimuli["Go"][0]] * block_size
             return
         
         # Randomize seed from system clock.
@@ -1830,11 +1825,11 @@ class Passive_odor_presentation(Protocol):
                                                  self.stimuli.values())
             else:
                 # Enforce the intitial Go trials rule.
-                self.next_stimulus = self.stimuli["Odorant_off"][0]
+                self.next_stimulus = self.stimuli["NoGo"][0]
             
         if self.next_trial_number <= self.INITIAL_GO_TRIALS:
             
-            self.next_stimulus = self.stimuli["Odorant_on"][0]
+            self.next_stimulus = self.stimuli["Go"][0]
         
         self.next_trial_type = self.next_stimulus.trial_type
         nextodorvalve = self.next_stimulus.odorvalves[0]
@@ -1867,7 +1862,7 @@ if __name__ == '__main__':
 
 
     trial_number = 0
-    trial_type = "Go"
+    trial_type_code = 1
     final_valve_duration = 500
     trial_duration = 2500
     lick_grace_period = 0
@@ -1889,12 +1884,14 @@ if __name__ == '__main__':
                                          session,
                                          stamp,
                                          inter_trial_interval,
-                                         trial_type,
+                                         trial_type_code,
                                          max_rewards,
                                          final_valve_duration,
                                          trial_duration,
-                                         odorant_trigger_phase_code
+                                         odorant_trigger_phase_code,
+                                         lick_grace_period
                                          )
+
     # Testing code when no hardware attached.
     # GUI
     protocol.configure_traits()
