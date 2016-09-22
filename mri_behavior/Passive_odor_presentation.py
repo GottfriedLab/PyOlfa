@@ -728,7 +728,7 @@ class Passive_odor_presentation(Protocol):
         event_plot = plot.plot(("iteration", "mri"),
                                name="MRI",
                                line_color="gray",
-                               line_style="dot",
+                               # line_style="dot",
                                line_width=20)[0]
 
         # Add the trials overlay to the streaming events plot too.
@@ -1672,7 +1672,7 @@ class Passive_odor_presentation(Protocol):
     def start_of_trial(self):
 
         self.timestamp("start")
-        print "***** Trial: ", self.trial_number, "\nStimulus: ", self.current_stimulus, " *****"
+        print "***** Trial: ", self.trial_number, "\nStimulus: ", self.current_stimulus, "\ntrial type", self.trial_type_code, "*****"
 
     def _odorvalveon(self):
         """ Turn on odorant valve """
