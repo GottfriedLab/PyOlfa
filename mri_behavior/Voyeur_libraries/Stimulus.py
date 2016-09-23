@@ -30,7 +30,7 @@ class Stimulus:
     #Extra dillution
     dillution = int()
     
-    def __init__(self, odorvalves, flows, intervals, id=0, num_intervals=2,dillution=1):
+    def __init__(self, odorvalves, flows, intervals, id=0, num_intervals=2, dillution=1):
         ''' Constructor '''
         
         self.id = id
@@ -39,7 +39,7 @@ class Stimulus:
         self.intervals = []
         self.flows = []
         self.odorvalves = []
-        self.dillution=dillution
+        self.dillution = dillution
         
         for interval in intervals:
             self.intervals.append(interval)
@@ -81,7 +81,7 @@ class LaserStimulus(object):
     trial_type = str() # left,right, go, nogo, etc...
     
     
-    def __init__(self, odorvalves, flows, laserstims, id=0, num_lasers=1,dillution=1,fvDur=[], description="", within_block_repeats = 1, trial_type = '', **kwds):
+    def __init__(self, odorvalves, flows, laserstims, id=0, num_lasers=1, dillution=1, fvDur=[], description="", within_block_repeats = 1, trial_type = '', **kwds):
         ''' Constructor '''
         
         self.id = id
@@ -108,8 +108,7 @@ class LaserStimulus(object):
     
     def __str__(self,indent = ''):
         return indent+"Stimulus: " + self.description + "\todor valves: " + str(self.odorvalves) + \
-                "\tmfc flows: " + str(self.flows) + "\tLaser Stimuli: " + str(self.laserstims) + \
-                "\tid: " + str(self.id) + "\tLasers: " + str(self.num_lasers) + \
+                "\tmfc flows: " + str(self.flows) + \
                 "\tdillution: " + str(self.dillution)+ \
                 "\tfvDur: " + str(self.fvDur) + \
                 '\tTrial_type: ' +str(self.trial_type)
@@ -141,10 +140,7 @@ class LaserTrainStimulus(LaserStimulus):
         self.updown_groupid = updown_groupid # identifies which group of stimuili this falls into if any. if 0, will be treated as independently tracked by updown algorithm.
         # call the constructer of the inherited class to populate the rest of the args
         super(LaserTrainStimulus,self).__init__(**kwds)
-       
-    def __str__(self,*args):
-        desc = super(LaserTrainStimulus,self).__str__(*args)
-        return (desc + "\t Number of pulses: " + str(self.numPulses) + "\t Off duration: " + str(self.pulseOffDuration)+'\t Up-down: '+str(self.updownmask))
+
     
     
     

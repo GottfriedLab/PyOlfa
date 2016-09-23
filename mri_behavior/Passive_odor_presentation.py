@@ -92,7 +92,7 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial Go trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_GO_TRIALS = 2
+    INITIAL_GO_TRIALS = 5
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
@@ -148,9 +148,6 @@ class Passive_odor_presentation(Protocol):
     trial_type = Trait(stimuli_categories.keys()[0],
                        stimuli_categories,
                        label="Trial type")
-    trial_type_code = {
-                       sniff_phase: [] for sniff_phase in sniff_phases.keys()[0]
-                      }
     water_duration = Int(0, label="Water reward duration")
     final_valve_duration = Int(0, label="Final valve duration")
     trial_duration = Int(0, label="Trial duration")
@@ -716,7 +713,7 @@ class Passive_odor_presentation(Protocol):
 
         # Change plot properties.
         plot.fixed_preferred_size = (100, 10)
-        y_range = DataRange1D(low=-2, high=2)
+        y_range = DataRange1D(low=0.99, high=1.01)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
@@ -728,7 +725,6 @@ class Passive_odor_presentation(Protocol):
         event_plot = plot.plot(("iteration", "mri"),
                                name="MRI",
                                line_color="gray",
-                               # line_style="dot",
                                line_width=20)[0]
 
         # Add the trials overlay to the streaming events plot too.
@@ -797,11 +793,7 @@ class Passive_odor_presentation(Protocol):
                     else:
                         new_mask.append(mask_point)
                 datasource.metadata['trials_mask'] = new_mask
-                
-    # def _updatelaser(self, lasertime):
-    #     self.laser[-(self._last_stream_index - lasertime)] = self.pulse_amplitude1
-    #     self.stream_plot_data.set_data('laser', self.laser)
-    #     return
+
 
     def _restart(self):
 
@@ -844,7 +836,6 @@ class Passive_odor_presentation(Protocol):
         self.stimuli["NoGo"] = []
         self.stimuli["Go"] = []
         
-        
         self.lick_grace_period = 200 # grace period after FV open where responses are recorded but not scored.
         self.iti_bounds = [8000,10000] # ITI in ms for all responses other than FA.
         self.iti_bounds_false_alarm = [12000,15000] #ITI in ms for false alarm responses (punishment).
@@ -872,14 +863,14 @@ class Passive_odor_presentation(Protocol):
                                 flows=[(0, 0)],  # [(AIR, Nitrogen)] 
                                 # Format: [POWER, DURATION_OF_PULSE (in us!!), DELAY FROM INHALE/EXHALE TRIGGER, CHANNEL]
                                 laserstims=[],
-                                id=2,
+                                id=0,
                                 description="No odorant stimulus",
                                 num_lasers=0,  # the number of channels that the arduino should look for in laserstims.
                                 numPulses=[0,0],  # number of pulses that you want.
                                 pulseOffDuration=[0,0],  # interval between pulses if you want more than one pulse.
                                 trial_type = "NoGo"
                                 )
-            
+
         self.stimuli['NoGo'].append(no_odor_stimulus)
         self.stimuli['Go'].append(odor_stimulus)
 
@@ -954,7 +945,7 @@ class Passive_odor_presentation(Protocol):
                     self._sliding_window_hits -= 1
                 del self._sliding_window_go_array[0]
             self._sliding_window_go_array.append(lastelement)
-                
+
         elif(lastelement == 4):  # False alarm
             self._total_false_alarms += 1
             if len(self._sliding_window_nogo_array) == self.SLIDING_WINDOW:
@@ -966,21 +957,19 @@ class Passive_odor_presentation(Protocol):
         # sliding window data arrays
         slwgotrials = len(self._sliding_window_go_array)
         if slwgotrials == 0:
-            gocorrect = 1
+            gocorrect = 0
         else:
-            gocorrect = self._sliding_window_hits*1.0/slwgotrials
+            gocorrect = self._sliding_window_hits
         
         slwnogotrials = len(self._sliding_window_nogo_array)
+
         if slwnogotrials == 0:
-            nogocorrect = 1
+            nogocorrect = 0
         else:
-            nogocorrect = self._sliding_window_correct_rejections*1.0/slwnogotrials
-        
-        #print "Sliding Window Correct Go Trials %: " + str(gocorrect*100) +\
-        #        "\tSliding Window Correct Nogo Trials %: " + str(nogocorrect*100)
+            nogocorrect = self._sliding_window_correct_rejections
                 
-        self._go_trials_line = append(self._go_trials_line, gocorrect*100)
-        self._nogo_trials_line = append(self._nogo_trials_line, nogocorrect*100)
+        self._go_trials_line = append(self._go_trials_line, gocorrect)
+        self._nogo_trials_line = append(self._nogo_trials_line, nogocorrect)
         print "Hits: " + str(self._total_hits) + "\tCRs: " + str(self._total_correct_rejections) +\
          "\tMisses: " + str(self._total_misses) + "\tFAs: " + str(self._total_false_alarms)
         
@@ -1234,9 +1223,7 @@ class Passive_odor_presentation(Protocol):
         self.inter_trial_interval = inter_trial_interval
         self.final_valve_duration = final_valve_duration
         self.trial_duration = trial_duration
-        # self.lick_grace_period = lick_grace_period
         self.odorant_trigger_phase_code = odorant_trigger_phase_code
-        self.trial_type_code = trial_type_code
         
         self.block_size = self.BLOCK_SIZE
         self.pulse_amplitude1 = laseramp
@@ -1310,7 +1297,7 @@ class Passive_odor_presentation(Protocol):
                     "trial_duration"            : (3, db.Int, self.trial_duration),
                     "inter_trial_interval"      : (4, db.Int, self.inter_trial_interval),
                     "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
-                    "trial_type_code"           : (6, db.Int, self.trial_type_code),
+                    "trial_type_id"           : (6, db.Int, self.current_stimulus.id),
                     "lick_grace_period"         : (7, db.Int, self.lick_grace_period)
         }
    
@@ -1347,7 +1334,7 @@ class Passive_odor_presentation(Protocol):
             "trial_duration"             : db.Int,
             "inter_trial_interval"       : db.Int,
             "odorant_trigger_phase_code" : db.Int,
-            "trial_type_code"            : db.Int,
+            "trial_type_id"            : db.Int,
             "lick_grace_period"          : db.Int
         }
            
@@ -1420,7 +1407,6 @@ class Passive_odor_presentation(Protocol):
         self._last_trial_type = self.trial_type
         self.trial_type = self.next_trial_type
         self.current_stimulus = deepcopy(self.next_stimulus) # set the parameters for the following trial from nextstim.
-        
         #calculate a new next stim.
         self.calculate_next_trial_parameters() # generate a new nextstim for the next next trial. 
         # If actual next trial is determined by the trial that just finished, calculate next trial parameters can set current_stimulus.
@@ -1457,13 +1443,8 @@ class Passive_odor_presentation(Protocol):
             num_sniffs = stream['sniff_samples']
             packet_sent_time = stream['packet_sent_time']
 
-            #print stream
-
-            #print "Num sniffs:", num_sniffs
-
             if packet_sent_time > self._last_stream_index + num_sniffs:
                 lostsniffsamples = packet_sent_time - self._last_stream_index - num_sniffs
-                print "lost sniff:", lostsniffsamples
                 if lostsniffsamples > self.STREAM_SIZE:
                     lostsniffsamples = self.STREAM_SIZE
                 lostsniffsamples = int(lostsniffsamples)
@@ -1672,7 +1653,7 @@ class Passive_odor_presentation(Protocol):
     def start_of_trial(self):
 
         self.timestamp("start")
-        print "***** Trial: ", self.trial_number, "\nStimulus: ", self.current_stimulus, "\ntrial type", self.trial_type_code, "*****"
+        print "***** Trial: ", self.trial_number, "\tStimulus: ", self.current_stimulus, "*****"
 
     def _odorvalveon(self):
         """ Turn on odorant valve """
@@ -1760,9 +1741,10 @@ class Passive_odor_presentation(Protocol):
             
         # Shuffle the set.
         shuffle(self.stimulus_block, random)
-        print "Generated new stimulus block:"
+        print "\nGenerated new stimulus block:"
         for i in range(len(self.stimulus_block)):
             print self.stimulus_block[i]
+        print "\n"
     
     def calculate_current_trial_parameters(self):
         """ Calculate the parameters for the currently scheduled trial.
@@ -1786,7 +1768,7 @@ class Passive_odor_presentation(Protocol):
         # if self.trial_number == 1:
         self.calculate_next_trial_parameters()
         
-        print "Current stimulus: ", self.current_stimulus
+        # print "Current stimulus: ", self.current_stimulus
     
     def calculate_next_trial_parameters(self):
         """ Calculate parameters for the trial that will follow the currently \
@@ -1862,7 +1844,7 @@ if __name__ == '__main__':
 
 
     trial_number = 0
-    trial_type_code = 1
+    trial_type_id = 0
     final_valve_duration = 500
     trial_duration = 2500
     lick_grace_period = 0
@@ -1884,7 +1866,7 @@ if __name__ == '__main__':
                                          session,
                                          stamp,
                                          inter_trial_interval,
-                                         trial_type_code,
+                                         trial_type_id,
                                          max_rewards,
                                          final_valve_duration,
                                          trial_duration,
