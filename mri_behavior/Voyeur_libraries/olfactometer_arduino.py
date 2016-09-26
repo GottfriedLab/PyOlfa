@@ -1040,7 +1040,7 @@ if __name__ == '__main__':
     # Create the GUI (this does NOT start the GUI event loop).
     gui = GUI()
     # Create and open the main window.
-    config_obj = parse_rig_config("C:\\workspace\\sMellRI\\voyeur_rig_config.conf")
+    config_obj = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
     window = Olfactometers(config_obj=config_obj)
     window.open()
     # Start the GUI event loop!
