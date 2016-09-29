@@ -959,17 +959,17 @@ class Passive_odor_presentation(Protocol):
         if slwgotrials == 0:
             gocorrect = 0
         else:
-            gocorrect = self._sliding_window_hits
+            gocorrect = self._sliding_window_hits*1.0/slwgotrials
         
         slwnogotrials = len(self._sliding_window_nogo_array)
 
         if slwnogotrials == 0:
             nogocorrect = 0
         else:
-            nogocorrect = self._sliding_window_correct_rejections
+            nogocorrect = self._sliding_window_correct_rejections*1.0/slwnogotrials
                 
-        self._go_trials_line = append(self._go_trials_line, gocorrect)
-        self._nogo_trials_line = append(self._nogo_trials_line, nogocorrect)
+        self._go_trials_line = append(self._go_trials_line, gocorrect*100)
+        self._nogo_trials_line = append(self._nogo_trials_line, nogocorrect*100)
         print "Hits: " + str(self._total_hits) + "\tCRs: " + str(self._total_correct_rejections) +\
          "\tMisses: " + str(self._total_misses) + "\tFAs: " + str(self._total_false_alarms)
         
@@ -1189,12 +1189,12 @@ class Passive_odor_presentation(Protocol):
                         session,
                         stamp,
                         inter_trial_interval,
-                        trial_type,
+                        trial_type_id,
                         max_rewards,
                         final_valve_duration,
                         trial_duration,
                         odorant_trigger_phase_code,
-                        stimindex=0,
+                        lick_grace_period,
                         **kwtraits):
         
         super(Passive_odor_presentation, self).__init__(**kwtraits)
@@ -1226,7 +1226,6 @@ class Passive_odor_presentation(Protocol):
         self.odorant_trigger_phase_code = odorant_trigger_phase_code
         
         self.block_size = self.BLOCK_SIZE
-        self.pulse_amplitude1 = laseramp
         self.rewards = 0
         self.max_rewards = max_rewards
         
@@ -1258,10 +1257,9 @@ class Passive_odor_presentation(Protocol):
         except:
             self.olfactometer.olfas = []
         if len(self.olfactometer.olfas) == 0:
-             self.olfactometer = None
+            self.olfactometer = None
         else:
-             self.olfactometer.olfas[0].valves.setdummyvalve(valvestate=0)
-        self.olfactometer = None
+            self.olfactometer.olfas[0].valves.setdummyvalve(valvestate=0)
         self._setflows()
 
         if self.ARDUINO:
@@ -1842,15 +1840,14 @@ if __name__ == '__main__':
 
     # arduino parameter defaults
 
-
     trial_number = 0
     trial_type_id = 0
     final_valve_duration = 500
     trial_duration = 2500
     lick_grace_period = 0
-    laseramp = 1500
     max_rewards = 400
     odorant_trigger_phase_code = 1
+    trial_type_id = 0
 
 
     # protocol parameter defaults

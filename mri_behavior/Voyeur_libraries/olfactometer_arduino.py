@@ -69,7 +69,7 @@ class Valvegroup(QWidget, QObject):
                  parent=None, 
                  name="Odor Valves", 
                  olfactometer_address=1, 
-                 background_vial=4, 
+                 background_vial=4,
                  valve_numbers=(1, 13),
                  ):
         """ Creates the Valvegroup object with the given number of valve 
@@ -199,8 +199,8 @@ class Valvegroup(QWidget, QObject):
     
     def _send_command(self, command):
         """ Send a command to the olfactometer hardware. """
-        
-        line = self.olfa_communication.send_command(command)
+
+        line = self.olfa_communication().send_command(command)
         if line.split()[0] != 'Error':
             return True
         else:
@@ -705,7 +705,7 @@ class Olfactometers(ApplicationWindow):
     ###########################################################################
     # 'object' interface.
     ###########################################################################
-    def __init__(self, monitor=None, config_obj = None, **traits):
+    def __init__(self, monitor=None, config_obj=None, **traits):
         """ Creates a new application window. """
         # Base class constructor.
         super(Olfactometers, self).__init__(**traits)
@@ -748,7 +748,7 @@ class Olfactometers(ApplicationWindow):
         self.monitor = monitor
         self.config_obj = config_obj
         # check monitor serial connection
-        if (self.monitor is None or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
+        if (self.monitor is None):# or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
             print "Arduino Serial comm failed: Port not open"
             # return None
         # else:
