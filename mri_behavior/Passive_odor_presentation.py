@@ -26,6 +26,7 @@ from voyeur.exceptions import SerialException, ProtocolException
 
 # Olfactometer module
 from olfactometer_arduino import Olfactometers
+from olfactometer_arduino import SerialMonitor as olfa_monitor
 
 # Utilities
 from Stimulus import LaserStimulus, LaserTrainStimulus  # OdorStimulus
@@ -1251,7 +1252,12 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-        self.olfactometer = Olfactometers()
+
+        if self.ARDUINO:
+            self.monitor = Monitor()
+            self.monitor.protocol = self
+
+        self.olfactometer = Olfactometers(None, config_obj=self.config)
         try:
             self.olfactometer.create_serial(self.olfaComPort1)
         except:
@@ -1259,12 +1265,9 @@ class Passive_odor_presentation(Protocol):
         if len(self.olfactometer.olfas) == 0:
             self.olfactometer = None
         else:
-            self.olfactometer.olfas[0].valves.setdummyvalve(valvestate=0)
+            self.olfactometer.olfas[0].valves.set_background_valve(valve_state=0)
         self._setflows()
 
-        if self.ARDUINO:
-            self.monitor = Monitor()
-            self.monitor.protocol = self
 
     def trial_parameters(self):
         """Return a class of TrialParameters for the upcoming trial.
@@ -1681,8 +1684,8 @@ class Passive_odor_presentation(Protocol):
             return
 
         for i in range(1, self.olfactometer.deviceCount + 1):
-            self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.current_stimulus.flows[i - 1][0])
-            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.current_stimulus.flows[i - 1][1])
+            self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][0])
+            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][1])
 
     def end_of_trial(self):
         # set new trial parameters
