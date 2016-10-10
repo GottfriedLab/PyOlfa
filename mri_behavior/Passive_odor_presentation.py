@@ -93,7 +93,7 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial Left trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_LEFT_TRIALS = 5
+    INITIAL_LEFT_TRIALS = 0
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
@@ -187,10 +187,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [5000, 7000]
+    iti_bounds  = [5000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [10000, 15000]
+    iti_bounds_false_alarm = [10000]
     # Number of trials that had loss of sniff signal.
     lost_sniff_run = Int(0, label="Total sniff clean runs")
     # Current overall session performance.
@@ -860,8 +860,8 @@ class Passive_odor_presentation(Protocol):
         self.stimuli["Right"] = []
         
         self.lick_grace_period = 200 # grace period after FV open where responses are recorded but not scored.
-        self.iti_bounds = [4000,7000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
-        self.iti_bounds_false_alarm = [13000,16000] #ITI in ms for false alarm responses (punishment).
+        self.iti_bounds = [5000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
+        self.iti_bounds_false_alarm = [10000] #ITI in ms for false alarm responses (punishment).
         
         left_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'pinene', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
                                 flows=[(0, 0)],  # [(AIR, Nitrogen)]
@@ -1397,8 +1397,7 @@ class Passive_odor_presentation(Protocol):
             "sniff_samples"            : (2, 'unsigned int', db.Int),
             "sniff"                    : (3, 'int', db.FloatArray),
             "lick1"                    : (4, 'unsigned long', db.FloatArray),
-            "lick2"                    : (5, 'unsigned long', db.FloatArray),
-            "mri"                      : (6, 'unsigned long', db.FloatArray)
+            "mri"                      : (5, 'unsigned long', db.FloatArray)
         }
 
     def process_event_request(self, event):
@@ -1417,8 +1416,6 @@ class Passive_odor_presentation(Protocol):
             self._shiftmris(self.trial_end - self._last_stream_index)
             self._last_stream_index = self.trial_end
 
-        # if lasertime != 0:
-        #     self._updatelaser(lasertime)
 
         self._addtrialmask()
 
@@ -1426,15 +1423,16 @@ class Passive_odor_presentation(Protocol):
         # print "****Stimulus_process_event: ", self.current_stimulus
 
         response = int(event['response'])
-        if (response == 1): # a hit.
+        print response
+        if (response == 1) or (response == 3): # a hit.
             self.rewards += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
                 self._start_button_fired()  # ends the session if the reward target has been reached.
 
-        if (response == 4): # a false alarm
-            self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
+        if (response == 2) or (response == 4): # a miss
+            self.inter_trial_interval = self.iti_bounds_false_alarm[0]
         else:
-            self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
+            self.inter_trial_interval = self.iti_bounds[0]
         
         
         self.responses = append(self.responses, response)
@@ -1773,7 +1771,7 @@ class Passive_odor_presentation(Protocol):
     def start_of_trial(self):
 
         self.timestamp("start")
-        print "***** Trial: ", self.trial_number, "\tStimulus: ", self.current_stimulus, "*****"
+        print "***** Trial: ", self.trial_number, self.current_stimulus, "*****"
 
     def _odorvalveon(self):
         """ Turn on odorant valve """
