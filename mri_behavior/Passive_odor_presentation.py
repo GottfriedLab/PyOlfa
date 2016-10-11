@@ -58,6 +58,7 @@ from traits.has_traits import on_trait_change
 import warnings
 warnings.simplefilter(action = "ignore", category = FutureWarning)
 
+
 class Passive_odor_presentation(Protocol):
     """Protocol and GUI for a 2AFC behavioral paradigm."""
 

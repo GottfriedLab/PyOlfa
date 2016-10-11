@@ -125,8 +125,7 @@ class LaserTrainStimulus(LaserStimulus):
     updown_start = int() # initial mask start latency.
     updown_initialstepsize = int() # the stepsize in ms for the first step down.
     responsehistory = [] # empty array for tracking the previous response pattern for this stimulus. Use 'stim'.responsehistory.append() to append responses to this list.
-    
-    
+
     def __init__(self, numPulses=1, pulseOffDuration=100,updownmask = False, updown_start = 200, updown_initialstepsize = 10,updown_groupid=0, **kwds):
         self.numPulses = numPulses
         self.pulseOffDuration = pulseOffDuration
