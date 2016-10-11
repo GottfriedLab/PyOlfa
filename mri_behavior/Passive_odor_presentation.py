@@ -1423,7 +1423,6 @@ class Passive_odor_presentation(Protocol):
         # print "****Stimulus_process_event: ", self.current_stimulus
 
         response = int(event['response'])
-        print test
         print response
         if (response == 1) or (response == 3): # a hit.
             self.rewards += 1
