@@ -55,9 +55,11 @@ from chaco.scales_tick_generator import ScalesTickGenerator
 from chaco.scales.api import CalendarScaleSystem
 from traits.has_traits import on_trait_change
 
+import warnings
+warnings.simplefilter(action = "ignore", category = FutureWarning)
 
 class Passive_odor_presentation(Protocol):
-    """Protocol and GUI for a Go/No-go behavioral paradigm."""
+    """Protocol and GUI for a 2AFC behavioral paradigm."""
 
     # Streaming plot window size in milliseconds.
     STREAM_SIZE = 5000
@@ -147,7 +149,8 @@ class Passive_odor_presentation(Protocol):
     trial_type = Trait(stimuli_categories.keys()[0],
                        stimuli_categories,
                        label="Trial type")
-    water_duration = Int(0, label="Water reward duration")
+    left_water_duration = Int(0, label="Left water reward duration")
+    right_water_duration = Int(0, label="Right water reward duration")
     final_valve_duration = Int(0, label="Final valve duration")
     trial_duration = Int(0, label="Trial duration")
     inter_trial_interval = Int(0, label='ITI in ms')
@@ -308,10 +311,14 @@ class Passive_odor_presentation(Protocol):
     olfactometer_label = Str('Olfactometer')
     final_valve_button = Button()
     final_valve_label = Str("Final Valve (OFF)")
-    water_calibrate_button = Button()
-    water_calibrate_label = Str("Calibrate Water")
-    water_button = Button()
-    water_label = Str('Water Valve')
+    left_water_calibrate_button = Button()
+    left_water_calibrate_label = Str("Calibrate Left Water Valve")
+    right_water_calibrate_button = Button()
+    right_water_calibrate_label = Str("Calibrate Right Water Valve")
+    left_water_button = Button()
+    left_water_label = Str('Left Water Valve')
+    right_water_button = Button()
+    right_water_label = Str('Right Water Valve')
     clean_valve_button = Button()
     clean_valve_label = Str("Clean (OFF)")
     pulse_generator1_button = Button(label="Trigger")
@@ -395,17 +402,34 @@ class Passive_odor_presentation(Protocol):
                                             style="button",
                                             label_value='clean_valve_label'),
                                        show_label=False),
-                                  Item('water_button',
-                                       editor=ButtonEditor(
-                                            label_value='water_label',
-                                            style="button"),
-                                       show_label=False),
-                                  Item('water_calibrate_button',
-                                       editor=ButtonEditor(
-                                            label_value='water_calibrate_label',
-                                            style="button"),
-                                       show_label=False),
-                                  Item('water_duration')
+                                  VGroup(
+                                       Item('left_water_button',
+                                            editor=ButtonEditor(
+                                                label_value='left_water_label',
+                                                style="button"),
+                                            show_label=False),
+                                       Item('left_water_calibrate_button',
+                                            editor=ButtonEditor(
+                                                label_value='left_water_calibrate_label',
+                                                style="button"),
+                                            show_label=False),
+                                        ),
+                                  VGroup(
+                                      Item('right_water_button',
+                                            editor=ButtonEditor(
+                                                label_value='right_water_label',
+                                                style="button"),
+                                            show_label=False),
+                                      Item('right_water_calibrate_button',
+                                            editor=ButtonEditor(
+                                                label_value='right_water_calibrate_label',
+                                                style="button"),
+                                            show_label=False),
+                                        ),
+                                  VGroup(
+                                      Item('left_water_duration'),
+                                      Item('right_water_duration'),
+                                       ),
                                   ),
                            HGroup(
                                   Item('pulse_generator1_button',
@@ -545,7 +569,7 @@ class Passive_odor_presentation(Protocol):
                        event,
                        show_labels=True,
                        ),
-                title='Voyeur - Go/NoGo protocol',
+                title='Voyeur - Two alternative forced choice protocol',
                 width=1024,
                 height=700,
                 x=30,
@@ -814,7 +838,7 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-        self.olfactometer = Olfactometers()
+        self.olfactometer = Olfactometers(None, config_obj=self.config)
         if len(self.olfactometer.olfas) == 0:
             self.olfactometer = None
         self.olfactometer = None
@@ -1136,17 +1160,28 @@ class Passive_odor_presentation(Protocol):
             self.monitor.send_command("fv off")
             self.final_valve_label = "Final Valve (OFF)"
 
-    def _water_button_fired(self):
+    def _left_water_button_fired(self):
         if self.monitor.recording:
             self._pause_button_fired()
-        command = "wv 1 " + str(self.water_duration)
+        command = "wv 1 " + str(self.left_water_duration)
         self.monitor.send_command(command)
 
-    def _water_calibrate_button_fired(self):
-        
+    def _right_water_button_fired(self):
         if self.monitor.recording:
             self._pause_button_fired()
-        command = "calibrate 1" + " " + str(self.water_duration)
+        command = "wv 2 " + str(self.right_water_duration)
+        self.monitor.send_command(command)
+
+    def _left_water_calibrate_button_fired(self):
+        if self.monitor.recording:
+            self._pause_button_fired()
+        command = "calibrate 1" + " " + str(self.left_water_duration)
+        self.monitor.send_command(command)
+
+    def _right_water_calibrate_button_fired(self):
+        if self.monitor.recording:
+            self._pause_button_fired()
+        command = "calibrate 2" + " " + str(self.right_water_duration)
         self.monitor.send_command(command)
 
     def _clean_valve_button_fired(self):
@@ -1210,7 +1245,8 @@ class Passive_odor_presentation(Protocol):
         #get a configuration object with the default settings.
         self.config = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
         self.rig = self.config['rigName']
-        self.water_duration = self.config['waterValveDurations']['valve_1_left']['0.25ul']
+        self.left_water_duration = self.config['waterValveDurations']['valve_1_left']['0.25ul']
+        self.right_water_duration = self.config['waterValveDurations']['valve_2_right']['0.25ul']
         self.olfas = self.config['olfas']
         self.olfaComPort1 = 'COM' + str(self.olfas[0]['comPort'])
         self.laser_power_table = self.config['lightSource']['powerTable']
