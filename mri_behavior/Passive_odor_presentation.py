@@ -994,8 +994,8 @@ class Passive_odor_presentation(Protocol):
                 
         self._left_trials_line = append(self._left_trials_line, leftcorrect*100)
         self._right_trials_line = append(self._right_trials_line, rightcorrect*100)
-        print "LeftHits: " + str(self._total_left_hits) + "\tLeftMisses: " + str(self._total_left_misses) + \
-              "\tRightHits: " + str(self._total_right_hits) + "\tRightMisses: " + str(self._total_right_misses)
+        print "Hits: " + str(self._total_hits) + "\tCRs: " + str(self._total_correct_rejections) +\
+         "\tMisses: " + str(self._total_misses) + "\tFAs: " + str(self._total_false_alarms)
         
         self.event_plot_data.set_data("trial_number_tick", self.trial_number_tick)        
         self.event_plot_data.set_data("_left_trials_line", self._left_trials_line)
@@ -1499,8 +1499,9 @@ class Passive_odor_presentation(Protocol):
             if stream['lick1'] is not None or (self._last_stream_index - self._last_lick1_index < self.STREAM_SIZE):
                 [self.lick1] = self._process_lick1s(stream, ('lick1',), [self.lick1])
 
-            # if stream['lick2'] is not None or (self._last_stream_index - self._last_lick2_index < self.STREAM_SIZE):
-            #     [self.lick2] = self._process_lick2s(stream, ('lick2',), [self.lick2])
+            if stream['lick2'] is not None or (self._last_stream_index - self._last_lick2_index < self.STREAM_SIZE):
+                [self.lick2] = self._process_lick2s(stream, ('lick2',), [self.lick2])
+
 
             if stream['mri'] is not None or (self._last_stream_index - self._last_mri_index < self.STREAM_SIZE):
                 [self.mri] = self._process_mris(stream, ('mri',), [self.mri])
@@ -1533,12 +1534,12 @@ class Passive_odor_presentation(Protocol):
             lick1signal = lick1signals[i]
 
             if lick1signal in stream.keys():
-                streamsignal = stream[lick1signal]
-                if streamsignal is not None and streamsignal[-1] > maxtimestamp:
-                        maxtimestamp = streamsignal[-1]
+                stream1signal = stream[lick1signal]
+                if stream1signal is not None and stream1signal[-1] > maxtimestamp:
+                        maxtimestamp = stream1signal[-1]
                         print "**************************************************************"
                         print "WARNING! Lick timestamp exceeds timestamp of received packet: "
-                        print "Packet sent timestamp: ", packet_sent_time, "Lick timestamp: ", streamsignal[-1]
+                        print "Packet sent timestamp: ", packet_sent_time, "Lick timestamp: ", stream1signal[-1]
                         print "**************************************************************"
         maxshift = int(packet_sent_time - self._last_stream_index)
         if maxshift > self.STREAM_SIZE:
@@ -1607,12 +1608,12 @@ class Passive_odor_presentation(Protocol):
             lick2signal = lick2signals[i]
 
             if lick2signal in stream.keys():
-                streamsignal = stream[lick2signal]
-                if streamsignal is not None and streamsignal[-1] > maxtimestamp:
-                        maxtimestamp = streamsignal[-1]
+                stream2signal = stream[lick2signal]
+                if stream2signal is not None and stream2signal[-1] > maxtimestamp:
+                        maxtimestamp = stream2signal[-1]
                         print "**************************************************************"
                         print "WARNING! Lick timestamp exceeds timestamp of received packet: "
-                        print "Packet sent timestamp: ", packet_sent_time, "Lick timestamp: ", streamsignal[-1]
+                        print "Packet sent timestamp: ", packet_sent_time, "Lick timestamp: ", stream2signal[-1]
                         print "**************************************************************"
         maxshift = int(packet_sent_time - self._last_stream_index)
         if maxshift > self.STREAM_SIZE:
