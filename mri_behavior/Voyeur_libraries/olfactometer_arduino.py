@@ -866,6 +866,7 @@ def getMFCrate_analog(self, *args, **kwargs):
 def setMFCrate_analog(self, flowrate, *args, **kwargs):
     """ sets the value of the MFC flow rate setting as a % from 0.0 to 100.0
         argument is the absolute flow rate """
+    print self
     if self.olfa_communication is None:
         return
     if flowrate > self.mfccapacity or flowrate < 0:
