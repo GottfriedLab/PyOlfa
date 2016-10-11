@@ -107,7 +107,7 @@ class LaserStimulus(object):
         return None
     
     def __str__(self,indent = ''):
-        return indent+"\todor valves: " + str(self.odorvalves) + \
+        return indent+"Stimulus: " + self.description + "\todor valves: " + str(self.odorvalves) + \
                 "\tmfc flows: " + str(self.flows) + \
                 "\tdillution: " + str(self.dillution)+ \
                 "\tfvDur: " + str(self.fvDur) + \
