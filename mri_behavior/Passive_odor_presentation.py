@@ -859,7 +859,7 @@ class Passive_odor_presentation(Protocol):
         self.stimuli["NoGo"] = []
         self.stimuli["Go"] = []
         
-        self.lick_grace_period = 2000 # grace period after FV open where responses are recorded but not scored.
+        self.lick_grace_period = 200 # grace period after FV open where responses are recorded but not scored.
         self.iti_bounds = [4000,7000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
         self.iti_bounds_false_alarm = [13000,16000] #ITI in ms for false alarm responses (punishment).
         
@@ -875,7 +875,7 @@ class Passive_odor_presentation(Protocol):
                                              25,
                                              2)],
                                 #example: [self.laser_power_table['20mW'][1], laserduration, delay, 2]
-                                id = 0,
+                                id = 1,
                                 description="Go stimulus",
                                 num_lasers=2,  # the number of channels that the arduino should look for in laserstims.
                                 numPulses=[1, 1],  # number of pulses that you want.
@@ -886,7 +886,7 @@ class Passive_odor_presentation(Protocol):
                                 flows=[(0, 0)],  # [(AIR, Nitrogen)] 
                                 # Format: [POWER, DURATION_OF_PULSE (in us!!), DELAY FROM INHALE/EXHALE TRIGGER, CHANNEL]
                                 laserstims=[],
-                                id = 1,
+                                id=0,
                                 description="NoGo stimulus",
                                 num_lasers=0,  # the number of channels that the arduino should look for in laserstims.
                                 numPulses=[0,0],  # number of pulses that you want.
@@ -940,7 +940,6 @@ class Passive_odor_presentation(Protocol):
         gocorrect = int
         nogocorrect = int
         lastelement = self.responses[-1]
-        print lastelement
         
         if(lastelement == 1):  # HIT
             self._total_hits += 1
@@ -951,6 +950,16 @@ class Passive_odor_presentation(Protocol):
             else:
                 self._sliding_window_hits += 1
             self._sliding_window_go_array.append(lastelement)
+                
+        elif(lastelement == 2):  # Correct rejection
+            self._total_correct_rejections += 1
+            if len(self._sliding_window_nogo_array) == self.SLIDING_WINDOW:
+                if(self._sliding_window_nogo_array[0] != 2):
+                    self._sliding_window_correct_rejections += 1
+                del self._sliding_window_nogo_array[0]
+            else:
+                self._sliding_window_correct_rejections += 1
+            self._sliding_window_nogo_array.append(lastelement)
             
         elif(lastelement == 3):  # MISS
             self._total_misses += 1
@@ -967,17 +976,6 @@ class Passive_odor_presentation(Protocol):
                     self._sliding_window_correct_rejections -= 1
                 del self._sliding_window_nogo_array[0]
             self._sliding_window_nogo_array.append(lastelement)
-
-        elif(lastelement == 2):  # Correct rejection
-            self._total_correct_rejections += 1
-            if len(self._sliding_window_nogo_array) == self.SLIDING_WINDOW:
-                if(self._sliding_window_nogo_array[0] != 2):
-                    self._sliding_window_correct_rejections += 1
-                del self._sliding_window_nogo_array[0]
-            else:
-                self._sliding_window_correct_rejections += 1
-            self._sliding_window_nogo_array.append(lastelement)
-
         
         # sliding window data arrays
         slwgotrials = len(self._sliding_window_go_array)
