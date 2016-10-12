@@ -1868,7 +1868,7 @@ if __name__ == '__main__':
     trial_duration = 2500
     lick_grace_period = 0
     max_rewards = 400
-    odorant_trigger_phase_code = 1
+    odorant_trigger_phase_code = 2
     trial_type_id = 0
 
 
