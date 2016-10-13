@@ -94,7 +94,7 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial Go trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_LEFT_TRIALS = 10
+    INITIAL_LEFT_TRIALS = 0
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
@@ -133,8 +133,8 @@ class Passive_odor_presentation(Protocol):
     
     # Other session parameters that do not change from trial to trial. These
     # are currently not stored in the trials table of the database file.
-    stamp = Str(label='Stamp')   # time stamp.
-    protocol_name = Str(label='Protocol')
+    stamp = Str(label='stamp')   # time stamp.
+    protocol_name = Str(label='protocol')
     enable_blocks = Bool(True, label="Arrange stimuli in blocks")
     # Rewards given from start of session.
     rewards = Int(0, label="Total rewards")
@@ -150,8 +150,8 @@ class Passive_odor_presentation(Protocol):
     trial_type = Trait(stimuli_categories.keys()[0],
                        stimuli_categories,
                        label="Trial type")
-    water_duration1 = Int(0, label="Left water reward duration")
-    water_duration2 = Int(0, label="Right water reward duration")
+    left_water_duration = Int(0, label="Left water reward duration")
+    right_water_duration = Int(0, label="Right water reward duration")
     final_valve_duration = Int(0, label="Final valve duration")
     trial_duration = Int(0, label="Trial duration")
     inter_trial_interval = Int(0, label='ITI in ms')
@@ -192,6 +192,8 @@ class Passive_odor_presentation(Protocol):
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
     iti_bounds_false_alarm = [10000, 15000]
+    # Number of trials that had loss of sniff signal.
+    lost_sniff_run = Int(0, label="Total sniff clean runs")
     # Current overall session performance.
     percent_correct = Float(0, label="Total percent correct")
         
@@ -202,8 +204,7 @@ class Passive_odor_presentation(Protocol):
     #--------------------------------------------------------------------------    
     trial_start = Int(0, label="Start of trial time stamp")
     trial_end = Int(0, label="End of trial time stamp")
-    first_lick1 = Int(0, label="Time of first left lick")
-    first_lick2 = Int(0, label="Time of first right lick")
+    first_lick = Int(0, label="Time of first lick")
     # Time when Arduino received the parameters for the trial (in Arduino
     # elapsed time).
     parameters_received_time = Int(0,
@@ -239,23 +240,21 @@ class Passive_odor_presentation(Protocol):
     iteration = Array
     sniff = Array
     lick1 = Array
-    lick2 = Array
     odor = Array
     mri = Array
 
     # Internal indices uses for the streaming plots.
     _last_stream_index = Float(0)
-    _last_lick1_index = 0
-    _last_lick2_index = 0
+    _last_lick_index = 0
     _last_mri_index = 0
     _previous_last_stream_index = 0
     
     # Running total of each trial result type.
     # Displayed on the console after each trial.
-    _total_left_hits = 0
-    _total_left_misses = 0
-    _total_right_hits = 0
-    _total_right_misses = 0
+    _total_hits = 0
+    _total_correct_rejections = 0
+    _total_misses = 0
+    _total_false_alarms = 0
     
     # Used for sliding window performance calculations.
     _sliding_window_hits = 0
@@ -287,8 +286,7 @@ class Passive_odor_presentation(Protocol):
     # This plot contains the continuous signals (sniff, and laser currently).
     stream_plot = Instance(Plot, label="Sniff")
     # This is the plot that has the event signals (licks, mri etc.)
-    stream_lick1_plot = Instance(Plot, label="Lick1s")
-    stream_lick2_plot = Instance(Plot, label="Lick2s")
+    stream_lick_plot = Instance(Plot, label="Licks")
     stream_mri_plot = Instance(Plot, label="MRI")
 
 
@@ -430,8 +428,8 @@ class Passive_odor_presentation(Protocol):
                                             show_label=False),
                                         ),
                                   VGroup(
-                                      Item('water_duration1'),
-                                      Item('water_duration2'),
+                                      Item('left_water_duration'),
+                                      Item('right_water_duration'),
                                         )
                                   ),
                            HGroup(
@@ -465,10 +463,8 @@ class Passive_odor_presentation(Protocol):
                            )
     
     session_group = Group(
-                          HGroup(
-                                 Item('stamp', style='readonly'),
-                                 Item('protocol_name', style='readonly'),
-                                ),
+                          Item('stamp', style='readonly'),
+                          Item('protocol_name', style='readonly'),
                           HGroup(
                                  Item('mouse',
                                       enabled_when='not monitor.running',
@@ -500,22 +496,22 @@ class Passive_odor_presentation(Protocol):
                                                    " trials")
                                  ),
                           Item('percent_correct', style='readonly'),
+                          Item('lost_sniff_run', style='readonly'),
                           label='Session',
                           show_border=True
                           )
     
     current_trial_group = Group(
-                                HGroup(
-                                       Item('trial_number', style='readonly'),
-                                       Item('trial_type'),
-                                       ),
+                                Item('trial_number', style='readonly'),
+                                Item('trial_type'),
                                 HGroup(
                                        Item('trial_duration'),
                                        Item('inter_trial_interval')
                                        ),
                                 HGroup(
                                        Item('odorant',
-                                            style='readonly',),
+                                            style='readonly',
+                                            show_label=False),
                                        spring,
                                        Item('nitrogen_flow', width=-40),
                                        Item('air_flow', width=-40)
@@ -532,7 +528,8 @@ class Passive_odor_presentation(Protocol):
                              Item('next_trial_type'),
                              HGroup(
                                     Item('next_odorant',
-                                         style="readonly"),
+                                         style="readonly",
+                                         show_label=False),
                                     Item('next_nitrogen_flow', width=-40),
                                     Item('next_air_flow', width=-40)
                                     ),
@@ -667,12 +664,11 @@ class Passive_odor_presentation(Protocol):
         # This second plot is for the event signals (e.g. the lick signal).
         # It shares the same timescale as the streaming plot.
         # Data definiton.
-        # Lick1 signal plot
-        self.stream_lick1_data = ArrayPlotData(iteration=self.iteration,
+        self.stream_lick_data = ArrayPlotData(iteration=self.iteration,
                                               lick1=self.lick1)
 
         # Plot object created with the data definition above.
-        plot = Plot(self.stream_lick1_data,
+        plot = Plot(self.stream_lick_data,
                     padding=20,
                     padding_top=0,
                     padding_bottom=5,
@@ -685,8 +681,8 @@ class Passive_odor_presentation(Protocol):
         # can be set to nan. Implementation detail on how we start streaming.
         self.lick1 = [nan] * len(self.iteration)
         self.lick1[-1] = 0
-        self.stream_lick1_data.set_data("iteration", self.iteration)
-        self.stream_lick1_data.set_data("lick1", self.lick1)
+        self.stream_lick_data.set_data("iteration", self.iteration)
+        self.stream_lick_data.set_data("lick1", self.lick1)
         
         # Change plot properties.
         plot.fixed_preferred_size = (100, 10)
@@ -694,7 +690,7 @@ class Passive_odor_presentation(Protocol):
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
-        plot.title = "Lick Left"
+        plot.title = "Lick"
         plot.title_position = "left"
         plot.y_grid = None
 
@@ -706,57 +702,10 @@ class Passive_odor_presentation(Protocol):
                                render_style="hold")[0]
 
 
-
         # Add the trials overlay to the streaming events plot too.
         event_plot.overlays.append(rangeselector)
-
-        self.stream_lick1_plot = plot
-
-
-
-        # Lick2 signal plot
-        self.stream_lick2_data = ArrayPlotData(iteration=self.iteration,
-                                                lick2=self.lick2)
-
-        # Plot object created with the data definition above.
-        plot = Plot(self.stream_lick2_data,
-                    padding=20,
-                    padding_top=0,
-                    padding_bottom=5,
-                    padding_left=70,
-                    border_visible=False,
-                    index_mapper=self.stream_plot.index_mapper,
-                    bgcolor = "lightgray")
-
-        # Data array for the signal.
-        # The last value is not nan so that the first incoming streaming value
-        # can be set to nan. Implementation detail on how we start streaming.
-        self.lick2 = [nan] * len(self.iteration)
-        self.lick2[-1] = 0
-        self.stream_lick2_data.set_data("iteration", self.iteration)
-        self.stream_lick2_data.set_data("lick2", self.lick2)
-
-        # Change plot properties.
-        plot.fixed_preferred_size = (100, 5)
-        y_range = DataRange1D(low=0.99, high=1.01)
-        plot.value_range = y_range
-        plot.y_axis.visible = False
-        plot.x_axis.visible = False
-        plot.title = "Lick Right"
-        plot.title_position = "left"
-        plot.y_grid = None
-
-        # Add the lines to the plot and grab one of the plot references.
-        event_plot = plot.plot(("iteration", "lick2"),
-                               name="Lick",
-                               color="red",
-                               line_width=8,
-                               render_style="hold")[0]
-
-        # Add the trials overlay to the streaming events plot too.
-        event_plot.overlays.append(rangeselector)
-
-        self.stream_lick2_plot = plot
+        
+        self.stream_lick_plot = plot
 
 
 
@@ -783,7 +732,7 @@ class Passive_odor_presentation(Protocol):
         self.stream_mri_data.set_data("mri", self.mri)
 
         # Change plot properties.
-        plot.fixed_preferred_size = (100, 5)
+        plot.fixed_preferred_size = (100, 10)
         y_range = DataRange1D(low=0.99, high=1.01)
         plot.value_range = y_range
         plot.y_axis.visible = False
@@ -803,9 +752,10 @@ class Passive_odor_presentation(Protocol):
 
         self.stream_mri_plot = plot
 
+
         
         # Finally add both plot containers to the vertical plot container.
-        container.add(self.stream_plot, self.stream_lick1_plot,  self.stream_mri_plot)
+        container.add(self.stream_plot, self.stream_lick_plot, self.stream_mri_plot)
 
 
         return container
@@ -875,10 +825,10 @@ class Passive_odor_presentation(Protocol):
         self.responses = [0]
         self._sliding_window_left_array = []
         self._sliding_window_right_array = []
-        self._total_left_hits = 0
-        self._total_left_misses = 0
-        self._total_right_hits = 0
-        self._total_right_misses = 0
+        self._total_hits = 0
+        self._total_misses = 0
+        self._total_correct_rejections = 0
+        self._total_false_alarms = 0
         self._sliding_window_hits = 0
         self._sliding_window_correct_rejections = 0
         self.calculate_next_trial_parameters()
@@ -988,8 +938,8 @@ class Passive_odor_presentation(Protocol):
         rightcorrect = int
         lastelement = self.responses[-1]
         
-        if(lastelement == 1):  # LEFT HIT
-            self._total_left_hits += 1
+        if(lastelement == 1):  # HIT
+            self._total_hits += 1
             if len(self._sliding_window_left_array) == self.SLIDING_WINDOW:
                 if(self._sliding_window_left_array[0] != 1):
                     self._sliding_window_hits += 1
@@ -998,8 +948,8 @@ class Passive_odor_presentation(Protocol):
                 self._sliding_window_hits += 1
             self._sliding_window_left_array.append(lastelement)
                 
-        elif(lastelement == 2):  # RIGHT HIT
-            self._total_right_hits += 1
+        elif(lastelement == 2):  # Correct rejection
+            self._total_correct_rejections += 1
             if len(self._sliding_window_right_array) == self.SLIDING_WINDOW:
                 if(self._sliding_window_right_array[0] != 2):
                     self._sliding_window_correct_rejections += 1
@@ -1008,16 +958,16 @@ class Passive_odor_presentation(Protocol):
                 self._sliding_window_correct_rejections += 1
             self._sliding_window_right_array.append(lastelement)
             
-        elif(lastelement == 3):  # LEFT MISS
-            self._total_left_misses += 1
+        elif(lastelement == 3):  # MISS
+            self._total_misses += 1
             if len(self._sliding_window_left_array) == self.SLIDING_WINDOW:
                 if(self._sliding_window_left_array[0] == 1):
                     self._sliding_window_hits -= 1
                 del self._sliding_window_left_array[0]
             self._sliding_window_left_array.append(lastelement)
 
-        elif(lastelement == 4):  # RIGHT MISS
-            self._total_right_misses += 1
+        elif(lastelement == 4):  # False alarm
+            self._total_false_alarms += 1
             if len(self._sliding_window_right_array) == self.SLIDING_WINDOW:
                 if(self._sliding_window_right_array[0] == 2):
                     self._sliding_window_correct_rejections -= 1
@@ -1040,8 +990,8 @@ class Passive_odor_presentation(Protocol):
                 
         self._left_trials_line = append(self._left_trials_line, leftcorrect*100)
         self._right_trials_line = append(self._right_trials_line, rightcorrect*100)
-        print "LeftHits: " + str(self._total_left_hits) + "\tRightHits: " + str(self._total_right_hits) +\
-         "\tLeftMisses: " + str(self._total_left_misses) + "\tRightMiss: " + str(self._total_right_misses)
+        print "Hits: " + str(self._total_hits) + "\tCRs: " + str(self._total_correct_rejections) +\
+         "\tMisses: " + str(self._total_misses) + "\tFAs: " + str(self._total_false_alarms)
         
         self.event_plot_data.set_data("trial_number_tick", self.trial_number_tick)        
         self.event_plot_data.set_data("_left_trials_line", self._left_trials_line)
@@ -1207,28 +1157,17 @@ class Passive_odor_presentation(Protocol):
             self.monitor.send_command("fv off")
             self.final_valve_label = "Final Valve (OFF)"
 
-    def _left_water_button_fired(self):
+    def _water_button_fired(self):
         if self.monitor.recording:
             self._pause_button_fired()
-        command = "wv 1 " + str(self.water_duration1)
+        command = "wv 1 " + str(self.water_duration)
         self.monitor.send_command(command)
 
-    def _right_water_button_fired(self):
+    def _water_calibrate_button_fired(self):
+        
         if self.monitor.recording:
             self._pause_button_fired()
-        command = "wv 2 " + str(self.water_duration2)
-        self.monitor.send_command(command)
-
-    def _left_water_calibrate_button_fired(self):
-        if self.monitor.recording:
-            self._pause_button_fired()
-        command = "calibrate 1" + " " + str(self.water_duration1)
-        self.monitor.send_command(command)
-
-    def _right_water_calibrate_button_fired(self):
-        if self.monitor.recording:
-            self._pause_button_fired()
-        command = "calibrate 2" + " " + str(self.water_duration2)
+        command = "calibrate 1" + " " + str(self.water_duration)
         self.monitor.send_command(command)
 
     def _clean_valve_button_fired(self):
@@ -1292,8 +1231,7 @@ class Passive_odor_presentation(Protocol):
         #get a configuration object with the default settings.
         self.config = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
         self.rig = self.config['rigName']
-        self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
-        self.water_duration2 = self.config['waterValveDurations']['valve_2_right']['0.25ul']
+        self.water_duration = self.config['waterValveDurations']['valve_1_left']['0.25ul']
         self.olfas = self.config['olfas']
         self.olfaComPort1 = 'COM' + str(self.olfas[0]['comPort'])
         self.laser_power_table = self.config['lightSource']['powerTable']
@@ -1320,7 +1258,7 @@ class Passive_odor_presentation(Protocol):
         plot.plot(('trial_number_tick', '_left_trials_line'), type = 'scatter', color = 'blue',
                    name = "Left Trials")
         plot.plot(('trial_number_tick', '_right_trials_line'), type = 'scatter', color = 'red',
-                   name = "Right Trials")
+                   name = "No-Go Trials")
         plot.legend.visible = True
         plot.legend.bgcolor = "transparent"
         plot.legend.align = "ul"
@@ -1379,7 +1317,7 @@ class Passive_odor_presentation(Protocol):
                     "trial_duration"            : (3, db.Int, self.trial_duration),
                     "inter_trial_interval"      : (4, db.Int, self.inter_trial_interval),
                     "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
-                    "trial_type_id"             : (6, db.Int, self.current_stimulus.id),
+                    "trial_type_id"           : (6, db.Int, self.current_stimulus.id),
                     "lick_grace_period"         : (7, db.Int, self.lick_grace_period)
         }
    
@@ -1432,8 +1370,7 @@ class Passive_odor_presentation(Protocol):
             "final_valve_onset"       : (4, db.Int),
             "hrf_phase"               : (5, db.Int),
             "response"                : (6, db.Int),
-            "first_lick1"             : (7, db.Int),
-            "first_lick2"             : (7, db.Int)
+            "first_lick"              : (7, db.Int)
         }
 
     def stream_definition(self):
@@ -1444,8 +1381,7 @@ class Passive_odor_presentation(Protocol):
             "sniff_samples"            : (2, 'unsigned int', db.Int),
             "sniff"                    : (3, 'int', db.FloatArray),
             "lick1"                    : (4, 'unsigned long', db.FloatArray),
-            "lick2"                    : (5, 'unsigned long', db.FloatArray),
-            "mri"                      : (6, 'unsigned long', db.FloatArray)
+            "mri"                      : (5, 'unsigned long', db.FloatArray)
         }
 
     def process_event_request(self, event):
@@ -1543,11 +1479,8 @@ class Passive_odor_presentation(Protocol):
             self.stream_plot_data.set_data("sniff", self.sniff)
             
 
-            if stream['lick1'] is not None or (self._last_stream_index - self._last_lick1_index < self.STREAM_SIZE):
-                [self.lick1] = self._process_lick1s(stream, ('lick1',), [self.lick1])
-
-            if stream['lick2'] is not None or (self._last_stream_index - self._last_lick2_index < self.STREAM_SIZE):
-                [self.lick2] = self._process_lick2s(stream, ('lick2',), [self.lick2])
+            if stream['lick1'] is not None or (self._last_stream_index - self._last_lick_index < self.STREAM_SIZE):
+                [self.lick1] = self._process_licks(stream, ('lick1',), [self.lick1])
 
             if stream['mri'] is not None or (self._last_stream_index - self._last_mri_index < self.STREAM_SIZE):
                 [self.mri] = self._process_mris(stream, ('mri',), [self.mri])
@@ -1570,17 +1503,17 @@ class Passive_odor_presentation(Protocol):
 
 
 
-    def _process_lick1s(self, stream, lick1signals, lick1arrays):
+    def _process_licks(self, stream, licksignals, lickarrays):
 
         packet_sent_time = stream['packet_sent_time']
 
-        # TODO: find max shift first, apply it to all lick1s
+        # TODO: find max shift first, apply it to all licks
         maxtimestamp = int(packet_sent_time)
-        for i in range(len(lick1arrays)):
-            lick1signal = lick1signals[i]
+        for i in range(len(lickarrays)):
+            licksignal = licksignals[i]
 
-            if lick1signal in stream.keys():
-                streamsignal = stream[lick1signal]
+            if licksignal in stream.keys():
+                streamsignal = stream[licksignal]
                 if streamsignal is not None and streamsignal[-1] > maxtimestamp:
                         maxtimestamp = streamsignal[-1]
                         print "**************************************************************"
@@ -1591,132 +1524,58 @@ class Passive_odor_presentation(Protocol):
         if maxshift > self.STREAM_SIZE:
             maxshift = self.STREAM_SIZE - 1
 
-        for i in range(len(lick1arrays)):
+        for i in range(len(lickarrays)):
 
-            lick1signal = lick1signals[i]
-            lick1array = lick1arrays[i]
+            licksignal = licksignals[i]
+            lickarray = lickarrays[i]
 
-            if lick1signal in stream.keys():
-                if stream[lick1signal] is None:
-                    lick1array = hstack((lick1array[-self.STREAM_SIZE + maxshift:], [lick1array[-1]] * maxshift))
+            if licksignal in stream.keys():
+                if stream[licksignal] is None:
+                    lickarray = hstack((lickarray[-self.STREAM_SIZE + maxshift:], [lickarray[-1]] * maxshift))
                 else:
-                    # print "lick1s: ", stream['lick1'], "\tnum sniffs: ", currentshift
-                    last_state = lick1array[-1]
-                    last_lick1_tick = self._last_stream_index
-                    for lick1 in stream[lick1signal]:
-                        # print "last lick1 tick: ", last_lick1_tick, "\tlast state: ", last_state
-                        shift = int(lick1 - last_lick1_tick)
+                    # print "licks: ", stream['lick'], "\tnum sniffs: ", currentshift
+                    last_state = lickarray[-1]
+                    last_lick_tick = self._last_stream_index
+                    for lick in stream[licksignal]:
+                        # print "last lick tick: ", last_lick_tick, "\tlast state: ", last_state
+                        shift = int(lick - last_lick_tick)
                         if shift <= 0:
                             if shift < self.STREAM_SIZE * -1:
                                 shift = -self.STREAM_SIZE + 1
                             if isnan(last_state):
-                                lick1array[shift - 1:] = [i + 1] * (-shift + 1)
+                                lickarray[shift - 1:] = [i + 1] * (-shift + 1)
                             else:
-                                lick1array[shift - 1:] = [nan] * (-shift + 1)
+                                lickarray[shift - 1:] = [nan] * (-shift + 1)
                         # Lick timestamp exceeds packet sent time. Just change the signal state but don't shift
-                        elif lick1 > packet_sent_time:
+                        elif lick > packet_sent_time:
                             if isnan(last_state):
-                                lick1array[-1] = i + 1
+                                lickarray[-1] = i + 1
                             else:
-                                lick1array[-1] = nan
+                                lickarray[-1] = nan
                         else:
                             if shift > self.STREAM_SIZE:
                                 shift = self.STREAM_SIZE - 1
-                            lick1array = hstack((lick1array[-self.STREAM_SIZE + shift:], [lick1array[-1]] * shift))
+                            lickarray = hstack((lickarray[-self.STREAM_SIZE + shift:], [lickarray[-1]] * shift))
                             if isnan(last_state):
-                                lick1array = hstack((lick1array[-self.STREAM_SIZE + 1:], [i + 1]))
+                                lickarray = hstack((lickarray[-self.STREAM_SIZE + 1:], [i + 1]))
                             else:
-                                lick1array = hstack((lick1array[-self.STREAM_SIZE + 1:], [nan]))
-                            last_lick1_tick = lick1
-                        last_state = lick1array[-1]
-                        # last timestamp of lick1 signal change
-                        self._last_lick1_index = lick1
-                    lastshift = int(packet_sent_time - last_lick1_tick)
+                                lickarray = hstack((lickarray[-self.STREAM_SIZE + 1:], [nan]))
+                            last_lick_tick = lick
+                        last_state = lickarray[-1]
+                        # last timestamp of lick signal change
+                        self._last_lick_index = lick
+                    lastshift = int(packet_sent_time - last_lick_tick)
                     if lastshift >= self.STREAM_SIZE:
                         lastshift = self.STREAM_SIZE
-                        lick1array = [lick1array[-1]] * lastshift
-                    elif lastshift > 0 and len(lick1array) > 0:
-                        lick1array = hstack((lick1array[-self.STREAM_SIZE + lastshift:], [lick1array[-1]] * lastshift))
-                if len(lick1array) > 0:
-                    self.stream_lick1_data.set_data(lick1signal, lick1array)
-                    # self.stream_lick1_plot.request_redraw()
-                    lick1arrays[i] = lick1array
+                        lickarray = [lickarray[-1]] * lastshift
+                    elif lastshift > 0 and len(lickarray) > 0:
+                        lickarray = hstack((lickarray[-self.STREAM_SIZE + lastshift:], [lickarray[-1]] * lastshift))
+                if len(lickarray) > 0:
+                    self.stream_lick_data.set_data(licksignal, lickarray)
+                    # self.stream_lick_plot.request_redraw()
+                    lickarrays[i] = lickarray
 
-        return lick1arrays
-
-    def _process_lick2s(self, stream, lick2signals, lick2arrays):
-
-        packet_sent_time = stream['packet_sent_time']
-
-        # TODO: find max shift first, apply it to all lick2s
-        maxtimestamp = int(packet_sent_time)
-        for i in range(len(lick2arrays)):
-            lick2signal = lick2signals[i]
-
-            if lick2signal in stream.keys():
-                streamsignal = stream[lick2signal]
-                if streamsignal is not None and streamsignal[-1] > maxtimestamp:
-                        maxtimestamp = streamsignal[-1]
-                        print "**************************************************************"
-                        print "WARNING! Lick timestamp exceeds timestamp of received packet: "
-                        print "Packet sent timestamp: ", packet_sent_time, "Lick timestamp: ", streamsignal[-1]
-                        print "**************************************************************"
-        maxshift = int(packet_sent_time - self._last_stream_index)
-        if maxshift > self.STREAM_SIZE:
-            maxshift = self.STREAM_SIZE - 1
-
-        for i in range(len(lick2arrays)):
-
-            lick2signal = lick2signals[i]
-            lick2array = lick2arrays[i]
-
-            if lick2signal in stream.keys():
-                if stream[lick2signal] is None:
-                    lick2array = hstack((lick2array[-self.STREAM_SIZE + maxshift:], [lick2array[-1]] * maxshift))
-                else:
-                    # print "lick2s: ", stream['lick2'], "\tnum sniffs: ", currentshift
-                    last_state = lick2array[-1]
-                    last_lick2_tick = self._last_stream_index
-                    for lick2 in stream[lick2signal]:
-                        # print "last lick2 tick: ", last_lick2_tick, "\tlast state: ", last_state
-                        shift = int(lick2 - last_lick2_tick)
-                        if shift <= 0:
-                            if shift < self.STREAM_SIZE * -1:
-                                shift = -self.STREAM_SIZE + 1
-                            if isnan(last_state):
-                                lick2array[shift - 1:] = [i + 1] * (-shift + 1)
-                            else:
-                                lick2array[shift - 1:] = [nan] * (-shift + 1)
-                        # Lick timestamp exceeds packet sent time. Just change the signal state but don't shift
-                        elif lick2 > packet_sent_time:
-                            if isnan(last_state):
-                                lick2array[-1] = i + 1
-                            else:
-                                lick2array[-1] = nan
-                        else:
-                            if shift > self.STREAM_SIZE:
-                                shift = self.STREAM_SIZE - 1
-                            lick2array = hstack((lick2array[-self.STREAM_SIZE + shift:], [lick2array[-1]] * shift))
-                            if isnan(last_state):
-                                lick2array = hstack((lick2array[-self.STREAM_SIZE + 1:], [i + 1]))
-                            else:
-                                lick2array = hstack((lick2array[-self.STREAM_SIZE + 1:], [nan]))
-                            last_lick2_tick = lick2
-                        last_state = lick2array[-1]
-                        # last timestamp of lick2 signal change
-                        self._last_lick2_index = lick2
-                    lastshift = int(packet_sent_time - last_lick2_tick)
-                    if lastshift >= self.STREAM_SIZE:
-                        lastshift = self.STREAM_SIZE
-                        lick2array = [lick2array[-1]] * lastshift
-                    elif lastshift > 0 and len(lick2array) > 0:
-                        lick2array = hstack((lick2array[-self.STREAM_SIZE + lastshift:], [lick2array[-1]] * lastshift))
-                if len(lick2array) > 0:
-                    self.stream_lick2_data.set_data(lick2signal, lick2array)
-                    # self.stream_lick2_plot.request_redraw()
-                    lick2arrays[i] = lick2array
-
-        return lick2arrays
+        return lickarrays
 
     def _process_mris(self, stream, mrisignals, mriarrays):
 
@@ -1774,7 +1633,7 @@ class Passive_odor_presentation(Protocol):
                                 mriarray = hstack((mriarray[-self.STREAM_SIZE + 1:], [nan]))
                             last_mri_tick = mri
                         last_state = mriarray[-1]
-                        # last timestamp of mri signal change
+                        # last timestamp of lick signal change
                         self._last_mri_index = mri
                     lastshift = int(packet_sent_time - last_mri_tick)
                     if lastshift >= self.STREAM_SIZE:
@@ -1789,26 +1648,15 @@ class Passive_odor_presentation(Protocol):
 
         return mriarrays
 
-    def _shiftlick1s(self, shift):
+    def _shiftlicks(self, shift):
 
         if shift > self.STREAM_SIZE:
             shift = self.STREAM_SIZE - 1
 
         streamdef = self.stream_definition()
         if 'lick1' in streamdef.keys():
-            self.lick11 = hstack((self.lick1[-self.STREAM_SIZE + shift:], self.lick1[-1] * shift))
-            self.stream_lick1_data.set_data('lick1', self.lick1)
-        return
-
-    def _shiftlick2s(self, shift):
-
-        if shift > self.STREAM_SIZE:
-            shift = self.STREAM_SIZE - 1
-
-        streamdef = self.stream_definition()
-        if 'lick2' in streamdef.keys():
-            self.lick21 = hstack((self.lick2[-self.STREAM_SIZE + shift:], self.lick2[-1] * shift))
-            self.stream_lick2_data.set_data('lick2', self.lick2)
+            self.lick1 = hstack((self.lick1[-self.STREAM_SIZE + shift:], self.lick1[-1] * shift))
+            self.stream_lick_data.set_data('lick1', self.lick1)
         return
 
     def _shiftmris(self, shift):
@@ -1825,7 +1673,7 @@ class Passive_odor_presentation(Protocol):
     def start_of_trial(self):
 
         self.timestamp("start")
-        print "***** Trial: ", self.trial_number, self.current_stimulus, "*****"
+        print "***** Trial: ", self.trial_number, "\tStimulus: ", self.current_stimulus, "*****"
 
     def _odorvalveon(self):
         """ Turn on odorant valve """
@@ -1915,7 +1763,7 @@ class Passive_odor_presentation(Protocol):
         shuffle(self.stimulus_block, random)
         print "\nGenerated new stimulus block:"
         for i in range(len(self.stimulus_block)):
-            print "\t", self.stimulus_block[i]
+            print self.stimulus_block[i]
         print "\n"
     
     def calculate_current_trial_parameters(self):

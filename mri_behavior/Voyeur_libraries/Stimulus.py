@@ -107,11 +107,11 @@ class LaserStimulus(object):
         return None
     
     def __str__(self,indent = ''):
-        return indent+ '\ttrial type: ' +str(self.trial_type) + \
-                "\todor valves: " + str(self.odorvalves) + \
+        return indent+"Stimulus: " + self.description + "\todor valves: " + str(self.odorvalves) + \
                 "\tmfc flows: " + str(self.flows) + \
                 "\tdillution: " + str(self.dillution)+ \
-                "\tfvDur: " + str(self.fvDur)
+                "\tfvDur: " + str(self.fvDur) + \
+                '\tTrial_type: ' +str(self.trial_type)
         
 class LaserTrainStimulus(LaserStimulus):
     
