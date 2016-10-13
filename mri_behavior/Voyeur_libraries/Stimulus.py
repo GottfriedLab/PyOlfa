@@ -105,13 +105,13 @@ class LaserStimulus(object):
         super(LaserStimulus,self).__init__(**kwds)
         
         return None
-    
+
     def __str__(self,indent = ''):
-        return indent+"Stimulus: " + self.description + "\todor valves: " + str(self.odorvalves) + \
+        return indent+ '\ttrial type: ' +str(self.trial_type) + \
+                "\todor valves: " + str(self.odorvalves) + \
                 "\tmfc flows: " + str(self.flows) + \
                 "\tdillution: " + str(self.dillution)+ \
-                "\tfvDur: " + str(self.fvDur) + \
-                '\tTrial_type: ' +str(self.trial_type)
+                "\tfvDur: " + str(self.fvDur)
         
 class LaserTrainStimulus(LaserStimulus):
     

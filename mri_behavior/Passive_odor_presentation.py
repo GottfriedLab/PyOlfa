@@ -133,8 +133,8 @@ class Passive_odor_presentation(Protocol):
     
     # Other session parameters that do not change from trial to trial. These
     # are currently not stored in the trials table of the database file.
-    stamp = Str(label='stamp')   # time stamp.
-    protocol_name = Str(label='protocol')
+    stamp = Str(label='Stamp')   # time stamp.
+    protocol_name = Str(label='Protocol')
     enable_blocks = Bool(True, label="Arrange stimuli in blocks")
     # Rewards given from start of session.
     rewards = Int(0, label="Total rewards")
@@ -150,8 +150,8 @@ class Passive_odor_presentation(Protocol):
     trial_type = Trait(stimuli_categories.keys()[0],
                        stimuli_categories,
                        label="Trial type")
-    left_water_duration = Int(0, label="Left water reward duration")
-    right_water_duration = Int(0, label="Right water reward duration")
+    water_duration1 = Int(0, label="Left water reward duration")
+    water_duration2 = Int(0, label="Right water reward duration")
     final_valve_duration = Int(0, label="Final valve duration")
     trial_duration = Int(0, label="Trial duration")
     inter_trial_interval = Int(0, label='ITI in ms')
@@ -192,8 +192,6 @@ class Passive_odor_presentation(Protocol):
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
     iti_bounds_false_alarm = [10000, 15000]
-    # Number of trials that had loss of sniff signal.
-    lost_sniff_run = Int(0, label="Total sniff clean runs")
     # Current overall session performance.
     percent_correct = Float(0, label="Total percent correct")
         
@@ -251,14 +249,14 @@ class Passive_odor_presentation(Protocol):
     
     # Running total of each trial result type.
     # Displayed on the console after each trial.
-    _total_hits = 0
-    _total_correct_rejections = 0
-    _total_misses = 0
-    _total_false_alarms = 0
+    _total_left_hits = 0
+    _total_left_misses = 0
+    _total_right_hits = 0
+    _total_right_misses = 0
     
     # Used for sliding window performance calculations.
-    _sliding_window_hits = 0
-    _sliding_window_correct_rejections = 0
+    _sliding_window_left_hits = 0
+    _sliding_window_right_hits = 0
     # values of Left trials for the current sliding window period.
     _sliding_window_left_array = []
     # Values of Right trials for the current sliding window period.
@@ -398,11 +396,6 @@ class Passive_odor_presentation(Protocol):
                                             style="button",
                                             label_value='final_valve_label'),
                                        show_label=False),
-                                  Item('clean_valve_button',
-                                       editor=ButtonEditor(
-                                            style="button",
-                                            label_value='clean_valve_label'),
-                                       show_label=False),
                                   VGroup(
                                        Item('left_water_button',
                                             editor=ButtonEditor(
@@ -428,8 +421,8 @@ class Passive_odor_presentation(Protocol):
                                             show_label=False),
                                         ),
                                   VGroup(
-                                      Item('left_water_duration'),
-                                      Item('right_water_duration'),
+                                      Item('water_duration1'),
+                                      Item('water_duration2'),
                                         )
                                   ),
                            HGroup(
@@ -463,8 +456,10 @@ class Passive_odor_presentation(Protocol):
                            )
     
     session_group = Group(
-                          Item('stamp', style='readonly'),
-                          Item('protocol_name', style='readonly'),
+                          HGroup(
+                                 Item('stamp', style='readonly'),
+                                 Item('protocol_name', style='readonly'),
+                                ),
                           HGroup(
                                  Item('mouse',
                                       enabled_when='not monitor.running',
@@ -496,22 +491,22 @@ class Passive_odor_presentation(Protocol):
                                                    " trials")
                                  ),
                           Item('percent_correct', style='readonly'),
-                          Item('lost_sniff_run', style='readonly'),
                           label='Session',
                           show_border=True
                           )
     
     current_trial_group = Group(
-                                Item('trial_number', style='readonly'),
-                                Item('trial_type'),
+                                HGroup(
+                                       Item('trial_number', style='readonly'),
+                                       Item('trial_type'),
+                                       ),
                                 HGroup(
                                        Item('trial_duration'),
                                        Item('inter_trial_interval')
                                        ),
                                 HGroup(
                                        Item('odorant',
-                                            style='readonly',
-                                            show_label=False),
+                                            style='readonly'),
                                        spring,
                                        Item('nitrogen_flow', width=-40),
                                        Item('air_flow', width=-40)
@@ -528,8 +523,7 @@ class Passive_odor_presentation(Protocol):
                              Item('next_trial_type'),
                              HGroup(
                                     Item('next_odorant',
-                                         style="readonly",
-                                         show_label=False),
+                                         style="readonly"),
                                     Item('next_nitrogen_flow', width=-40),
                                     Item('next_air_flow', width=-40)
                                     ),
@@ -732,7 +726,7 @@ class Passive_odor_presentation(Protocol):
         self.stream_mri_data.set_data("mri", self.mri)
 
         # Change plot properties.
-        plot.fixed_preferred_size = (100, 10)
+        plot.fixed_preferred_size = (100, 5)
         y_range = DataRange1D(low=0.99, high=1.01)
         plot.value_range = y_range
         plot.y_axis.visible = False
@@ -825,12 +819,12 @@ class Passive_odor_presentation(Protocol):
         self.responses = [0]
         self._sliding_window_left_array = []
         self._sliding_window_right_array = []
-        self._total_hits = 0
-        self._total_misses = 0
-        self._total_correct_rejections = 0
-        self._total_false_alarms = 0
-        self._sliding_window_hits = 0
-        self._sliding_window_correct_rejections = 0
+        self._total_left_hits = 0
+        self._total_left_misses = 0
+        self._total_right_hits = 0
+        self._total_right_misses = 0
+        self._sliding_window_left_hits = 0
+        self._sliding_window_right_hits = 0
         self.calculate_next_trial_parameters()
         
         time.clock()
@@ -938,39 +932,39 @@ class Passive_odor_presentation(Protocol):
         rightcorrect = int
         lastelement = self.responses[-1]
         
-        if(lastelement == 1):  # HIT
-            self._total_hits += 1
+        if(lastelement == 1):  # LEFT HIT
+            self._total_left_hits += 1
             if len(self._sliding_window_left_array) == self.SLIDING_WINDOW:
                 if(self._sliding_window_left_array[0] != 1):
-                    self._sliding_window_hits += 1
+                    self._sliding_window_left_hits += 1
                 del self._sliding_window_left_array[0]
             else:
-                self._sliding_window_hits += 1
+                self._sliding_window_left_hits += 1
             self._sliding_window_left_array.append(lastelement)
-                
-        elif(lastelement == 2):  # Correct rejection
-            self._total_correct_rejections += 1
+
+        elif (lastelement == 2):  # RIGHT HIT
+            self._total_right_hits += 1
             if len(self._sliding_window_right_array) == self.SLIDING_WINDOW:
                 if(self._sliding_window_right_array[0] != 2):
-                    self._sliding_window_correct_rejections += 1
+                    self._sliding_window_right_hits += 1
                 del self._sliding_window_right_array[0]
             else:
-                self._sliding_window_correct_rejections += 1
+                self._sliding_window_right_hits += 1
             self._sliding_window_right_array.append(lastelement)
-            
-        elif(lastelement == 3):  # MISS
-            self._total_misses += 1
+
+        elif (lastelement == 3):  # LEFT MISS
+            self._total_left_misses += 1
             if len(self._sliding_window_left_array) == self.SLIDING_WINDOW:
                 if(self._sliding_window_left_array[0] == 1):
-                    self._sliding_window_hits -= 1
+                    self._sliding_window_left_hits -= 1
                 del self._sliding_window_left_array[0]
             self._sliding_window_left_array.append(lastelement)
 
-        elif(lastelement == 4):  # False alarm
-            self._total_false_alarms += 1
+        elif (lastelement == 4):  # RIGHT MISS
+            self._total_right_misses += 1
             if len(self._sliding_window_right_array) == self.SLIDING_WINDOW:
                 if(self._sliding_window_right_array[0] == 2):
-                    self._sliding_window_correct_rejections -= 1
+                    self._sliding_window_right_hits -= 1
                 del self._sliding_window_right_array[0]
             self._sliding_window_right_array.append(lastelement)
         
@@ -979,19 +973,18 @@ class Passive_odor_presentation(Protocol):
         if slwlefttrials == 0:
             leftcorrect = 0
         else:
-            leftcorrect = self._sliding_window_hits*1.0/slwlefttrials
+            leftcorrect = self._sliding_window_left_hits*1.0/slwlefttrials
         
         slwrighttrials = len(self._sliding_window_right_array)
 
         if slwrighttrials == 0:
             rightcorrect = 0
         else:
-            rightcorrect = self._sliding_window_correct_rejections*1.0/slwrighttrials
+            rightcorrect = self._sliding_window_right_hits*1.0/slwrighttrials
                 
         self._left_trials_line = append(self._left_trials_line, leftcorrect*100)
         self._right_trials_line = append(self._right_trials_line, rightcorrect*100)
-        print "Hits: " + str(self._total_hits) + "\tCRs: " + str(self._total_correct_rejections) +\
-         "\tMisses: " + str(self._total_misses) + "\tFAs: " + str(self._total_false_alarms)
+        print "LeftHits: " + str(self._total_left_hits) + "\tRightHits: " + str(self._total_right_hits)
         
         self.event_plot_data.set_data("trial_number_tick", self.trial_number_tick)        
         self.event_plot_data.set_data("_left_trials_line", self._left_trials_line)
@@ -1157,17 +1150,28 @@ class Passive_odor_presentation(Protocol):
             self.monitor.send_command("fv off")
             self.final_valve_label = "Final Valve (OFF)"
 
-    def _water_button_fired(self):
+    def _left_water_button_fired(self):
         if self.monitor.recording:
             self._pause_button_fired()
-        command = "wv 1 " + str(self.water_duration)
+        command = "wv 1 " + str(self.water_duration1)
         self.monitor.send_command(command)
 
-    def _water_calibrate_button_fired(self):
-        
+    def _right_water_button_fired(self):
         if self.monitor.recording:
             self._pause_button_fired()
-        command = "calibrate 1" + " " + str(self.water_duration)
+        command = "wv 2 " + str(self.water_duration2)
+        self.monitor.send_command(command)
+
+    def _left_water_calibrate_button_fired(self):
+        if self.monitor.recording:
+            self._pause_button_fired()
+        command = "calibrate 1" + " " + str(self.water_duration1)
+        self.monitor.send_command(command)
+
+    def _right_water_calibrate_button_fired(self):
+        if self.monitor.recording:
+            self._pause_button_fired()
+        command = "calibrate 2" + " " + str(self.water_duration2)
         self.monitor.send_command(command)
 
     def _clean_valve_button_fired(self):
@@ -1231,7 +1235,8 @@ class Passive_odor_presentation(Protocol):
         #get a configuration object with the default settings.
         self.config = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
         self.rig = self.config['rigName']
-        self.water_duration = self.config['waterValveDurations']['valve_1_left']['0.25ul']
+        self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
+        self.water_duration2 = self.config['waterValveDurations']['valve_2_right']['0.25ul']
         self.olfas = self.config['olfas']
         self.olfaComPort1 = 'COM' + str(self.olfas[0]['comPort'])
         self.laser_power_table = self.config['lightSource']['powerTable']
@@ -1258,7 +1263,7 @@ class Passive_odor_presentation(Protocol):
         plot.plot(('trial_number_tick', '_left_trials_line'), type = 'scatter', color = 'blue',
                    name = "Left Trials")
         plot.plot(('trial_number_tick', '_right_trials_line'), type = 'scatter', color = 'red',
-                   name = "No-Go Trials")
+                   name = "Right Trials")
         plot.legend.visible = True
         plot.legend.bgcolor = "transparent"
         plot.legend.align = "ul"
@@ -1317,7 +1322,7 @@ class Passive_odor_presentation(Protocol):
                     "trial_duration"            : (3, db.Int, self.trial_duration),
                     "inter_trial_interval"      : (4, db.Int, self.inter_trial_interval),
                     "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
-                    "trial_type_id"           : (6, db.Int, self.current_stimulus.id),
+                    "trial_type_id"             : (6, db.Int, self.current_stimulus.id),
                     "lick_grace_period"         : (7, db.Int, self.lick_grace_period)
         }
    
@@ -1673,7 +1678,7 @@ class Passive_odor_presentation(Protocol):
     def start_of_trial(self):
 
         self.timestamp("start")
-        print "***** Trial: ", self.trial_number, "\tStimulus: ", self.current_stimulus, "*****"
+        print "\n***** Trial:", self.trial_number, self.current_stimulus, "*****"
 
     def _odorvalveon(self):
         """ Turn on odorant valve """
@@ -1763,7 +1768,7 @@ class Passive_odor_presentation(Protocol):
         shuffle(self.stimulus_block, random)
         print "\nGenerated new stimulus block:"
         for i in range(len(self.stimulus_block)):
-            print self.stimulus_block[i]
+            print "\t", self.stimulus_block[i]
         print "\n"
     
     def calculate_current_trial_parameters(self):
