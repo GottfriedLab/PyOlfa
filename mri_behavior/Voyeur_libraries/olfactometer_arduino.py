@@ -705,7 +705,7 @@ class Olfactometers(ApplicationWindow):
     ###########################################################################
     # 'object' interface.
     ###########################################################################
-    def __init__(self, monitor, config_obj, **traits):
+    def __init__(self, monitor=None, config_obj=None, **traits):
         """ Creates a new application window. """
         # Base class constructor.
         super(Olfactometers, self).__init__(**traits)
@@ -866,6 +866,7 @@ def getMFCrate_analog(self, *args, **kwargs):
 def setMFCrate_analog(self, flowrate, *args, **kwargs):
     """ sets the value of the MFC flow rate setting as a % from 0.0 to 100.0
         argument is the absolute flow rate """
+
     if self.olfa_communication is None:
         return
     if flowrate > self.mfccapacity or flowrate < 0:
