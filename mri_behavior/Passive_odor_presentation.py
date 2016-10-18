@@ -111,6 +111,7 @@ class Passive_odor_presentation(Protocol):
     sniff_phases = {
                     "Inhalation": 0,
                     "Exhalation": 1,
+                    "Phase_independent": 2
                     }
 
     #--------------------------------------------------------------------------
@@ -238,6 +239,7 @@ class Passive_odor_presentation(Protocol):
     iteration = Array
     sniff = Array
     lick1 = Array
+    lick2 = Array
     odor = Array
     mri = Array
 
@@ -829,7 +831,7 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-        self.olfactometer = Olfactometers(None, config_obj=self.config)
+        self.olfactometer = Olfactometers()
         if len(self.olfactometer.olfas) == 0:
             self.olfactometer = None
         self.olfactometer = None
@@ -1277,11 +1279,11 @@ class Passive_odor_presentation(Protocol):
         time.clock()
 
 
-        if self.ARDUINO:
-            self.monitor = Monitor()
-            self.monitor.protocol = self
+        # if self.ARDUINO:
+        #     self.monitor = Monitor()
+        #     self.monitor.protocol = self
 
-        self.olfactometer = Olfactometers(None, config_obj=self.config)
+        self.olfactometer = Olfactometers()
         try:
             self.olfactometer.create_serial(self.olfaComPort1)
         except:
@@ -1382,10 +1384,11 @@ class Passive_odor_presentation(Protocol):
         """Returns a dictionary of {name => (index,db.Type} of streaming data parameters for this protocol"""
              
         return {
-            "packet_sent_time"         : (1, 'unsigned long', db.Int),
+            "packet_sent_time"         : (1, 'umnsigned long', db.Int),
             "sniff_samples"            : (2, 'unsigned int', db.Int),
             "sniff"                    : (3, 'int', db.FloatArray),
             "lick1"                    : (4, 'unsigned long', db.FloatArray),
+            # "lick2"                    : (5, 'unsigned long', db.FloatArray),
             "mri"                      : (5, 'unsigned long', db.FloatArray)
         }
 

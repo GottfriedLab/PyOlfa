@@ -110,7 +110,7 @@ class LaserStimulus(object):
         return indent+ '\ttrial type: ' +str(self.trial_type) + \
                 "\todor valves: " + str(self.odorvalves) + \
                 "\tmfc flows: " + str(self.flows) + \
-                "\tdillution: " + str(self.dillution)+ \
+                "\t\tdillution: " + str(self.dillution)+ \
                 "\tfvDur: " + str(self.fvDur)
         
 class LaserTrainStimulus(LaserStimulus):
