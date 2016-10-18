@@ -200,7 +200,7 @@ class Valvegroup(QWidget, QObject):
     def _send_command(self, command):
         """ Send a command to the olfactometer hardware. """
 
-        line = self.olfa_communication.send_command(command)
+        line = self.olfa_communication().send_command(command)
         if line.split()[0] != 'Error':
             return True
         else:
@@ -705,7 +705,8 @@ class Olfactometers(ApplicationWindow):
     ###########################################################################
     # 'object' interface.
     ###########################################################################
-    def __init__(self, monitor = None, config_obj = None, **traits):
+
+    def __init__(self, monitor, config_obj, **traits):
         """ Creates a new application window. """
         # Base class constructor.
         super(Olfactometers, self).__init__(**traits)
@@ -921,7 +922,7 @@ def getMFCrate_alicat(self, *args, **kwargs):
     if self.olfa_communication is None:
         return
     command = "DMFC {0:d} {1:d} A".format(self.olfactometer_address, self.mfcindex)
-
+    
     # Try for 200 ms. If we fail, return None
     while (time.clock() - start_time < .2):
         confirmation = self.olfa_communication.send_command(command)
@@ -948,8 +949,9 @@ def getMFCrate_alicat(self, *args, **kwargs):
             self.flow = flow
             return flow
         except:  # if any errors, print the return string.
-           print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,
-                                                                                                        returnstring)
+           # print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,
+           #                                                                                             returnstring)
+           pass
         return None
     
 def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
@@ -1039,7 +1041,7 @@ if __name__ == '__main__':
     gui = GUI()
     # Create and open the main window.
     config_obj = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
-    window = Olfactometers(None, config_obj=config_obj)
+    window = Olfactometers(config_obj=config_obj)
     window.open()
     # Start the GUI event loop!
     gui.start_event_loop()
