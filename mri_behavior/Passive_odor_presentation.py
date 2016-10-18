@@ -1277,12 +1277,7 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-
-        if self.ARDUINO:
-            self.monitor = Monitor()
-            self.monitor.protocol = self
-
-        self.olfactometer = Olfactometers(None, config_obj=self.config)
+        self.olfactometer = Olfactometers()
         try:
             self.olfactometer.create_serial(self.olfaComPort1)
         except:
