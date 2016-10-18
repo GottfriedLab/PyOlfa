@@ -705,6 +705,7 @@ class Olfactometers(ApplicationWindow):
     ###########################################################################
     # 'object' interface.
     ###########################################################################
+
     def __init__(self, monitor, config_obj, **traits):
         """ Creates a new application window. """
         # Base class constructor.
