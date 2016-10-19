@@ -598,7 +598,7 @@ class Passive_odor_presentation(Protocol):
 
         # Create the Plot object for the streaming data.
         plot = Plot(self.stream_plot_data, padding=20,
-                    padding_top=0, padding_bottom=45, padding_left=70, border_visible=False)
+                    padding_top=0, padding_bottom=45, padding_left=80, border_visible=False)
 
         # Initialize the data arrays and re-assign the values to the
         # ArrayPlotData collection.
@@ -660,15 +660,17 @@ class Passive_odor_presentation(Protocol):
         # This second plot is for the event signals (e.g. the lick signal).
         # It shares the same timescale as the streaming plot.
         # Data definiton.
-        self.stream_lick_data = ArrayPlotData(iteration=self.iteration,
+        
+        # Lick left
+        self.stream_lick1_data = ArrayPlotData(iteration=self.iteration,
                                               lick1=self.lick1)
 
         # Plot object created with the data definition above.
-        plot = Plot(self.stream_lick_data,
+        plot = Plot(self.stream_lick1_data,
                     padding=20,
                     padding_top=0,
                     padding_bottom=5,
-                    padding_left=70,
+                    padding_left=80,
                     border_visible=False,
                     index_mapper=self.stream_plot.index_mapper)
 
@@ -677,59 +679,16 @@ class Passive_odor_presentation(Protocol):
         # can be set to nan. Implementation detail on how we start streaming.
         self.lick1 = [nan] * len(self.iteration)
         self.lick1[-1] = 0
-        self.stream_lick_data.set_data("iteration", self.iteration)
-        self.stream_lick_data.set_data("lick1", self.lick1)
-        
+        self.stream_lick1_data.set_data("iteration", self.iteration)
+        self.stream_lick1_data.set_data("lick1", self.lick1)
+
         # Change plot properties.
-        plot.fixed_preferred_size = (100, 10)
+        plot.fixed_preferred_size = (100, 5)
         y_range = DataRange1D(low=0.99, high=1.01)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
-        plot.title = "Lick"
-        plot.title_position = "left"
-        plot.y_grid = None
-
-        # Add the lines to the plot and grab one of the plot references.
-        event_plot = plot.plot(("iteration", "lick1"),
-                               name="Lick",
-                               color="red", 
-                               line_width=8,
-                               render_style="hold")[0]
-
-
-        # Add the trials overlay to the streaming events plot too.
-        event_plot.overlays.append(rangeselector)
-        
-        self.stream_lick_plot = plot
-
-        self.stream_lick_data = ArrayPlotData(iteration=self.iteration,
-                                              lick1=self.lick1)
-
-        # Plot object created with the data definition above.
-        plot = Plot(self.stream_lick_data,
-                    padding=20,
-                    padding_top=0,
-                    padding_bottom=5,
-                    padding_left=70,
-                    border_visible=False,
-                    index_mapper=self.stream_plot.index_mapper)
-
-        # Data array for the signal.
-        # The last value is not nan so that the first incoming streaming value
-        # can be set to nan. Implementation detail on how we start streaming.
-        self.lick1 = [nan] * len(self.iteration)
-        self.lick1[-1] = 0
-        self.stream_lick_data.set_data("iteration", self.iteration)
-        self.stream_lick_data.set_data("lick1", self.lick1)
-
-        # Change plot properties.
-        plot.fixed_preferred_size = (100, 10)
-        y_range = DataRange1D(low=0.99, high=1.01)
-        plot.value_range = y_range
-        plot.y_axis.visible = False
-        plot.x_axis.visible = False
-        plot.title = "Lick"
+        plot.title = "Lick_L"
         plot.title_position = "left"
         plot.y_grid = None
 
@@ -737,15 +696,58 @@ class Passive_odor_presentation(Protocol):
         event_plot = plot.plot(("iteration", "lick1"),
                                name="Lick",
                                color="red",
-                               line_width=8,
+                               line_width=20,
                                render_style="hold")[0]
 
         # Add the trials overlay to the streaming events plot too.
         event_plot.overlays.append(rangeselector)
 
-        self.stream_lick_plot = plot
+        self.stream_lick1_plot = plot
 
-        # MRI trigger signal plot
+        #### Lick right
+        self.stream_lick2_data = ArrayPlotData(iteration=self.iteration,
+                                              lick2=self.lick2)
+        # Plot object created with the data definition above.
+        plot = Plot(self.stream_lick2_data,
+                    padding=20,
+                    padding_top=0,
+                    padding_bottom=5,
+                    padding_left=80,
+                    border_visible=False,
+                    index_mapper=self.stream_plot.index_mapper)
+
+        # Data array for the signal.
+        # The last value is not nan so that the first incoming streaming value
+        # can be set to nan. Implementation detail on how we start streaming.
+        self.lick2 = [nan] * len(self.iteration)
+        self.lick2[-1] = 0
+        self.stream_lick2_data.set_data("iteration", self.iteration)
+        self.stream_lick2_data.set_data("lick2", self.lick2)
+
+        # Change plot properties.
+        plot.fixed_preferred_size = (100, 5)
+        y_range = DataRange1D(low=0.99, high=1.01)
+        plot.value_range = y_range
+        plot.y_axis.visible = False
+        plot.x_axis.visible = False
+        plot.title = "Lick_R"
+        plot.title_position = "left"
+        plot.y_grid = None
+
+        # Add the lines to the plot and grab one of the plot references.
+        event_plot = plot.plot(("iteration", "lick2"),
+                               name="Lick",
+                               color="red",
+                               line_width=20,
+                               render_style="hold")[0]
+
+        # Add the trials overlay to the streaming events plot too.
+        event_plot.overlays.append(rangeselector)
+
+        self.stream_lick2_plot = plot
+        
+        
+        #### MRI trigger signal plot
         self.stream_mri_data = ArrayPlotData(iteration=self.iteration,
                                                 mri=self.mri)
 
@@ -754,10 +756,9 @@ class Passive_odor_presentation(Protocol):
                     padding=20,
                     padding_top=0,
                     padding_bottom=5,
-                    padding_left=70,
+                    padding_left=80,
                     border_visible=False,
-                    index_mapper=self.stream_plot.index_mapper,
-                    bgcolor = "lightgray")
+                    index_mapper=self.stream_plot.index_mapper,)
 
         # Data array for the signal.
         # The last value is not nan so that the first incoming streaming value
@@ -780,7 +781,7 @@ class Passive_odor_presentation(Protocol):
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "mri"),
                                name="MRI",
-                               line_color="gray",
+                               color="green",
                                line_width=20)[0]
 
         # Add the trials overlay to the streaming events plot too.
@@ -791,7 +792,7 @@ class Passive_odor_presentation(Protocol):
 
         
         # Finally add both plot containers to the vertical plot container.
-        container.add(self.stream_plot, self.stream_lick_plot, self.stream_mri_plot)
+        container.add(self.stream_plot, self.stream_lick1_plot, self.stream_lick2_plot, self.stream_mri_plot)
 
 
         return container
@@ -1300,7 +1301,7 @@ class Passive_odor_presentation(Protocol):
         self.event_plot_data = ArrayPlotData(trial_number_tick=self.trial_number_tick,
                                              _left_trials_line=self._left_trials_line,
                                              _right_trials_line = self._right_trials_line)
-        plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=70, border_visible=False)
+        plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=80, border_visible=False)
         self.event_plot = plot
         plot.plot(('trial_number_tick', '_left_trials_line'), type = 'scatter', color = 'blue',
                    name = "Left Trials")
@@ -1527,8 +1528,11 @@ class Passive_odor_presentation(Protocol):
             self.stream_plot_data.set_data("sniff", self.sniff)
             
 
-            if stream['lick1'] is not None or (self._last_stream_index - self._last_lick_index < self.STREAM_SIZE):
-                [self.lick1] = self._process_licks(stream, ('lick1',), [self.lick1])
+            if stream['lick1'] is not None or (self._last_stream_index - self._last_lick1_index < self.STREAM_SIZE):
+                [self.lick1] = self._process_lick1s(stream, ('lick1',), [self.lick1])
+                
+            if stream['lick2'] is not None or (self._last_stream_index - self._last_lick2_index < self.STREAM_SIZE):
+                [self.lick2] = self._process_lick2s(stream, ('lick2',), [self.lick2])
 
             if stream['mri'] is not None or (self._last_stream_index - self._last_mri_index < self.STREAM_SIZE):
                 [self.mri] = self._process_mris(stream, ('mri',), [self.mri])
@@ -1551,79 +1555,153 @@ class Passive_odor_presentation(Protocol):
 
 
 
-    def _process_licks(self, stream, licksignals, lickarrays):
+    def _process_lick1s(self, stream, lick1signals, lick1arrays):
 
         packet_sent_time = stream['packet_sent_time']
 
-        # TODO: find max shift first, apply it to all licks
+        # TODO: find max shift first, apply it to all lick1s
         maxtimestamp = int(packet_sent_time)
-        for i in range(len(lickarrays)):
-            licksignal = licksignals[i]
+        for i in range(len(lick1arrays)):
+            lick1signal = lick1signals[i]
 
-            if licksignal in stream.keys():
-                streamsignal = stream[licksignal]
+            if lick1signal in stream.keys():
+                streamsignal = stream[lick1signal]
                 if streamsignal is not None and streamsignal[-1] > maxtimestamp:
                         maxtimestamp = streamsignal[-1]
                         print "**************************************************************"
-                        print "WARNING! Lick timestamp exceeds timestamp of received packet: "
-                        print "Packet sent timestamp: ", packet_sent_time, "Lick timestamp: ", streamsignal[-1]
+                        print "WARNING! lick1 timestamp exceeds timestamp of received packet: "
+                        print "Packet sent timestamp: ", packet_sent_time, "lick1 timestamp: ", streamsignal[-1]
                         print "**************************************************************"
         maxshift = int(packet_sent_time - self._last_stream_index)
         if maxshift > self.STREAM_SIZE:
             maxshift = self.STREAM_SIZE - 1
 
-        for i in range(len(lickarrays)):
+        for i in range(len(lick1arrays)):
 
-            licksignal = licksignals[i]
-            lickarray = lickarrays[i]
+            lick1signal = lick1signals[i]
+            lick1array = lick1arrays[i]
 
-            if licksignal in stream.keys():
-                if stream[licksignal] is None:
-                    lickarray = hstack((lickarray[-self.STREAM_SIZE + maxshift:], [lickarray[-1]] * maxshift))
+            if lick1signal in stream.keys():
+                if stream[lick1signal] is None:
+                    lick1array = hstack((lick1array[-self.STREAM_SIZE + maxshift:], [lick1array[-1]] * maxshift))
                 else:
-                    # print "licks: ", stream['lick'], "\tnum sniffs: ", currentshift
-                    last_state = lickarray[-1]
-                    last_lick_tick = self._last_stream_index
-                    for lick in stream[licksignal]:
-                        # print "last lick tick: ", last_lick_tick, "\tlast state: ", last_state
-                        shift = int(lick - last_lick_tick)
+                    # print "lick1s: ", stream['lick1'], "\tnum sniffs: ", currentshift
+                    last_state = lick1array[-1]
+                    last_lick1_tick = self._last_stream_index
+                    for lick1 in stream[lick1signal]:
+                        # print "last lick1 tick: ", last_lick1_tick, "\tlast state: ", last_state
+                        shift = int(lick1 - last_lick1_tick)
                         if shift <= 0:
                             if shift < self.STREAM_SIZE * -1:
                                 shift = -self.STREAM_SIZE + 1
                             if isnan(last_state):
-                                lickarray[shift - 1:] = [i + 1] * (-shift + 1)
+                                lick1array[shift - 1:] = [i + 1] * (-shift + 1)
                             else:
-                                lickarray[shift - 1:] = [nan] * (-shift + 1)
-                        # Lick timestamp exceeds packet sent time. Just change the signal state but don't shift
-                        elif lick > packet_sent_time:
+                                lick1array[shift - 1:] = [nan] * (-shift + 1)
+                        # lick1 timestamp exceeds packet sent time. Just change the signal state but don't shift
+                        elif lick1 > packet_sent_time:
                             if isnan(last_state):
-                                lickarray[-1] = i + 1
+                                lick1array[-1] = i + 1
                             else:
-                                lickarray[-1] = nan
+                                lick1array[-1] = nan
                         else:
                             if shift > self.STREAM_SIZE:
                                 shift = self.STREAM_SIZE - 1
-                            lickarray = hstack((lickarray[-self.STREAM_SIZE + shift:], [lickarray[-1]] * shift))
+                            lick1array = hstack((lick1array[-self.STREAM_SIZE + shift:], [lick1array[-1]] * shift))
                             if isnan(last_state):
-                                lickarray = hstack((lickarray[-self.STREAM_SIZE + 1:], [i + 1]))
+                                lick1array = hstack((lick1array[-self.STREAM_SIZE + 1:], [i + 1]))
                             else:
-                                lickarray = hstack((lickarray[-self.STREAM_SIZE + 1:], [nan]))
-                            last_lick_tick = lick
-                        last_state = lickarray[-1]
-                        # last timestamp of lick signal change
-                        self._last_lick_index = lick
-                    lastshift = int(packet_sent_time - last_lick_tick)
+                                lick1array = hstack((lick1array[-self.STREAM_SIZE + 1:], [nan]))
+                            last_lick1_tick = lick1
+                        last_state = lick1array[-1]
+                        # last timestamp of lick1 signal change
+                        self._last_lick1_index = lick1
+                    lastshift = int(packet_sent_time - last_lick1_tick)
                     if lastshift >= self.STREAM_SIZE:
                         lastshift = self.STREAM_SIZE
-                        lickarray = [lickarray[-1]] * lastshift
-                    elif lastshift > 0 and len(lickarray) > 0:
-                        lickarray = hstack((lickarray[-self.STREAM_SIZE + lastshift:], [lickarray[-1]] * lastshift))
-                if len(lickarray) > 0:
-                    self.stream_lick_data.set_data(licksignal, lickarray)
-                    # self.stream_lick_plot.request_redraw()
-                    lickarrays[i] = lickarray
+                        lick1array = [lick1array[-1]] * lastshift
+                    elif lastshift > 0 and len(lick1array) > 0:
+                        lick1array = hstack((lick1array[-self.STREAM_SIZE + lastshift:], [lick1array[-1]] * lastshift))
+                if len(lick1array) > 0:
+                    self.stream_lick1_data.set_data(lick1signal, lick1array)
+                    # self.stream_lick1_plot.request_redraw()
+                    lick1arrays[i] = lick1array
 
-        return lickarrays
+        return lick1arrays
+
+    def _process_lick2s(self, stream, lick2signals, lick2arrays):
+
+        packet_sent_time = stream['packet_sent_time']
+
+        # TODO: find max shift first, apply it to all lick2s
+        maxtimestamp = int(packet_sent_time)
+        for i in range(len(lick2arrays)):
+            lick2signal = lick2signals[i]
+
+            if lick2signal in stream.keys():
+                streamsignal = stream[lick2signal]
+                if streamsignal is not None and streamsignal[-1] > maxtimestamp:
+                    maxtimestamp = streamsignal[-1]
+                    print "**************************************************************"
+                    print "WARNING! lick2 timestamp exceeds timestamp of received packet: "
+                    print "Packet sent timestamp: ", packet_sent_time, "lick2 timestamp: ", streamsignal[-1]
+                    print "**************************************************************"
+        maxshift = int(packet_sent_time - self._last_stream_index)
+        if maxshift > self.STREAM_SIZE:
+            maxshift = self.STREAM_SIZE - 1
+
+        for i in range(len(lick2arrays)):
+
+            lick2signal = lick2signals[i]
+            lick2array = lick2arrays[i]
+
+            if lick2signal in stream.keys():
+                if stream[lick2signal] is None:
+                    lick2array = hstack((lick2array[-self.STREAM_SIZE + maxshift:], [lick2array[-1]] * maxshift))
+                else:
+                    # print "lick2s: ", stream['lick2'], "\tnum sniffs: ", currentshift
+                    last_state = lick2array[-1]
+                    last_lick2_tick = self._last_stream_index
+                    for lick2 in stream[lick2signal]:
+                        # print "last lick2 tick: ", last_lick2_tick, "\tlast state: ", last_state
+                        shift = int(lick2 - last_lick2_tick)
+                        if shift <= 0:
+                            if shift < self.STREAM_SIZE * -1:
+                                shift = -self.STREAM_SIZE + 1
+                            if isnan(last_state):
+                                lick2array[shift - 1:] = [i + 1] * (-shift + 1)
+                            else:
+                                lick2array[shift - 1:] = [nan] * (-shift + 1)
+                        # lick2 timestamp exceeds packet sent time. Just change the signal state but don't shift
+                        elif lick2 > packet_sent_time:
+                            if isnan(last_state):
+                                lick2array[-1] = i + 1
+                            else:
+                                lick2array[-1] = nan
+                        else:
+                            if shift > self.STREAM_SIZE:
+                                shift = self.STREAM_SIZE - 1
+                            lick2array = hstack((lick2array[-self.STREAM_SIZE + shift:], [lick2array[-1]] * shift))
+                            if isnan(last_state):
+                                lick2array = hstack((lick2array[-self.STREAM_SIZE + 1:], [i + 1]))
+                            else:
+                                lick2array = hstack((lick2array[-self.STREAM_SIZE + 1:], [nan]))
+                            last_lick2_tick = lick2
+                        last_state = lick2array[-1]
+                        # last timestamp of lick2 signal change
+                        self._last_lick2_index = lick2
+                    lastshift = int(packet_sent_time - last_lick2_tick)
+                    if lastshift >= self.STREAM_SIZE:
+                        lastshift = self.STREAM_SIZE
+                        lick2array = [lick2array[-1]] * lastshift
+                    elif lastshift > 0 and len(lick2array) > 0:
+                        lick2array = hstack((lick2array[-self.STREAM_SIZE + lastshift:], [lick2array[-1]] * lastshift))
+                if len(lick2array) > 0:
+                    self.stream_lick2_data.set_data(lick2signal, lick2array)
+                    # self.stream_lick2_plot.request_redraw()
+                    lick2arrays[i] = lick2array
+
+        return lick2arrays
 
     def _process_mris(self, stream, mrisignals, mriarrays):
 
