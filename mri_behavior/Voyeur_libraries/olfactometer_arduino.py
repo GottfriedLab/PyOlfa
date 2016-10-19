@@ -415,7 +415,7 @@ class MFC(QWidget):
     mfcunits = str()
     timer = Instance(QTimer)
     auxilary_analog_read_pin = 6
-    auxilary_analog_write_pin = 1
+    auxilary_analog_write_pin = 2
 
     def __init__(self, parent, monitor, mfcindex, name, value=-1, pollingtime=4000, olfactometer_address=1, MFCtype='alicat_digital'):
         """ creates an MFC widget """
@@ -769,8 +769,8 @@ class Olfactometers(ApplicationWindow):
                 mfc3type = self.config_obj['olfas'][i]['MFC3_type']
             except:
                 mfc3type = 'auxilary_analog'
-            panel.mfc1 = MFC(panel, self.monitor, 1, "Air", olfactometer_address=i + 1, MFCtype=mfc1type)
-            panel.mfc2 = MFC(panel, self.monitor, 2, "Nitrogen", olfactometer_address=i + 1, MFCtype=mfc2type)
+            panel.mfc1 = MFC(panel, self.monitor, 1, "Nitrogen", olfactometer_address=i + 1, MFCtype=mfc1type)
+            panel.mfc2 = MFC(panel, self.monitor, 2, "Air", olfactometer_address=i + 1, MFCtype=mfc2type)
             panel.mfc3 = MFC(panel, self.monitor, 3, "Background", olfactometer_address=i+1, MFCtype=mfc3type)
             panel.start_mfc_polling()
             # define the layout
