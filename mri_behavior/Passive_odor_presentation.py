@@ -616,7 +616,7 @@ class Passive_odor_presentation(Protocol):
 
         # y-axis range. Change this if you want to re-scale or offset it.
         #y_range = DataRange1D(low=-200,high=200) # for training non-mri sniff sensor
-        y_range = DataRange1D(low=-10, high=10)  # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-50, high=50)  # for training non-mri sniff sensor
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
@@ -703,7 +703,47 @@ class Passive_odor_presentation(Protocol):
         
         self.stream_lick_plot = plot
 
+        self.stream_lick_data = ArrayPlotData(iteration=self.iteration,
+                                              lick1=self.lick1)
 
+        # Plot object created with the data definition above.
+        plot = Plot(self.stream_lick_data,
+                    padding=20,
+                    padding_top=0,
+                    padding_bottom=5,
+                    padding_left=70,
+                    border_visible=False,
+                    index_mapper=self.stream_plot.index_mapper)
+
+        # Data array for the signal.
+        # The last value is not nan so that the first incoming streaming value
+        # can be set to nan. Implementation detail on how we start streaming.
+        self.lick1 = [nan] * len(self.iteration)
+        self.lick1[-1] = 0
+        self.stream_lick_data.set_data("iteration", self.iteration)
+        self.stream_lick_data.set_data("lick1", self.lick1)
+
+        # Change plot properties.
+        plot.fixed_preferred_size = (100, 10)
+        y_range = DataRange1D(low=0.99, high=1.01)
+        plot.value_range = y_range
+        plot.y_axis.visible = False
+        plot.x_axis.visible = False
+        plot.title = "Lick"
+        plot.title_position = "left"
+        plot.y_grid = None
+
+        # Add the lines to the plot and grab one of the plot references.
+        event_plot = plot.plot(("iteration", "lick1"),
+                               name="Lick",
+                               color="red",
+                               line_width=8,
+                               render_style="hold")[0]
+
+        # Add the trials overlay to the streaming events plot too.
+        event_plot.overlays.append(rangeselector)
+
+        self.stream_lick_plot = plot
 
         # MRI trigger signal plot
         self.stream_mri_data = ArrayPlotData(iteration=self.iteration,
@@ -1388,8 +1428,8 @@ class Passive_odor_presentation(Protocol):
             "sniff_samples"            : (2, 'unsigned int', db.Int),
             "sniff"                    : (3, 'int', db.FloatArray),
             "lick1"                    : (4, 'unsigned long', db.FloatArray),
-            # "lick2"                    : (5, 'unsigned long', db.FloatArray),
-            "mri"                      : (5, 'unsigned long', db.FloatArray)
+            "lick2"                    : (5, 'unsigned long', db.FloatArray),
+            "mri"                      : (6, 'unsigned long', db.FloatArray)
         }
 
     def process_event_request(self, event):
@@ -1403,6 +1443,8 @@ class Passive_odor_presentation(Protocol):
         self.trial_end = int(event['trial_end'])
 
         # update trials mask
+
+        self._addtrialmask()
         if self.trial_end > self._last_stream_index:
             self._shiftlicks(self.trial_end - self._last_stream_index)
             self._shiftmris(self.trial_end - self._last_stream_index)
@@ -1410,8 +1452,6 @@ class Passive_odor_presentation(Protocol):
 
         # if lasertime != 0:
         #     self._updatelaser(lasertime)
-
-        self._addtrialmask()
 
         # print "****Next Trial: ",  self.trial_number
         # print "****Stimulus_process_event: ", self.current_stimulus
