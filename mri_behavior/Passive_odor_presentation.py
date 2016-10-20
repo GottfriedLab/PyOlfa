@@ -95,6 +95,10 @@ class Passive_odor_presentation(Protocol):
     # Number of initial Go trials to help motivating the subject to start
     # responding to trials.
     INITIAL_LEFT_TRIALS = 0
+
+    # Number of samples for HRF
+    TR = 5000
+    HRF_SAMPLES = 10
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
@@ -151,11 +155,12 @@ class Passive_odor_presentation(Protocol):
     trial_type = Trait(stimuli_categories.keys()[0],
                        stimuli_categories,
                        label="Trial type")
-    water_duration1 = Int(0, label="Left water reward duration")
-    water_duration2 = Int(0, label="Right water reward duration")
+    water_duration1 = Int(0, label="Left water duration")
+    water_duration2 = Int(0, label="Right water duration")
     final_valve_duration = Int(0, label="Final valve duration")
     trial_duration = Int(0, label="Trial duration")
-    inter_trial_interval = Int(0, label='ITI in ms')
+    inter_trial_interval = Int(0, label='ITI')
+    hemodynamic_delay = Int(0, label='HRF phase-lock delay')
     # Amount of time in ms to not count a lick response as the trial choice.
     # If the mouse is impulsive, this prevents uninformed false alarms.
     lick_grace_period = Int(0, label="Lick grace period")
@@ -297,14 +302,13 @@ class Passive_odor_presentation(Protocol):
     auto_final_valve = Button()
     auto_final_valve_label = Str('Final valve cycling (OFF)')
     auto_final_valve_on_duration = Int(2500, label="ON time(ms)")
-    auto_final_valve_off_duration = Int(2500, label="OFF")
+    auto_final_valve_off_duration = Int(2500, label="OFF time")
     auto_final_valve_mode = Enum('Single', 'Continuous', 'Repeated',
                                   label="Mode")
     auto_final_valve_state = Bool(True)
     auto_final_valve_repetitions = Int(5, label="Times")
     auto_final_valve_repetitions_label = Str("Times")
-    auto_final_valve_repetitions_off_time = Int(5, label="Time(ms) between"
-                                                " each repetition")
+    auto_final_valve_repetitions_off_time = Int(5, label="ITI")
     pause_button = Button()
     pause_label = Str('Pause')
     save_as_button = Button("Save as")
@@ -330,7 +334,7 @@ class Passive_odor_presentation(Protocol):
                              mode='slider',
                              enter_set=True)
     pulse_amplitude2 = pulse_amplitude1
-    pulse_duration1 = Int(0, label='Pulse duration (ms)')
+    pulse_duration1 = Int(0, label='Pulse duration')
     pulse_duration2 = pulse_duration1
     
     
@@ -356,39 +360,45 @@ class Passive_odor_presentation(Protocol):
                             label='Application Control',
                             show_border=True
                             ),
-                     HGroup(
-                            Item('auto_final_valve',
-                                 editor=ButtonEditor(
-                                                     style="button",
-                                                     label_value='auto_final'
-                                                                '_valve_label'),
-                                 show_label=False,
-                                 enabled_when='not monitor.running'),
-                            Item('auto_final_valve_on_duration'),
-                            Item('auto_final_valve_off_duration',
-                                 visible_when='auto_final_valve_mode != \
-                                               "Single"'),
-                            show_border=False
-                            ),
-                     HGroup(
-                            Item('auto_final_valve_mode'),
-                            spring,
-                            Item('auto_final_valve_repetitions',
-                                 visible_when='auto_final_valve_mode == \
+                     VGroup(
+                             HGroup(
+                                    Item('auto_final_valve',
+                                         editor=ButtonEditor(
+                                                             style="button",
+                                                             label_value='auto_final'
+                                                                        '_valve_label'),
+                                         show_label=False,
+                                         enabled_when='not monitor.running'),
+                                    Item('auto_final_valve_on_duration'),
+                                    Item('auto_final_valve_off_duration',
+                                         visible_when='auto_final_valve_mode != \
+                                                       "Single"'),
+                                    show_border=False
+                                    ),
+                             HGroup(
+                                    Item('auto_final_valve_mode'),
+                                    spring,
+                                    Item('auto_final_valve_repetitions',
+                                         visible_when='auto_final_valve_mode == \
+                                                         "Repeated"',
+                                         show_label=False,
+                                         width=-70),
+                                    Item("auto_final_valve_repetitions_label",
+                                         visible_when='auto_final_valve_mode == \
                                                  "Repeated"',
-                                 show_label=False),
-                            Item("auto_final_valve_repetitions_label",
-                                  visible_when='auto_final_valve_mode == \
-                                                 "Repeated"',
-                                  show_label=False,
-                                  style='readonly'),
-                            spring                            
-                            ),
-                     Item('auto_final_valve_repetitions_off_time',
-                                 visible_when='auto_final_valve_mode == \
-                                                 "Repeated"'),                     
-                     label='',
-                     show_border=True,
+                                         show_label=False,
+                                         style='readonly'),
+                                    spring,
+                                    Item('auto_final_valve_repetitions_off_time',
+                                         visible_when='auto_final_valve_mode == \
+                                                                "Repeated"',
+                                         width=-70),
+                                    label='',
+                                    show_border=False,
+                                    ),
+                             label = '',
+                             show_border = True,
+                             )
                      )
     
     arduino_group = VGroup(
@@ -401,57 +411,25 @@ class Passive_odor_presentation(Protocol):
                                   VGroup(
                                        Item('left_water_button',
                                             editor=ButtonEditor(
-                                                label_value='left_water_label',
                                                 style="button"),
                                             show_label=False),
                                        Item('left_water_calibrate_button',
                                             editor=ButtonEditor(
-                                                label_value='left_water_calibrate_label',
                                                 style="button"),
                                             show_label=False),
+                                       Item('water_duration1')
                                         ),
                                   VGroup(
-                                      Item('right_water_button',
+                                       Item('right_water_button',
                                             editor=ButtonEditor(
-                                                label_value='right_water_label',
                                                 style="button"),
                                             show_label=False),
-                                      Item('right_water_calibrate_button',
+                                       Item('right_water_calibrate_button',
                                             editor=ButtonEditor(
-                                                label_value='right_water_calibrate_label',
                                                 style="button"),
                                             show_label=False),
+                                       Item('water_duration2')
                                         ),
-                                  VGroup(
-                                      Item('water_duration1'),
-                                      Item('water_duration2'),
-                                        )
-                                  ),
-                           HGroup(
-                                  Item('pulse_generator1_button',
-                                       label="Pulse generator 1",
-                                       show_label=True,
-                                       width = -50,
-                                       enabled_when='not monitor.recording'),
-                                  Item('pulse_amplitude1',
-                                       label="Amplitude",
-                                       editor=DefaultOverride(
-                                                high_label='5000(mv)',
-                                                low_label='0(mv)')),
-                                  Item('pulse_duration1')
-                                  ),
-                           HGroup(
-                                  Item('pulse_generator2_button',
-                                       label="Pulse generator 2",
-                                       width=-50,
-                                       show_label=True,
-                                       enabled_when='not monitor.recording'),
-                                  Item('pulse_amplitude2',
-                                       label="Amplitude",
-                                       editor=DefaultOverride(
-                                                high_label='5000(mv)',
-                                                low_label='0(mv)')),
-                                  Item('pulse_duration2')
                                   ),
                            label="Arduino Control",
                            show_border=True
@@ -478,7 +456,7 @@ class Passive_odor_presentation(Protocol):
                                  spring,
                                  Item('block_size',
                                       visible_when='enable_blocks',
-                                      width=-50,
+                                      width=-70,
                                       tooltip="Block Size",
                                       full_size=False,
                                       springy=True,
@@ -488,7 +466,7 @@ class Passive_odor_presentation(Protocol):
                                  Item('rewards', style='readonly'),
                                  spring,
                                  Item('max_rewards',
-                                      width=-50,
+                                      width=-70,
                                       tooltip="Maximum number of rewarded" 
                                                    " trials")
                                  ),
@@ -499,22 +477,23 @@ class Passive_odor_presentation(Protocol):
     
     current_trial_group = Group(
                                 HGroup(
-                                       Item('trial_number', style='readonly'),
+                                       Item('trial_number', style='readonly',
+                                            width=-70),
                                        Item('trial_type'),
                                        ),
                                 HGroup(
                                        Item('trial_duration'),
-                                       Item('inter_trial_interval')
+                                       Item('inter_trial_interval'),
+                                       Item('hemodynamic_delay')
                                        ),
                                 HGroup(
                                        Item('odorant',
                                             style='readonly'),
                                        spring,
-                                       Item('nitrogen_flow', width=-40),
-                                       Item('air_flow', width=-40)
+                                       Item('nitrogen_flow', width=-70),
+                                       Item('air_flow', width=-70)
                                        ),
                                 HGroup(
-                                       # Item('light_trigger_phase'),
                                        Item('odorant_trigger_phase')
                                        ),
                                 label='Current Trial',
@@ -526,8 +505,8 @@ class Passive_odor_presentation(Protocol):
                              HGroup(
                                     Item('next_odorant',
                                          style="readonly"),
-                                    Item('next_nitrogen_flow', width=-40),
-                                    Item('next_air_flow', width=-40)
+                                    Item('next_nitrogen_flow', width=-70),
+                                    Item('next_air_flow', width=-70)
                                     ),
                              label='Next Trial',
                              show_border=True
@@ -1262,6 +1241,7 @@ class Passive_odor_presentation(Protocol):
                         trial_duration,
                         odorant_trigger_phase_code,
                         lick_grace_period,
+                        hemodynamic_delay,
                         **kwtraits):
         
         super(Passive_odor_presentation, self).__init__(**kwtraits)
@@ -1292,6 +1272,7 @@ class Passive_odor_presentation(Protocol):
         self.final_valve_duration = final_valve_duration
         self.trial_duration = trial_duration
         self.odorant_trigger_phase_code = odorant_trigger_phase_code
+        self.hemodynamic_delay = hemodynamic_delay
         
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
@@ -1366,7 +1347,8 @@ class Passive_odor_presentation(Protocol):
                     "inter_trial_interval"      : (4, db.Int, self.inter_trial_interval),
                     "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
                     "trial_type_id"             : (6, db.Int, self.current_stimulus.id),
-                    "lick_grace_period"         : (7, db.Int, self.lick_grace_period)
+                    "lick_grace_period"         : (7, db.Int, self.lick_grace_period),
+                    "hemodynamic_delay"         : (8, db.Int, self.hemodynamic_delay)
         }
    
         return TrialParameters(
@@ -1403,7 +1385,8 @@ class Passive_odor_presentation(Protocol):
             "inter_trial_interval"       : db.Int,
             "odorant_trigger_phase_code" : db.Int,
             "trial_type_id"              : db.Int,
-            "lick_grace_period"          : db.Int
+            "lick_grace_period"          : db.Int,
+            "hemodynamic_delay"          : db.Int
         }
            
         return params_def
@@ -1416,9 +1399,8 @@ class Passive_odor_presentation(Protocol):
             "trial_start"             : (2, db.Int),
             "trial_end"               : (3, db.Int),
             "final_valve_onset"       : (4, db.Int),
-            "hrf_phase"               : (5, db.Int),
-            "response"                : (6, db.Int),
-            "first_lick"              : (7, db.Int)
+            "response"                : (5, db.Int),
+            "first_lick"              : (6, db.Int)
         }
 
     def stream_definition(self):
@@ -1467,9 +1449,10 @@ class Passive_odor_presentation(Protocol):
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
         else:
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
-        
-        
+
         self.responses = append(self.responses, response)
+
+        self.hemodynamic_delay = randint(0,self.HRF_SAMPLES-1) * self.TR / self.HRF_SAMPLES
         
         #update a couple last parameters from the next_stimulus object, then make it the current_stimulus..
         self.calculate_current_trial_parameters()
@@ -2004,6 +1987,7 @@ if __name__ == '__main__':
     session = 18
     stamp = time_stamp()
     inter_trial_interval = 8000
+    hemodynamic_delay = 0
     
     # protocol
     protocol = Passive_odor_presentation(trial_number,
@@ -2016,7 +2000,8 @@ if __name__ == '__main__':
                                          final_valve_duration,
                                          trial_duration,
                                          odorant_trigger_phase_code,
-                                         lick_grace_period
+                                         lick_grace_period,
+                                         hemodynamic_delay
                                          )
 
     # Testing code when no hardware attached.
