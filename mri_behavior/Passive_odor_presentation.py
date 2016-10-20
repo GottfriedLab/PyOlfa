@@ -894,8 +894,8 @@ class Passive_odor_presentation(Protocol):
         self.stimuli["Left"] = []
         
         self.lick_grace_period = 10 # grace period after FV open where responses are recorded but not scored.
-        self.iti_bounds = [4000,7000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
-        self.iti_bounds_false_alarm = [13000,16000] #ITI in ms for false alarm responses (punishment).
+        self.iti_bounds = [4000,6000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
+        self.iti_bounds_false_alarm = [13000,15000] #ITI in ms for false alarm responses (punishment).
         
         left_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'pinene', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
                                 flows=[(0, 0)],  # [(AIR, Nitrogen)]
@@ -1458,12 +1458,12 @@ class Passive_odor_presentation(Protocol):
         # print "****Stimulus_process_event: ", self.current_stimulus
 
         response = int(event['response'])
-        if (response == 1): # a hit.
+        if (response == 1) or (response == 2): # a hit.
             self.rewards += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
                 self._start_button_fired()  # ends the session if the reward target has been reached.
 
-        if (response == 4): # a false alarm
+        if (response == 3) or (response == 4): # a false alarm
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
         else:
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
