@@ -851,11 +851,11 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-        self.olfactometer = Olfactometers(None, config_obj=self.config)
-        if len(self.olfactometer.olfas) == 0:
-            self.olfactometer = None
-        self.olfactometer = None
-        self._setflows()
+        # self.olfactometer = Olfactometers(config_obj=self.config)
+        # if len(self.olfactometer.olfas) == 0:
+        #     self.olfactometer = None
+        # self.olfactometer = None
+        # self._setflows()
 
         return
 
@@ -877,7 +877,7 @@ class Passive_odor_presentation(Protocol):
         self.iti_bounds_false_alarm = [13000,15000] #ITI in ms for false alarm responses (punishment).
         
         left_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'pinene', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-                                flows=[(0, 0)],  # [(AIR, Nitrogen)]
+                                flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                 # Format: [POWER, DURATION_OF_PULSE (in us!!), DELAY FROM INHALE/EXHALE TRIGGER, CHANNEL]
                                 laserstims=[(self.laser_power_table['20mW'][0], # Amplitude for the first channel
                                              10000,  # Duration in microseconds for the first channel
@@ -896,7 +896,7 @@ class Passive_odor_presentation(Protocol):
                                 trial_type = "Left"
                                 )
         right_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'Ethyl_Tiglate', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-                                flows=[(0, 0)],  # [(AIR, Nitrogen)] 
+                                flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                 # Format: [POWER, DURATION_OF_PULSE (in us!!), DELAY FROM INHALE/EXHALE TRIGGER, CHANNEL]
                                 laserstims=[],
                                 id=0,
@@ -1063,9 +1063,9 @@ class Passive_odor_presentation(Protocol):
             self.start_label = 'Start'
             if self.olfactometer is not None:
                 for i in range(self.olfactometer.deviceCount):
-                    self.olfactometer.olfas[i].valves.setdummyvalve(valvestate=0)
-#                    self.olfactometer.olfas[i].mfc1.setMFCrate(0)
-#                    self.olfactometer.olfas[i].mfc2.setMFCrate(0)
+                    self.olfactometer.olfas[i].mfc1.setMFCrate(self.olfactometer.olfas[i].mfc1, 0)
+                    self.olfactometer.olfas[i].mfc2.setMFCrate(self.olfactometer.olfas[i].mfc2, 0)
+                    self.olfactometer.olfas[i].mfc3.setMFCrate(self.olfactometer.olfas[i].mfc3, 0)
             if self.final_valve_label == "Final Valve (ON)":
                 self._final_valve_button_fired()
             self.monitor.stop_acquisition()
@@ -1076,7 +1076,6 @@ class Passive_odor_presentation(Protocol):
             self.start_label = 'Stop'
             self._restart()
             self._odorvalveon()
-            # self._callibrate()
             self.monitor.database_file = 'C:/VoyeurData/' + self.db
             self.monitor.start_acquisition()
             # TODO: make the monitor start acquisition start an ITI, not a trial.
@@ -1140,7 +1139,7 @@ class Passive_odor_presentation(Protocol):
             self.monitor.pause_acquisition()
             if self.olfactometer is not None:
                 for i in range(self.olfactometer.deviceCount):
-                    self.olfactometer.olfas[i].valves.setdummyvalve(valvestate=0)
+                    self.olfactometer.olfas[i].valves.set_background_valve(valve_state=0)
             self.pause_label = 'Unpause'
         else:
             self.pause_label = 'Pause'
@@ -1300,21 +1299,21 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-
-        if self.ARDUINO:
-            self.monitor = Monitor()
-            self.monitor.protocol = self
-
-        self.olfactometer = Olfactometers(None, config_obj=self.config)
-        try:
-            self.olfactometer.create_serial(self.olfaComPort1)
-        except:
-            self.olfactometer.olfas = []
+        self.olfactometer = Olfactometers(config_obj=self.config)
+        # try:
+        #     self.monitor = self.olfactometer.create_serial(self.olfaComPort1)
+        # except:
+        #     self.olfactometer.olfas = []
         if len(self.olfactometer.olfas) == 0:
+            print "self.olfactometer = None"
             self.olfactometer = None
         else:
             self.olfactometer.olfas[0].valves.set_background_valve(valve_state=0)
         self._setflows()
+
+        if self.ARDUINO:
+            self.monitor = Monitor()
+            self.monitor.protocol = self
 
 
     def trial_parameters(self):
@@ -1433,11 +1432,6 @@ class Passive_odor_presentation(Protocol):
             self._shiftmris(self.trial_end - self._last_stream_index)
             self._last_stream_index = self.trial_end
 
-        # if lasertime != 0:
-        #     self._updatelaser(lasertime)
-
-        # print "****Next Trial: ",  self.trial_number
-        # print "****Stimulus_process_event: ", self.current_stimulus
 
         response = int(event['response'])
         if (response == 1) or (response == 2): # a hit.
@@ -1795,14 +1789,14 @@ class Passive_odor_presentation(Protocol):
             # print "current stim: ", self.current_stimulus
             olfa = self.olfas[i]
             olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
-            # print "setting odorant valve: ", olfavalve
+            print "setting odorant valve: ", olfavalve
             if olfavalve != 0:
-                self.olfactometer.olfas[i].valves.setodorvalve(olfavalve) #set the vial,
-                if self.olfactometer.olfas[i].valves.checkedID != olfavalve: #check that the vial was set...
-                    self._pause_button_fired()
-                    print "Pausing, valve not set due to lockout or error, see error above."
-        """olfavalve = self.olfas[0][self.current_stimulus.odorvalves[0]][2]
-        self.olfactometer.olfas[0].valves.setodorvalve(olfavalve)"""
+                self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) #set the vial,
+        #         if self.olfactometer.olfas[i].valves.checkedID != olfavalve: #check that the vial was set...
+        #             self._pause_button_fired()
+        #             print "Pausing, valve not set due to lockout or error, see error above."
+        # """olfavalve = self.olfas[0][self.current_stimulus.odorvalves[0]][2]
+        # self.olfactometer.olfas[0].valves.setodorvalve(olfavalve)"""
     
     
     def _setflows(self):
@@ -1813,6 +1807,7 @@ class Passive_odor_presentation(Protocol):
 
         for i in range(1, self.olfactometer.deviceCount + 1):
             self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][0])
+            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
             self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][1])
 
     def end_of_trial(self):
@@ -1823,7 +1818,7 @@ class Passive_odor_presentation(Protocol):
                 olfa = self.olfas[i]
                 olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
                 if olfavalve != 0:
-                    self.olfactometer.olfas[i].valves.setodorvalve(olfavalve, 0)
+                    self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve, 0)
 
     
     def generate_next_stimulus_block(self):

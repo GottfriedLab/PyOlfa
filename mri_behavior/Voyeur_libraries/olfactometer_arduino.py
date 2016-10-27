@@ -65,7 +65,7 @@ class Valvegroup(QWidget, QObject):
     # contamination. Value is in milliseconds.
     MINIMUM_VALVE_OFF_TIME = 1000
     def __init__(self,
-                 monitor, 
+                 monitor,
                  parent=None, 
                  name="Odor Valves", 
                  olfactometer_address=1, 
@@ -88,7 +88,7 @@ class Valvegroup(QWidget, QObject):
                                 This represents a dummy vial that should
                                 normally output no odorant.
         valve_numbers         : is the [lower, upper) limit for the sequential
-                                numbering of the valves/vial channels. I.e the
+-                                numbering of the valves/vial channels. I.e the
                                 valves/vials will be numbered from lower to 
                                 upper-1.
         
@@ -114,7 +114,7 @@ class Valvegroup(QWidget, QObject):
         # Flag that indicates if a valve/vial can be safely opened without
         # risking contamination. The lock out time is MINIMUM_VALVE_OFF_TIME .
         self.safe_to_open = True
-        
+
         # Add the buttons for each valve/vial.
         for valve_number in range(valve_numbers[0], valve_numbers[1]):
             button = QPushButton(str(valve_number))
@@ -132,9 +132,9 @@ class Valvegroup(QWidget, QObject):
         buttonlayout.addStretch(1)
         self.ON_valve = 0
         # Turn off any vials that may be open.
-        if monitor is not None:
-            self.all_OFF()
-            self.valves.button(self.background_vial).setChecked(True)
+        # if monitor is not None:
+        self.all_OFF()
+        self.valves.button(self.background_vial).setChecked(True)
         # Button clicked signal.
         self.connect(self.valves, SIGNAL('buttonClicked (int)'),
                      self._button_clicked)
@@ -168,10 +168,10 @@ class Valvegroup(QWidget, QObject):
         # A different button was pressed. Turn ON the new vial if possible.
         else:
             self.set_odor_valve(button_number)
-        # If the valve was not set, don't change the button that is checked.
-        if (self.valves.checkedId() != self.ON_valve and self.ON_valve > 0):
-            self.valves.button(self.ON_valve).setChecked(True)
-            self._paint_button(self.valves.button(self.ON_valve), True)
+        # # If the valve was not set, don't change the button that is checked.
+        # if (self.valves.checkedID() != self.ON_valve and self.ON_valve > 0):
+        #     self.valves.button(self.ON_valve).setChecked(True)
+        #     self._paint_button(self.valves.button(self.ON_valve), True)
         
     def _clear_valve_lockout(self):
         """ Clear the lockout and allow new odor channels to open. """ 
@@ -201,6 +201,8 @@ class Valvegroup(QWidget, QObject):
         """ Send a command to the olfactometer hardware. """
 
         line = self.olfa_communication.send_command(command)
+        print "send command\t", command
+        print "read line\t", line
         if line.split()[0] != 'Error':
             return True
         else:
@@ -247,9 +249,9 @@ class Valvegroup(QWidget, QObject):
                             str(valve_number)
                 if self._send_command(command):
                     self.safe_to_open = False
-                    if self.ON_valve != 0:
-                        self._paint_button(self.valves.button(self.ON_valve),
-                                           False)
+                    # if self.ON_valve != 0:
+                    #     self._paint_button(self.valves.button(self.ON_valve),
+                    #                        False)
                     self.ON_valve = valve_number
                     button = self.valves.button(valve_number)
                     button.setChecked(True)
@@ -575,13 +577,14 @@ class Olfactometer(QWidget):
         return
 
     def check_MFCs(self):
+        print "self.mfcs\t", self.mfcs
         flows_on = True
         for mfc in self.mfcs:
             time_elapsed = time.time() - mfc.last_poll_time
             if time_elapsed > 2.1 * self.polling_interval:  #TODO: don't hardcode this, although this is ~2 timer ticks.
                 raise Exception('MFC polling is not ok.')
             if mfc.flow <= 0.:
-                print '{0} MCF reporting no flow.'.format(mfc.name)
+                print '{0} MFC reporting no flow.'.format(mfc.name)
                 flows_on = False
         return flows_on
     
@@ -662,7 +665,6 @@ class SerialMonitor(Serial):
             self.write("\r")
             line = self.read_line()
 #            if line == (command+'\r\n'):
-#                print "Echoed command: ", line
             line = self.read_line()
             morebytes = self.inWaiting()
             if morebytes:
@@ -699,18 +701,15 @@ class Olfactometers(ApplicationWindow):
     # olfa =
     monitor = Instance(object)
     deviceCount = 1
-    """mfc1 = Instance(MFC) # Mass flow controller object
-    mfc2 = Instance(MFC)
-    valves = Instance(Valvegroup) # Valve group object"""
     ###########################################################################
     # 'object' interface.
     ###########################################################################
-    def __init__(self, monitor, config_obj, **traits):
+    def __init__(self, config_obj, **traits):
         """ Creates a new application window. """
         # Base class constructor.
         super(Olfactometers, self).__init__(**traits)
         # Create an action that exits the application.
-        exit_action = Action(name='E&xit', on_perform=self.close)
+        exit_action = Action(name='Exit', on_perform=self.close)
         # Serial Ports Menu
         self.serialPorts = MenuManager(name='Serial Port:')
         # Get the names from the OS
@@ -720,11 +719,14 @@ class Olfactometers(ApplicationWindow):
             portchoice = SerialSelectionAction(name=portname, controller=self, style='radio')
             self.serialPorts.append(portchoice)
             self.serialList.append(portname)
-        # TODO: extend the Behaviour Box option to the connection list
-        if monitor is not None:
-            portchoice = SerialSelectionAction(name="Behaviour Box", controller=self, style='radio')
-            self.serialPorts.append(portchoice)
-            self.serialList.append("Behaviour Box")
+
+        # # TODO: extend the Behaviour Box option to the connection list
+        # if monitor is not None:
+        #     portchoice = SerialSelectionAction(name="Behaviour Box", controller=self, style='radio')
+        #     self.serialPorts.append(portchoice)
+        #     self.serialList.append("Behaviour Box")
+
+
         self.testing_mode = Action(style='toggle', name="Test Mode",
                                    on_perform=self._testing)
         # Add a menu bar.
@@ -741,19 +743,15 @@ class Olfactometers(ApplicationWindow):
                         self.testing_mode,
                         name='&Tools')
         )
-#        self.status_bar_manager = StatusBarManager(message='hi')
-#        self._create_status_bar(self.control)
-        # status_bar = self.status_bar_manager.create_status_bar(self.control)
+
         # monitor is the Voyeur Monitor that handles the COM port
-        self.monitor = monitor
+        self.monitor = SerialMonitor(port='COM4', baudrate=SerialMonitor.BAUDRATE, timeout=1)
+        # self.create_serial('COM4')
         self.config_obj = config_obj
         # check monitor serial connection
-        if (self.monitor is None):# or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
+        if (self.monitor is None):#or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
             print "Arduino Serial comm failed: Port not open"
-            # return None
-        # else:
-            # TODO: find device number
-            # self.devicecount =
+
         for i in range(self.deviceCount):
             panel = Olfactometer(self.control)
             panel.valves = Valvegroup(self.monitor, panel, olfactometer_address=i + 1)
@@ -810,6 +808,7 @@ class Olfactometers(ApplicationWindow):
     def create_serial(self, serial,verbose = True):
         """ Create a Serial connection to the Olfactometer """
         self.monitor = SerialMonitor(port=serial, baudrate=SerialMonitor.BAUDRATE, timeout=1)
+
         if self.monitor.isOpen():
             if verbose:
                 information(self.control, "Port Opened!", serial)
@@ -1039,7 +1038,7 @@ if __name__ == '__main__':
     gui = GUI()
     # Create and open the main window.
     config_obj = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
-    window = Olfactometers(None, config_obj=config_obj)
+    window = Olfactometers(config_obj=config_obj)
     window.open()
     # Start the GUI event loop!
     gui.start_event_loop()
