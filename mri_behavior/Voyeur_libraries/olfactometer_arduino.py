@@ -419,7 +419,7 @@ class MFC(QWidget):
     auxilary_analog_read_pin = 6
     auxilary_analog_write_pin = 2
 
-    def __init__(self, parent, monitor, mfcindex, name, MFCtype, olfactometer_address, value=-1, pollingtime=4000):
+    def __init__(self, parent, monitor, mfcindex, name, value=-1, pollingtime=4000, olfactometer_address=1, MFCtype='alicat_digital'):
         """ creates an MFC widget """
 
         self.setMFCrate = MFCprotocols[MFCtype]['setMFCrate']
@@ -432,7 +432,7 @@ class MFC(QWidget):
         self.parent_olfactometer = parent
         self.mfcindex = mfcindex  # index of MFC in the module
         self.olfactometer_address = olfactometer_address  # index of the slave in the system
-        self.flow = 0
+        self.flow = 0.
         # TODO: Get MFC info if operating in digital mode
         # self._getMFCtype()
         if name == "Air":
@@ -511,7 +511,6 @@ class MFC(QWidget):
     def _sliderchanged(self):
         """ Slot when the slider has been changed and released """
         value = float(self.mfcslider.value())
-        print "sliderchanged value\t", value
         # if value is different from current rate, set the new rate
         if abs(value - self.mfcvalue) > 0.0005:
             self.setMFCrate(self, value)
@@ -543,7 +542,6 @@ class Olfactometer(QWidget):
     """ Olfactometer widget that contains the widgets for a single parent_olfactometer """
     mfc1 = Instance(MFC)  # Mass flow controller object
     mfc2 = Instance(MFC)
-    mfc3 = Instance(MFC)
     valves = Instance(Valvegroup)  # Valve group object
     def __init__(self, parent):
         """ creates an Olfactometer widget """
@@ -556,7 +554,7 @@ class Olfactometer(QWidget):
 
     def start_mfc_polling(self, polling_interval_ms=2000):
         self.polling_interval = polling_interval_ms
-        self.mfcs = [self.mfc1, self.mfc2, self.mfc3]
+        self.mfcs = [self.mfc1, self.mfc2]
         self.last_mfc_checks = []
         for mfc in self.mfcs:
             self.last_mfc_checks.append(0.)
@@ -579,6 +577,7 @@ class Olfactometer(QWidget):
         return
 
     def check_MFCs(self):
+        print "self.mfcs\t", self.mfcs
         flows_on = True
         for mfc in self.mfcs:
             time_elapsed = time.time() - mfc.last_poll_time
@@ -768,9 +767,9 @@ class Olfactometers(ApplicationWindow):
                 mfc3type = self.config_obj['olfas'][i]['MFC3_type']
             except:
                 mfc3type = 'auxilary_analog'
-            panel.mfc1 = MFC(panel, self.monitor, 1, "Nitrogen", MFCtype=mfc1type, olfactometer_address=i + 1)
-            panel.mfc2 = MFC(panel, self.monitor, 2, "Air", MFCtype=mfc2type, olfactometer_address=i + 1)
-            panel.mfc3 = MFC(panel, self.monitor, 3, "Background", MFCtype=mfc3type, olfactometer_address=i + 1)
+            panel.mfc1 = MFC(panel, self.monitor, 1, "Nitrogen", olfactometer_address=i + 1, MFCtype=mfc1type)
+            panel.mfc2 = MFC(panel, self.monitor, 2, "Air", olfactometer_address=i + 1, MFCtype=mfc2type)
+            panel.mfc3 = MFC(panel, self.monitor, 3, "Background", olfactometer_address=i+1, MFCtype=mfc3type)
             panel.start_mfc_polling()
             # define the layout
             grid = QGridLayout(panel)
@@ -873,12 +872,10 @@ def setMFCrate_analog(self, flowrate, *args, **kwargs):
     # if the rate is already what it should be don't do anything
     if abs(flowrate - self.mfcvalue) < 0.0005:
         return  # floating points have inherent imprecision when using comparisons
-    command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flowrate / 100)
-    print "setMFCrate_analog flow rate\t", self.mfcindex, flowrate, self.mfccapacity
-
-    confirmation = self.olfa_communication.send_command(command)
-    if(confirmation != "MFC set\r\n"):
-        print "Error setting MFC: ", confirmation
+    command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flowrate * 1.0 / self.mfccapacity)
+    set = self.olfa_communication.send_command(command)
+    if(set != "MFC set\r\n"):
+        print "Error setting MFC: ", set
     self.mfcvalue = float(flowrate)
     self.mfcslider.setValue(self.mfcvalue)
 
@@ -897,11 +894,10 @@ def setMFCrate_alicat(self, flowrate, *args, **kwargs):
         return
     if abs(flowrate-self.mfcvalue) < 0.0005:
         return
-    flownum = (flowrate * 1. / self.mfccapacity) * 64000. # CHECK IF THIS FLOW RATE FORMULA IS CORRECT OR NOT
+    flownum = (flowrate * 1. / self.mfccapacity) * 64000.
     flownum = int(flownum)
     command = "DMFC {0:d} {1:d} A{2:d}".format(self.olfactometer_address, self.mfcindex, flownum)
     confirmation = self.olfa_communication.send_command(command)
-    print "setMFCrate_alicat confirmation\t", confirmation
     if(confirmation != "MFC set\r\n"):
         print "Error setting MFC: ", confirmation
     else:
@@ -986,7 +982,7 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
         self.flow = rate
         if (rate < 0):
             print "Couldn't get MFC flow rate measure"
-            print "mfc index: " + str(self.mfcindex), "error code: ", self.flow
+            print "mfc index: " + str(self.mfcindex), "error code: ", flow
             return None
         return rate
     return None
@@ -1014,13 +1010,13 @@ def set_MFC_rate_auxilary_analog(self, flow_rate, *args, **kwargs):
         return
     command = "analogSet {0:d} {1:d} {2:f}".format(self.olfactometer_address,
                                                self.auxilary_analog_write_pin,
-                                               flow_rate/100)
-    print "MFC_rate_auxilary_analog flow rate\t", flow_rate
+                                               flow_rate/self.mfccapacity)
     confirmation = self.olfa_communication.send_command(command)
     if(confirmation != "analog-out set\r\n"):
         print "Error setting MFC: ", confirmation
         return
-
+        
+    self.mfcvalue = float(flow_rate)
     self.mfcslider.setValue(self.mfcvalue)
 
 analog_protocol = {'getMFCrate': getMFCrate_analog,
