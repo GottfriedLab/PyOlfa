@@ -1300,10 +1300,6 @@ class Passive_odor_presentation(Protocol):
         time.clock()
 
         self.olfactometer = Olfactometers(config_obj=self.config)
-        # try:
-        #     self.monitor = self.olfactometer.create_serial(self.olfaComPort1)
-        # except:
-        #     self.olfactometer.olfas = []
         if len(self.olfactometer.olfas) == 0:
             print "self.olfactometer = None"
             self.olfactometer = None
@@ -1461,8 +1457,8 @@ class Passive_odor_presentation(Protocol):
         self._setflows()
         odorvalve = self.current_stimulus.odorvalves[0]
         valveConc = self.olfas[0][odorvalve][1]
-        self.air_flow = self.current_stimulus.flows[0][0]
         self.nitrogen_flow = self.current_stimulus.flows[0][1]
+        self.air_flow = self.current_stimulus.flows[0][0]
         self.odorant = self.olfas[0][odorvalve][0]
         self.percent_correct = (float(self.rewards) / float(self.trial_number)) * 100
 
@@ -1807,8 +1803,8 @@ class Passive_odor_presentation(Protocol):
 
         for i in range(1, self.olfactometer.deviceCount + 1):
             self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
-            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][1])
-            self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, self.current_stimulus.flows[i - 1][1])
+            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
+            self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
 
     def end_of_trial(self):
         # set new trial parameters

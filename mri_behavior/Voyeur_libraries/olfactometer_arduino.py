@@ -201,8 +201,6 @@ class Valvegroup(QWidget, QObject):
         """ Send a command to the olfactometer hardware. """
 
         line = self.olfa_communication.send_command(command)
-        print "send command\t", command
-        print "read line\t", line
         if line.split()[0] != 'Error':
             return True
         else:
@@ -863,23 +861,23 @@ def getMFCrate_analog(self, *args, **kwargs):
         return float(rate)
     return
 
-def setMFCrate_analog(self, flowrate, *args, **kwargs):
+def setMFCrate_analog(self, flow_rate, *args, **kwargs):
     """ sets the value of the MFC flow rate setting as a % from 0.0 to 100.0
         argument is the absolute flow rate """
     if self.olfa_communication is None:
         return
-    if flowrate > self.mfccapacity or flowrate < 0:
+    if flow_rate > self.mfccapacity or flow_rate < 0:
         return  # warn about setting the wrong value here
     # if the rate is already what it should be don't do anything
-    if abs(flowrate - self.mfcvalue) < 0.0005:
+    if abs(flow_rate - self.mfcvalue) < 0.0005:
         return  # floating points have inherent imprecision when using comparisons
-    command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flowrate / 100)
-    print "setMFCrate_analog flow rate\t", self.mfcindex, flowrate, self.mfccapacity
+    command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flow_rate/(self.mfccapacity*1.0))
+    print "setMFCrate_analog flow rate\t", command, flow_rate, self.mfccapacity
 
     confirmation = self.olfa_communication.send_command(command)
     if(confirmation != "MFC set\r\n"):
         print "Error setting MFC: ", confirmation
-    self.mfcvalue = float(flowrate)
+    self.mfcvalue = float(flow_rate)
     self.mfcslider.setValue(self.mfcvalue)
 
 def setMFCrate_alicat(self, flowrate, *args, **kwargs):
@@ -1014,13 +1012,14 @@ def set_MFC_rate_auxilary_analog(self, flow_rate, *args, **kwargs):
         return
     command = "analogSet {0:d} {1:d} {2:f}".format(self.olfactometer_address,
                                                self.auxilary_analog_write_pin,
-                                               flow_rate/100)
-    print "MFC_rate_auxilary_analog flow rate\t", flow_rate
+                                               flow_rate/(self.mfccapacity*1.0))
+    print "MFC_rate_auxilary_analog command\t", command
     confirmation = self.olfa_communication.send_command(command)
     if(confirmation != "analog-out set\r\n"):
         print "Error setting MFC: ", confirmation
         return
 
+    self.mfcvalue = float(flow_rate)
     self.mfcslider.setValue(self.mfcvalue)
 
 analog_protocol = {'getMFCrate': getMFCrate_analog,
