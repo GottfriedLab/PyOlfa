@@ -876,10 +876,11 @@ class Passive_odor_presentation(Protocol):
         self.iti_bounds = [4000,6000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
         self.iti_bounds_false_alarm = [13000,15000] #ITI in ms for false alarm responses (punishment).
         
-        left_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'pinene', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-                                flows=[(900, 100)],  # [(AIR, Nitrogen)]
+        left_stimulus = LaserTrainStimulus(
+                                odorvalves = (find_odor_vial(self.olfas, 'Eugenol', self.dillutors['dillutor_01'][0])['key'][0]),  # find the vial with Eugenol. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
+                                flows = [self.dillutors['dillutor_01'][1], self.dillutors['dillutor_01'][2]],  # [(AIR, Nitrogen)]
                                 # Format: [POWER, DURATION_OF_PULSE (in us!!), DELAY FROM INHALE/EXHALE TRIGGER, CHANNEL]
-                                laserstims=[(self.laser_power_table['20mW'][0], # Amplitude for the first channel
+                                laserstims = [(self.laser_power_table['20mW'][0], # Amplitude for the first channel
                                              10000,  # Duration in microseconds for the first channel
                                              25,  # Onset latency for the first channel
                                              1),  # Pulse hardware output channel
@@ -887,6 +888,7 @@ class Passive_odor_presentation(Protocol):
                                              10000,
                                              25,
                                              2)],
+                                dillution = self.dillutors['dillutor_01'][0],
                                 #example: [self.laser_power_table['20mW'][1], laserduration, delay, 2]
                                 id = 1,
                                 description="Left stimulus",
@@ -894,11 +896,13 @@ class Passive_odor_presentation(Protocol):
                                 numPulses=[1, 1],  # number of pulses that you want.
                                 pulseOffDuration=[500, 500],  # interval between pulses if you want more than one pulse.
                                 trial_type = "Left"
-                                )
-        right_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'Ethyl_Tiglate', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-                                flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                ),
+        right_stimulus = LaserTrainStimulus(
+                                odorvalves = (find_odor_vial(self.olfas, 'Acetophenone', self.dillutors['dillutor_01'][0])['key'][0]),
+                                flows = [self.dillutors['dillutor_01'][1], self.dillutors['dillutor_01'][2]],  # [(AIR, Nitrogen)]
                                 # Format: [POWER, DURATION_OF_PULSE (in us!!), DELAY FROM INHALE/EXHALE TRIGGER, CHANNEL]
                                 laserstims=[],
+                                dillution = self.dillutors['dillutor_01'][0],
                                 id=0,
                                 description="Right stimulus",
                                 num_lasers=0,  # the number of channels that the arduino should look for in laserstims.
@@ -1262,6 +1266,7 @@ class Passive_odor_presentation(Protocol):
         self.olfas = self.config['olfas']
         self.olfaComPort1 = 'COM' + str(self.olfas[0]['comPort'])
         self.laser_power_table = self.config['lightSource']['powerTable']
+        self.dillutors = self.config['olfactometers']['olfa_1']['dillutor']
 
         self._build_stimulus_set()
         self.calculate_next_trial_parameters()
@@ -1327,6 +1332,7 @@ class Passive_odor_presentation(Protocol):
                    "block_size"             : self.block_size,
                    "air_flow"               : self.air_flow,
                    "nitrogen_flow"          : self.nitrogen_flow,
+                   "dillutor"               : self.dillutor,
                    "odorant"                : self.odorant,
                    "stimulus_id"            : self.current_stimulus.id,
                    "description"            : self.current_stimulus.description,
@@ -1361,6 +1367,7 @@ class Passive_odor_presentation(Protocol):
             "block_size"          : db.Int,
             "air_flow"            : db.Float,
             "nitrogen_flow"       : db.Float,
+            "dillutor"            : db.Float,
             "odorant"             : db.String32,
             "stimulus_id"         : db.Int,
             "description"         : db.String32,
@@ -1460,6 +1467,7 @@ class Passive_odor_presentation(Protocol):
         self.nitrogen_flow = self.current_stimulus.flows[0][1]
         self.air_flow = self.current_stimulus.flows[0][0]
         self.odorant = self.olfas[0][odorvalve][0]
+        self.dillutor = self.dillutors['dillutor_01'][0]
         self.percent_correct = (float(self.rewards) / float(self.trial_number)) * 100
 
         # set up a timer for opening the vial at the begining of the next trial using the parameters from current_stimulus.

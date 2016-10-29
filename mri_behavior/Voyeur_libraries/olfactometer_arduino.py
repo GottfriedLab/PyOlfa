@@ -845,6 +845,24 @@ class Olfactometers(ApplicationWindow):
 
 # ---------- MFC PROTOCOLS -------------
 
+def setMFCrate_analog(self, flow_rate, *args, **kwargs):
+    """ sets the value of the MFC flow rate setting as a % from 0.0 to 100.0
+        argument is the absolute flow rate """
+    if self.olfa_communication is None:
+        return
+    if flow_rate > self.mfccapacity or flow_rate < 0:
+        return  # warn about setting the wrong value here
+    # if the rate is already what it should be don't do anything
+    if abs(flow_rate - self.mfcvalue) < 0.0005:
+        return  # floating points have inherent imprecision when using comparisons
+    command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flow_rate/(self.mfccapacity*1.0))
+
+    confirmation = self.olfa_communication.send_command(command)
+    if(confirmation != "MFC set\r\n"):
+        print "Error setting MFC: ", confirmation
+    self.mfcvalue = float(flow_rate)
+    self.mfcslider.setValue(self.mfcvalue)
+
 
 def getMFCrate_analog(self, *args, **kwargs):
     """ get MFC flow rate measure as a percentage of total capacity (0.0 to 100.0)"""
@@ -861,24 +879,6 @@ def getMFCrate_analog(self, *args, **kwargs):
         return float(rate)
     return
 
-def setMFCrate_analog(self, flow_rate, *args, **kwargs):
-    """ sets the value of the MFC flow rate setting as a % from 0.0 to 100.0
-        argument is the absolute flow rate """
-    if self.olfa_communication is None:
-        return
-    if flow_rate > self.mfccapacity or flow_rate < 0:
-        return  # warn about setting the wrong value here
-    # if the rate is already what it should be don't do anything
-    if abs(flow_rate - self.mfcvalue) < 0.0005:
-        return  # floating points have inherent imprecision when using comparisons
-    command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flow_rate/(self.mfccapacity*1.0))
-    print "setMFCrate_analog flow rate\t", command, flow_rate, self.mfccapacity
-
-    confirmation = self.olfa_communication.send_command(command)
-    if(confirmation != "MFC set\r\n"):
-        print "Error setting MFC: ", confirmation
-    self.mfcvalue = float(flow_rate)
-    self.mfcslider.setValue(self.mfcvalue)
 
 def setMFCrate_alicat(self, flowrate, *args, **kwargs):
     """
@@ -899,7 +899,6 @@ def setMFCrate_alicat(self, flowrate, *args, **kwargs):
     flownum = int(flownum)
     command = "DMFC {0:d} {1:d} A{2:d}".format(self.olfactometer_address, self.mfcindex, flownum)
     confirmation = self.olfa_communication.send_command(command)
-    print "setMFCrate_alicat confirmation\t", confirmation
     if(confirmation != "MFC set\r\n"):
         print "Error setting MFC: ", confirmation
     else:
@@ -952,7 +951,42 @@ def getMFCrate_alicat(self, *args, **kwargs):
            print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,
                                                                                                         returnstring)
         return None
-    
+
+
+def set_MFC_rate_auxilary_analog(self, flow_rate, *args, **kwargs):
+    """ Set the MFC rate via the auxilary analog output.
+
+    This function assumes that the analog input channel of the MFC is
+    connected to the auxiliary 10x2 header of the Atmel processor of the
+    olfactometer controller board.
+
+    :param flow_rate: Flow rate to set in units of self.mfccapacity
+                        (usually ml/min)
+    :param args:
+    :param kwargs:
+    :return:
+
+    """
+
+    if self.olfa_communication is None:
+        return
+    if flow_rate > self.mfccapacity or flow_rate < 0:
+        return
+    if abs(flow_rate - self.mfcvalue) < 0.0005:
+        return
+    command = "analogSet {0:d} {1:d} {2:f}".format(self.olfactometer_address,
+                                                   self.auxilary_analog_write_pin,
+                                                   flow_rate / (self.mfccapacity * 1.0))
+    print "MFC_rate_auxilary_analog command\t", command
+    confirmation = self.olfa_communication.send_command(command)
+    if (confirmation != "analog-out set\r\n"):
+        print "Error setting MFC: ", confirmation
+        return
+
+    self.mfcvalue = float(flow_rate)
+    self.mfcslider.setValue(self.mfcvalue)
+
+
 def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
     """ Poll the MFC for the current flow rate. 
     
@@ -989,38 +1023,6 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
         return rate
     return None
 
-def set_MFC_rate_auxilary_analog(self, flow_rate, *args, **kwargs):
-    """ Set the MFC rate via the auxilary analog output.
-    
-    This function assumes that the analog input channel of the MFC is
-    connected to the auxiliary 10x2 header of the Atmel processor of the
-    olfactometer controller board.
-    
-    :param flow_rate: Flow rate to set in units of self.mfccapacity 
-                        (usually ml/min)
-    :param args:
-    :param kwargs:
-    :return:
-    
-    """
-    
-    if self.olfa_communication is None:
-        return
-    if flow_rate > self.mfccapacity or flow_rate < 0:
-        return
-    if abs(flow_rate-self.mfcvalue) < 0.0005:
-        return
-    command = "analogSet {0:d} {1:d} {2:f}".format(self.olfactometer_address,
-                                               self.auxilary_analog_write_pin,
-                                               flow_rate/(self.mfccapacity*1.0))
-    print "MFC_rate_auxilary_analog command\t", command
-    confirmation = self.olfa_communication.send_command(command)
-    if(confirmation != "analog-out set\r\n"):
-        print "Error setting MFC: ", confirmation
-        return
-
-    self.mfcvalue = float(flow_rate)
-    self.mfcslider.setValue(self.mfcvalue)
 
 analog_protocol = {'getMFCrate': getMFCrate_analog,
                    'setMFCrate': setMFCrate_analog}

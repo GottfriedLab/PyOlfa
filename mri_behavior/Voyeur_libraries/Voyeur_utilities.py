@@ -16,6 +16,7 @@ import os
 import time
 import inspect
 import subprocess
+import random
 
 
 def save_data_file(sourceFile, destination = None, subdirectory = None, user = None, verbose = True):
@@ -226,7 +227,7 @@ def parse_rig_config(configFilename=''):
 
 
 def find_odor_vial(olfas,desiredOdorString,desiredOdorConc):
-#     This method will return the vial number where an odor-concentration pair exists within the olfactometer object that is passed to it.
+    #This method will return the vial number where an odor-concentration pair exists within the olfactometer object that is passed to it.
     #first make a list of all the vial keys that contain the desiredOdorString. 
     #if no desiredOdorConc == -1 it will return all vials containing the odor, regardless of concentration.
     
@@ -239,6 +240,7 @@ def find_odor_vial(olfas,desiredOdorString,desiredOdorConc):
         desiredOdorConc = float(desiredOdorConc)
         
     concTolerance = 1e-7
+    KEYS = []
     matchKeys = [] 
     matchOlfas = []
     olfaIdx = 0
@@ -248,11 +250,12 @@ def find_odor_vial(olfas,desiredOdorString,desiredOdorConc):
             if type(k) is int: #ignore the metadata keys, only look at the vials, which are denoted as integers.
                 if v[0].lower() == desiredOdorString: #see if the odor strings match (case insensitive)
                     if abs(float(v[1]) - desiredOdorConc) < concTolerance or desiredOdorConc == -1: # see if the vial is the concentration that you asked for. If desiredOdorConc == 0, return all the vials with the odor
-                        matchKeys.append(k) #keep a list of the matching vials
-                        matchOlfas.append(olfaIdx) # and the indices of the olfactometers that they are in.
+                        KEYS.append(k) #keep a list of the matching vials
         olfaIdx += 1 # keep track of which olfa you're on.
     
-
+    if len(KEYS) > 1:
+        matchKeys.append = random.choice(KEYS) # keep a list of the matching vials
+    matchOlfas.append(olfaIdx)  # and the indices of the olfactometers that they are in.
     return {'key':matchKeys,'olfa':matchOlfas}
     
 
