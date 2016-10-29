@@ -81,37 +81,27 @@ class LaserStimulus(object):
     trial_type = str() # left,right, go, nogo, etc...
     
     
-    def __init__(self, odorvalves, flows, laserstims, id=0, num_lasers=1, dillution=1, fvDur=[], description="", within_block_repeats = 1, trial_type = '', **kwds):
+    def __init__(self, odorvalves, flows, id, description, trial_type, **kwds):
         ''' Constructor '''
         
         self.id = id
-        self.num_lasers = num_lasers
         self.description = description
-        self.dillution = dillution
-        self.fvDur = fvDur # vector of durations of fvalve openings (ordered by valves, default is empty)
-        self.laserstims = []
         self.flows = []
         self.odorvalves = []
-        self.within_block_repeats = within_block_repeats # number of times to repeat this stimulus in a single block for use with block objects.
         self.trial_type = trial_type # left,right, go, nogo, etc...
-        
-        for laserstim in laserstims:
-            self.laserstims.append(laserstim)
+
             
         for ov in odorvalves:
             self.odorvalves.append(ov)
         for flow in flows:
             self.flows.append(flow)
-        super(LaserStimulus,self).__init__(**kwds)
         
         return None
 
     def __str__(self,indent = ''):
         return indent+ '\ttrial type: ' +str(self.trial_type) + \
                 "\todor valves: " + str(self.odorvalves) + \
-                "\tmfc flows: " + str(self.flows) + \
-                "\t\tdillution: " + str(self.dillution)+ \
-                "\tfvDur: " + str(self.fvDur)
+                "\tmfc flows: " + str(self.flows)
         
 class LaserTrainStimulus(LaserStimulus):
     

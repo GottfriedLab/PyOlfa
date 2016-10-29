@@ -876,34 +876,16 @@ class Passive_odor_presentation(Protocol):
         self.iti_bounds = [4000,6000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
         self.iti_bounds_false_alarm = [13000,15000] #ITI in ms for false alarm responses (punishment).
         
-        left_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'pinene', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
+        left_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'Eugenol', 1)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
                                 flows=[(900, 100)],  # [(AIR, Nitrogen)]
-                                # Format: [POWER, DURATION_OF_PULSE (in us!!), DELAY FROM INHALE/EXHALE TRIGGER, CHANNEL]
-                                laserstims=[(self.laser_power_table['20mW'][0], # Amplitude for the first channel
-                                             10000,  # Duration in microseconds for the first channel
-                                             25,  # Onset latency for the first channel
-                                             1),  # Pulse hardware output channel
-                                            (self.laser_power_table['20mW'][1],
-                                             10000,
-                                             25,
-                                             2)],
-                                #example: [self.laser_power_table['20mW'][1], laserduration, delay, 2]
                                 id = 1,
                                 description="Left stimulus",
-                                num_lasers=2,  # the number of channels that the arduino should look for in laserstims.
-                                numPulses=[1, 1],  # number of pulses that you want.
-                                pulseOffDuration=[500, 500],  # interval between pulses if you want more than one pulse.
                                 trial_type = "Left"
                                 )
-        right_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'Ethyl_Tiglate', 0.01)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
+        right_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'Acetophenone', 1)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
                                 flows=[(900, 100)],  # [(AIR, Nitrogen)]
-                                # Format: [POWER, DURATION_OF_PULSE (in us!!), DELAY FROM INHALE/EXHALE TRIGGER, CHANNEL]
-                                laserstims=[],
                                 id=0,
                                 description="Right stimulus",
-                                num_lasers=0,  # the number of channels that the arduino should look for in laserstims.
-                                numPulses=[0,0],  # number of pulses that you want.
-                                pulseOffDuration=[0,0],  # interval between pulses if you want more than one pulse.
                                 trial_type = "Right"
                                 )
 
@@ -1785,7 +1767,6 @@ class Passive_odor_presentation(Protocol):
             # print "current stim: ", self.current_stimulus
             olfa = self.olfas[i]
             olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
-            print "setting odorant valve: ", olfavalve
             if olfavalve != 0:
                 self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) #set the vial,
         #         if self.olfactometer.olfas[i].valves.checkedID != olfavalve: #check that the vial was set...
