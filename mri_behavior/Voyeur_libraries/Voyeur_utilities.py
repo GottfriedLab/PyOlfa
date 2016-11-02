@@ -251,7 +251,6 @@ def find_odor_vial(olfas,desiredOdorString,desiredOdorConc):
                         matchKeys.append(k) #keep a list of the matching vials
                         matchOlfas.append(olfaIdx) # and the indices of the olfactometers that they are in.
         olfaIdx += 1 # keep track of which olfa you're on.
-    
 
     return {'key':matchKeys,'olfa':matchOlfas}
     

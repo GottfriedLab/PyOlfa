@@ -872,7 +872,6 @@ def setMFCrate_analog(self, flow_rate, *args, **kwargs):
     if abs(flow_rate - self.mfcvalue) < 0.0005:
         return  # floating points have inherent imprecision when using comparisons
     command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flow_rate/(self.mfccapacity*1.0))
-    print "setMFCrate_analog flow rate\t", command, flow_rate, self.mfccapacity
 
     confirmation = self.olfa_communication.send_command(command)
     if(confirmation != "MFC set\r\n"):
@@ -1013,7 +1012,6 @@ def set_MFC_rate_auxilary_analog(self, flow_rate, *args, **kwargs):
     command = "analogSet {0:d} {1:d} {2:f}".format(self.olfactometer_address,
                                                self.auxilary_analog_write_pin,
                                                flow_rate/(self.mfccapacity*1.0))
-    print "MFC_rate_auxilary_analog command\t", command
     confirmation = self.olfa_communication.send_command(command)
     if(confirmation != "analog-out set\r\n"):
         print "Error setting MFC: ", confirmation

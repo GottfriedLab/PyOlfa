@@ -66,7 +66,7 @@ class Passive_odor_presentation(Protocol):
     STREAM_SIZE = 5000
     
     # Number of trials in a block.
-    BLOCK_SIZE = 20
+    BLOCK_SIZE = 12
 
     # Flag to indicate whether we have an Arduino connected. Set to 0 for
     # debugging.
@@ -127,13 +127,15 @@ class Passive_odor_presentation(Protocol):
     mouse = Int(0, label='Mouse')   # mouse number.
     rig = Str("", label='Rig')   # rig ID.
     session = Int(0, label='Session')   # session number.
-    block_size = Int(20, label="Block size")
+    block_size = Int(BLOCK_SIZE, label="Block size")
     # Air flow in sccm set by the Air MFC.
     air_flow = Float(label="Air (sccm)")
     # Nitrogen flow in sccm set by the Nitrogen MFC.
     nitrogen_flow = Float(label="N2 (sccm)")
     # Current trial odorant name.
     odorant = Str("Current odorant", label="Odor")
+    # Current vial number
+    odor_valve = Int(label="Valve")
     
     
     # Other session parameters that do not change from trial to trial. These
@@ -184,7 +186,8 @@ class Passive_odor_presentation(Protocol):
     next_nitrogen_flow = Float(label="N2 (sccm)")
     # Next trial odorant name.
     next_odorant = Str("Next odorant", label="Odor")
-    next_trial_number = 0
+    next_trial_number = Int(0, label='Trial Number')
+    next_odor_valve= Int(label="Valve")
     # Reusing of the trait definition for trial_type.
     # The values will be independent but valiadation is done the same way.
     next_trial_type = trial_type
@@ -482,17 +485,21 @@ class Passive_odor_presentation(Protocol):
                                        Item('trial_type'),
                                        ),
                                 HGroup(
-                                       Item('trial_duration'),
-                                       Item('inter_trial_interval'),
-                                       Item('hemodynamic_delay')
-                                       ),
-                                HGroup(
                                        Item('odorant',
                                             style='readonly'),
                                        spring,
+                                       Item('odor_valve', width=-70),
+                                       ),
+                                HGroup(
                                        Item('nitrogen_flow', width=-70),
+                                       spring,
                                        Item('air_flow', width=-70)
                                        ),
+                                HGroup(
+                                    Item('trial_duration'),
+                                    Item('inter_trial_interval'),
+                                    Item('hemodynamic_delay')
+                                ),
                                 HGroup(
                                        Item('odorant_trigger_phase')
                                        ),
@@ -501,13 +508,22 @@ class Passive_odor_presentation(Protocol):
                                 )
 
     next_trial_group = Group(
-                             Item('next_trial_type'),
+                             HGroup(
+                                    Item('next_trial_number', style='readonly',
+                                      width=-70),
+                                    Item('next_trial_type'),
+                                    ),
                              HGroup(
                                     Item('next_odorant',
                                          style="readonly"),
-                                    Item('next_nitrogen_flow', width=-70),
-                                    Item('next_air_flow', width=-70)
+                                    spring,
+                                    Item('odor_valve', width=-70),
                                     ),
+                             HGroup(
+                                    Item('nitrogen_flow', width=-70),
+                                    spring,
+                                    Item('air_flow', width=-70)
+                             ),
                              label='Next Trial',
                              show_border=True
                              )
@@ -595,7 +611,7 @@ class Passive_odor_presentation(Protocol):
 
         # y-axis range. Change this if you want to re-scale or offset it.
         #y_range = DataRange1D(low=-200,high=200) # for training non-mri sniff sensor
-        y_range = DataRange1D(low=-50, high=50)  # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-30, high=30)  # for training non-mri sniff sensor
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
@@ -851,11 +867,6 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-        # self.olfactometer = Olfactometers(config_obj=self.config)
-        # if len(self.olfactometer.olfas) == 0:
-        #     self.olfactometer = None
-        # self.olfactometer = None
-        # self._setflows()
 
         return
 
@@ -875,22 +886,30 @@ class Passive_odor_presentation(Protocol):
         self.lick_grace_period = 10 # grace period after FV open where responses are recorded but not scored.
         self.iti_bounds = [4000,6000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
         self.iti_bounds_false_alarm = [13000,15000] #ITI in ms for false alarm responses (punishment).
-        
-        left_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'Eugenol', 1)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-                                flows=[(900, 100)],  # [(AIR, Nitrogen)]
-                                id = 1,
-                                description="Left stimulus",
-                                trial_type = "Left"
-                                )
-        right_stimulus = LaserTrainStimulus(odorvalves=(find_odor_vial(self.olfas, 'Acetophenone', 1)['key'][0],),  # find the vial with pinene. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-                                flows=[(900, 100)],  # [(AIR, Nitrogen)]
-                                id=0,
-                                description="Right stimulus",
-                                trial_type = "Right"
-                                )
 
-        self.stimuli['Right'].append(right_stimulus)
-        self.stimuli['Left'].append(left_stimulus)
+        # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Eugenol', 1)['key']
+        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Acetophenone', 1)['key']
+
+        # randomly select the vial from the list for stimulation block. it may be same or different vials
+        for i in range(len(odorvalves_left_stimulus)):
+            left_stimulus = LaserTrainStimulus(
+                                    odorvalves=[choice(odorvalves_left_stimulus)],
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    id = 1,
+                                    description="Left stimulus",
+                                    trial_type = "Left"
+                                    )
+            right_stimulus = LaserTrainStimulus(
+                                    odorvalves=[choice(odorvalves_right_stimulus)],
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    id=0,
+                                    description="Right stimulus",
+                                    trial_type = "Right"
+                                    )
+            self.stimuli['Left'].append(left_stimulus)
+            self.stimuli['Right'].append(right_stimulus)
+
 
         print "---------- Stimuli changed ----------"
         for stimulus in self.stimuli.values():
@@ -1767,6 +1786,7 @@ class Passive_odor_presentation(Protocol):
             # print "current stim: ", self.current_stimulus
             olfa = self.olfas[i]
             olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
+
             if olfavalve != 0:
                 self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) #set the vial,
         #         if self.olfactometer.olfas[i].valves.checkedID != olfavalve: #check that the vial was set...
@@ -1786,6 +1806,7 @@ class Passive_odor_presentation(Protocol):
             self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
             self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
             self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
+
 
     def end_of_trial(self):
         # set new trial parameters

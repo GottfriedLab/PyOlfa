@@ -90,13 +90,13 @@ class LaserStimulus(object):
         self.odorvalves = []
         self.trial_type = trial_type # left,right, go, nogo, etc...
 
-            
         for ov in odorvalves:
             self.odorvalves.append(ov)
         for flow in flows:
             self.flows.append(flow)
-        
+
         return None
+
 
     def __str__(self,indent = ''):
         return indent+ '\ttrial type: ' +str(self.trial_type) + \
