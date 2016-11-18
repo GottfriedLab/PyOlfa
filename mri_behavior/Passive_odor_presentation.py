@@ -440,38 +440,40 @@ class Passive_odor_presentation(Protocol):
     
     session_group = Group(
                           HGroup(
-                                 Item('stamp', style='readonly'),
+                                 Item('stamp', style='readonly',
+                                      width=-140),
                                  Item('protocol_name', style='readonly'),
                                 ),
                           HGroup(
                                  Item('mouse',
                                       enabled_when='not monitor.running',
                                       width=-70),
-                                 spring,
                                  Item('session',
                                       enabled_when='not monitor.running',
                                       width=-70),
                                  Item('rig',
-                                      enabled_when='not monitor.running'),
+                                      enabled_when='not monitor.running',
+                                      full_size=False,
+                                      springy=True,
+                                      resizable=False),
                                  ),
                           HGroup(
-                                 Item('enable_blocks'),
-                                 spring,
+                                 Item('enable_blocks', width=-70),
                                  Item('block_size',
                                       visible_when='enable_blocks',
-                                      width=-70,
                                       tooltip="Block Size",
                                       full_size=False,
                                       springy=True,
                                       resizable=False)
                                  ),
                           HGroup(
-                                 Item('rewards', style='readonly'),
-                                 spring,
+                                 Item('rewards', style='readonly', width=-70),
                                  Item('max_rewards',
-                                      width=-70,
                                       tooltip="Maximum number of rewarded" 
-                                                   " trials")
+                                                   " trials",
+                                      full_size=False,
+                                      springy=True,
+                                      resizable=False)
                                  ),
                           Item('percent_correct', style='readonly'),
                           label='Session',
@@ -480,28 +482,24 @@ class Passive_odor_presentation(Protocol):
     
     current_trial_group = Group(
                                 HGroup(
-                                       Item('trial_number', style='readonly',
-                                            width=-70),
-                                       Item('trial_type'),
+                                       Item('trial_number', style='readonly', width=-135),
+                                       Item('trial_type', style='readonly'),
                                        ),
                                 HGroup(
-                                       Item('odorant',
-                                            style='readonly'),
-                                       spring,
-                                       Item('odor_valve', width=-70),
+                                       Item('odorant', style='readonly', width=-170),
+                                       Item('odor_valve', style='readonly'),
                                        ),
                                 HGroup(
-                                       Item('nitrogen_flow', width=-70),
-                                       spring,
-                                       Item('air_flow', width=-70)
+                                       Item('nitrogen_flow', style='readonly', width=-147),
+                                       Item('air_flow', style='readonly')
                                        ),
                                 HGroup(
-                                    Item('trial_duration'),
-                                    Item('inter_trial_interval'),
-                                    Item('hemodynamic_delay')
+                                        Item('trial_duration', style='readonly', width=-52),
+                                        Item('inter_trial_interval', style='readonly', width=-50),
+                                        Item('hemodynamic_delay', style='readonly')
                                 ),
                                 HGroup(
-                                       Item('odorant_trigger_phase')
+                                       Item('odorant_trigger_phase', style='readonly')
                                        ),
                                 label='Current Trial',
                                 show_border=True
@@ -509,20 +507,16 @@ class Passive_odor_presentation(Protocol):
 
     next_trial_group = Group(
                              HGroup(
-                                    Item('next_trial_number', style='readonly',
-                                      width=-70),
-                                    Item('next_trial_type'),
+                                    Item('next_trial_number', style='readonly', width=-65),
+                                    Item('next_trial_type', style='readonly'),
                                     ),
                              HGroup(
-                                    Item('next_odorant',
-                                         style="readonly"),
-                                    spring,
-                                    Item('odor_valve', width=-70),
+                                    Item('next_odorant', style="readonly", width=-100),
+                                    Item('odor_valve', style='readonly'),
                                     ),
                              HGroup(
-                                    Item('nitrogen_flow', width=-70),
-                                    spring,
-                                    Item('air_flow', width=-70)
+                                    Item('nitrogen_flow', style='readonly', width=-77),
+                                    Item('air_flow', style='readonly')
                              ),
                              label='Next Trial',
                              show_border=True
