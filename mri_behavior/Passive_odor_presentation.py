@@ -66,7 +66,7 @@ class Passive_odor_presentation(Protocol):
     STREAM_SIZE = 5000
     
     # Number of trials in a block.
-    BLOCK_SIZE = 12
+    BLOCK_SIZE = 20
 
     # Flag to indicate whether we have an Arduino connected. Set to 0 for
     # debugging.
@@ -92,7 +92,7 @@ class Passive_odor_presentation(Protocol):
     # Maximum number of sniff cleaning attempts.
     MAX_CLEAN_ROUNDS = 20
     
-    # Number of initial Go trials to help motivating the subject to start
+    # Number of initial trials to help motivating the subject to start
     # responding to trials.
     INITIAL_LEFT_TRIALS = 0
 
@@ -610,8 +610,8 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        #y_range = DataRange1D(low=-200,high=200) # for training non-mri sniff sensor
-        y_range = DataRange1D(low=-30, high=30)  # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-200, high=200)  # for training non-mri sniff sensor
+        # y_range = DataRange1D(low=-1, high=1)
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
@@ -1806,6 +1806,9 @@ class Passive_odor_presentation(Protocol):
             self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
             self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
             self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
+            # self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, 0)
+            # self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, 0)
+            # self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 0)
 
 
     def end_of_trial(self):
@@ -1970,7 +1973,7 @@ if __name__ == '__main__':
     trial_duration = 2500
     lick_grace_period = 0
     max_rewards = 400
-    odorant_trigger_phase_code = 2
+    odorant_trigger_phase_code = 1
     trial_type_id = 0
 
 

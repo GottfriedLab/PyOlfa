@@ -204,7 +204,7 @@ class Valvegroup(QWidget, QObject):
         if line.split()[0] != 'Error':
             return True
         else:
-            print "Error reported from Arduino: ", line
+            # print "Error reported from Arduino: ", line
             return False
     
     def set_odor_valve(self, valve_number, valve_state=1):
@@ -509,7 +509,6 @@ class MFC(QWidget):
     def _sliderchanged(self):
         """ Slot when the slider has been changed and released """
         value = float(self.mfcslider.value())
-        print "sliderchanged value\t", value
         # if value is different from current rate, set the new rate
         if abs(value - self.mfcvalue) > 0.0005:
             self.setMFCrate(self, value)
@@ -898,7 +897,6 @@ def setMFCrate_alicat(self, flowrate, *args, **kwargs):
     flownum = int(flownum)
     command = "DMFC {0:d} {1:d} A{2:d}".format(self.olfactometer_address, self.mfcindex, flownum)
     confirmation = self.olfa_communication.send_command(command)
-    print "setMFCrate_alicat confirmation\t", confirmation
     if(confirmation != "MFC set\r\n"):
         print "Error setting MFC: ", confirmation
     else:
@@ -933,22 +931,24 @@ def getMFCrate_alicat(self, *args, **kwargs):
             warning_str = "MFC {0:d} not read.".format(self.mfcindex)
             raise Warning(warning_str)
 
-        try:
-            li = returnstring.split(' ')
-            r_str = li[4]  # 5th column is mass flow, so index 4.
-            flow = float(r_str)
-            flow = flow / self.mfccapacity  # normalize as per analog api.
-            #print "Rate extracted: ", flow
-            if (flow < 0):
-                print "Couldn't get MFC flow rate measure"
-                print "mfc index: " + str(self.mfcindex), "error code: ", flow
-                return None
-            #print "It took: ", time.clock()-start_time, "seconds"
-            #print "MFC returned message: ", returnstring
-            self.flow = flow
-            return flow
-        except:  # if any errors, print the return string.
-           print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,
+        li = returnstring.split(' ')
+        mfc_str = li[0]
+        if mfc_str == "A":
+            try:
+                r_str = li[4]  # 5th column is mass flow, so index 4.
+                flow = float(r_str)
+                flow = flow / self.mfccapacity  # normalize as per analog api.
+                # print "flow extracted: ", flow
+                if (flow < 0):
+                    print "Couldn't get MFC flow rate measure"
+                    print "mfc index: " + str(self.mfcindex), "error code: ", flow
+                    return None
+                #print "It took: ", time.clock()-start_time, "seconds"
+                #print "MFC returned message: ", returnstring
+                self.flow = flow
+                return flow
+            except:  # if any errors, print the return string.
+               print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,
                                                                                                         returnstring)
         return None
     
