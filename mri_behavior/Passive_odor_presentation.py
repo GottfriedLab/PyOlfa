@@ -605,7 +605,7 @@ class Passive_odor_presentation(Protocol):
 
         # y-axis range. Change this if you want to re-scale or offset it.
         y_range = DataRange1D(low=-200, high=200)  # for training non-mri sniff sensor
-        # y_range = DataRange1D(low=-1, high=1)
+        # y_range = DataRange1D(low=-10, high=10)
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
@@ -889,14 +889,14 @@ class Passive_odor_presentation(Protocol):
         for i in range(len(odorvalves_left_stimulus)):
             left_stimulus = LaserTrainStimulus(
                                     odorvalves=[choice(odorvalves_left_stimulus)],
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(880, 100)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description="Left stimulus",
                                     trial_type = "Left"
                                     )
             right_stimulus = LaserTrainStimulus(
                                     odorvalves=[choice(odorvalves_right_stimulus)],
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(890, 100)],  # [(AIR, Nitrogen)]
                                     id=0,
                                     description="Right stimulus",
                                     trial_type = "Right"
