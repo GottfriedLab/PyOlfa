@@ -920,8 +920,8 @@ def getMFCrate_alicat(self, *args, **kwargs):
         return
     command = "DMFC {0:d} {1:d} A".format(self.olfactometer_address, self.mfcindex)
 
-    # Try for 200 ms. If we fail, return None
-    while (time.clock() - start_time < .2):
+    # Try for 250 ms. If we fail, return None
+    while (time.clock() - start_time < .25):
         confirmation = self.olfa_communication.send_command(command)
     
         if confirmation.startswith("MFC set"):
@@ -969,8 +969,8 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
     command = "analogRead {0:d} {1:d}".format(self.olfactometer_address,
                                               self.auxilary_analog_read_pin)
     
-    # Try for 200 ms. If we fail, return None
-    while (time.clock() - start_time < .2):
+    # Try for 250 ms. If we fail, return None
+    while (time.clock() - start_time < .25):
         confirmation = self.olfa_communication.send_command(command)
         
         try:

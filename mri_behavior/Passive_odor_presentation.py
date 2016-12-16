@@ -83,7 +83,7 @@ class Passive_odor_presentation(Protocol):
     
     # Maximum trial duration to wait for, in seconds, before we assume problems
     # in communication.
-    MAX_TRIAL_DURATION = 30
+    MAX_TRIAL_DURATION = 200
     
     # Maximum duration of a sniff cleaning attempt, during which air is being
     # pushed through the nasal cavity via the sniff cannula.
@@ -94,11 +94,14 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_LEFT_TRIALS = 0
+    # INITIAL_LEFT_TRIALS = 50
+    INITIAL_RIGHT_TRIALS = 400
 
     # Number of samples for HRF
-    TR = 5000
-    HRF_SAMPLES = 10
+    # tr = 5000
+    # HRF_SAMPLES = 10
+    TR = 1000
+    HRF_SAMPLES = 4
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
@@ -163,6 +166,7 @@ class Passive_odor_presentation(Protocol):
     trial_duration = Int(0, label="Trial duration")
     inter_trial_interval = Int(0, label='ITI')
     hemodynamic_delay = Int(0, label='HRF phase-lock delay')
+    tr = Int(0, label='Repetition time')
     # Amount of time in ms to not count a lick response as the trial choice.
     # If the mouse is impulsive, this prevents uninformed false alarms.
     lick_grace_period = Int(0, label="Lick grace period")
@@ -197,10 +201,12 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [5000, 7000]
+    # iti_bounds  = [4000, 6000]
+    iti_bounds  = [3500, 4000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [10000, 15000]
+    # iti_bounds_false_alarm = [13000, 15000]
+    iti_bounds_false_alarm = [4500, 5000]
     # Current overall session performance.
     percent_correct = Float(0, label="Total percent correct")
         
@@ -217,7 +223,6 @@ class Passive_odor_presentation(Protocol):
     parameters_received_time = Int(0,
                                    label="Time parameters were received \
                                    by Arduino")
-    lost_sniff = Bool(False, label="Lost sniff signal in last trial")
     final_valve_onset = Int(0, label="Time of final valve open")
     
     
@@ -605,7 +610,6 @@ class Passive_odor_presentation(Protocol):
 
         # y-axis range. Change this if you want to re-scale or offset it.
         y_range = DataRange1D(low=-200, high=200)  # for training non-mri sniff sensor
-        # y_range = DataRange1D(low=-10, high=10)
         # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
@@ -877,13 +881,15 @@ class Passive_odor_presentation(Protocol):
         self.stimuli["Right"] = []
         self.stimuli["Left"] = []
         
-        self.lick_grace_period = 10 # grace period after FV open where responses are recorded but not scored.
-        self.iti_bounds = [4000,6000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
-        self.iti_bounds_false_alarm = [13000,15000] #ITI in ms for false alarm responses (punishment).
+        self.lick_grace_period = 50 # grace period after FV open where responses are recorded but not scored.
+        # self.iti_bounds = [4000,6000] # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
+        # self.iti_bounds_false_alarm = [13000,15000] #ITI in ms for false alarm responses (punishment).
+        self.iti_bounds = [3500, 4000]  # ITI in ms for all responses other than FA. Because of hrf phase delay is 5sec at maximum, the reward ITI is set to at least 5 sec less than punishment ITI
+        self.iti_bounds_false_alarm = [4500,5000] #ITI in ms for false alarm responses (punishment).
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Eugenol', 1)['key']
-        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Acetophenone', 1)['key']
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Isobutyl_acetate', 1)['key']
+        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
 
         # randomly select the vial from the list for stimulation block. it may be same or different vials
         for i in range(len(odorvalves_left_stimulus)):
@@ -896,7 +902,7 @@ class Passive_odor_presentation(Protocol):
                                     )
             right_stimulus = LaserTrainStimulus(
                                     odorvalves=[choice(odorvalves_right_stimulus)],
-                                    flows=[(890, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(880, 100)],  # [(AIR, Nitrogen)]
                                     id=0,
                                     description="Right stimulus",
                                     trial_type = "Right"
@@ -1236,6 +1242,7 @@ class Passive_odor_presentation(Protocol):
                         odorant_trigger_phase_code,
                         lick_grace_period,
                         hemodynamic_delay,
+                        tr,
                         **kwtraits):
         
         super(Passive_odor_presentation, self).__init__(**kwtraits)
@@ -1267,6 +1274,7 @@ class Passive_odor_presentation(Protocol):
         self.trial_duration = trial_duration
         self.odorant_trigger_phase_code = odorant_trigger_phase_code
         self.hemodynamic_delay = hemodynamic_delay
+        self.tr = self.TR
         
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
@@ -1338,7 +1346,8 @@ class Passive_odor_presentation(Protocol):
                     "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
                     "trial_type_id"             : (6, db.Int, self.current_stimulus.id),
                     "lick_grace_period"         : (7, db.Int, self.lick_grace_period),
-                    "hemodynamic_delay"         : (8, db.Int, self.hemodynamic_delay)
+                    "hemodynamic_delay"         : (8, db.Int, self.hemodynamic_delay),
+                    "tr"                        : (9, db.Int, self.tr),
         }
    
         return TrialParameters(
@@ -1376,7 +1385,8 @@ class Passive_odor_presentation(Protocol):
             "odorant_trigger_phase_code" : db.Int,
             "trial_type_id"              : db.Int,
             "lick_grace_period"          : db.Int,
-            "hemodynamic_delay"          : db.Int
+            "hemodynamic_delay"          : db.Int,
+            "tr"                         : db.Int
         }
            
         return params_def
@@ -1415,15 +1425,6 @@ class Passive_odor_presentation(Protocol):
         self.trial_start = int(event['trial_start'])
         self.trial_end = int(event['trial_end'])
 
-        # update trials mask
-
-        self._addtrialmask()
-        if self.trial_end > self._last_stream_index:
-            self._shiftlicks(self.trial_end - self._last_stream_index)
-            self._shiftmris(self.trial_end - self._last_stream_index)
-            self._last_stream_index = self.trial_end
-
-
         response = int(event['response'])
         if (response == 1) or (response == 2): # a hit.
             self.rewards += 1
@@ -1437,7 +1438,7 @@ class Passive_odor_presentation(Protocol):
 
         self.responses = append(self.responses, response)
 
-        self.hemodynamic_delay = randint(0,self.HRF_SAMPLES-1) * self.TR / self.HRF_SAMPLES
+        self.hemodynamic_delay = randint(0,self.HRF_SAMPLES-1) * self.tr / self.HRF_SAMPLES
         
         #update a couple last parameters from the next_stimulus object, then make it the current_stimulus..
         self.calculate_current_trial_parameters()
@@ -1455,7 +1456,7 @@ class Passive_odor_presentation(Protocol):
         self.nitrogen_flow = self.current_stimulus.flows[0][1]
         self.air_flow = self.current_stimulus.flows[0][0]
         self.odorant = self.olfas[0][odorvalve][0]
-        self.percent_correct = (float(self.rewards) / float(self.trial_number)) * 100
+        self.percent_correct = round((float(self.rewards) / float(self.trial_number)) * 100, 2)
 
         # set up a timer for opening the vial at the begining of the next trial using the parameters from current_stimulus.
         timefromtrial_end = (self._results_time - self._parameters_sent_time) * 1000 #convert from sec to ms for python generated values
@@ -1476,7 +1477,6 @@ class Passive_odor_presentation(Protocol):
         Process stream requested from controller.
         """
         if stream:
-            # newtime = time.clock()
             num_sniffs = stream['sniff_samples']
             packet_sent_time = stream['packet_sent_time']
 
@@ -1833,10 +1833,15 @@ class Passive_odor_presentation(Protocol):
                     new block..."
         
         # Generate an initial block of Left trials if needed.
-        if self.INITIAL_LEFT_TRIALS and \
-                    self.trial_number < self.INITIAL_LEFT_TRIALS:
-            block_size = self.INITIAL_LEFT_TRIALS + 1 - self.trial_number
-            self.stimulus_block = [self.stimuli["Left"][0]] * block_size
+        # if self.INITIAL_LEFT_TRIALS and \
+        #             self.trial_number < self.INITIAL_LEFT_TRIALS:
+        #     block_size = self.INITIAL_LEFT_TRIALS + 1 - self.trial_number
+        #     self.stimulus_block = [self.stimuli["Left"][0]] * block_size
+        #     return
+        if self.INITIAL_RIGHT_TRIALS and \
+                    self.trial_number < self.INITIAL_RIGHT_TRIALS:
+            block_size = self.INITIAL_RIGHT_TRIALS + 1 - self.trial_number
+            self.stimulus_block = [self.stimuli["Right"][0]] * block_size
             return
         
         # Randomize seed from system clock.
@@ -1920,17 +1925,20 @@ class Passive_odor_presentation(Protocol):
         else:
             # Pick a random stimulus from the stimulus set of the next
             # trial type.
-            if self.next_trial_number > self.INITIAL_LEFT_TRIALS:
+            # if self.next_trial_number > self.INITIAL_LEFT_TRIALS:
+            if self.next_trial_number > self.INITIAL_RIGHT_TRIALS:
                 # Randomly choose a stimulus.
                 self.next_stimulus = choice([stimulus] for stimulus in
                                                  self.stimuli.values())
             else:
                 # Enforce the intitial Left trials rule.
-                self.next_stimulus = self.stimuli["Right"][0]
+                self.next_stimulus = self.stimuli["left"][0]
+                # self.next_stimulus = self.stimuli["Right"][0]
             
-        if self.next_trial_number <= self.INITIAL_LEFT_TRIALS:
-            
-            self.next_stimulus = self.stimuli["Left"][0]
+        # if self.next_trial_number <= self.INITIAL_LEFT_TRIALS:
+        #     self.next_stimulus = self.stimuli["Left"][0]
+        if self.next_trial_number <= self.INITIAL_RIGHT_TRIALS:
+            self.next_stimulus = self.stimuli["Right"][0]
         
         self.next_trial_type = self.next_stimulus.trial_type
         nextodorvalve = self.next_stimulus.odorvalves[0]
@@ -1963,21 +1971,21 @@ if __name__ == '__main__':
 
     trial_number = 0
     trial_type_id = 0
-    final_valve_duration = 500
-    trial_duration = 2500
+    final_valve_duration = 1000
+    trial_duration = 2000
     lick_grace_period = 0
-    max_rewards = 400
-    odorant_trigger_phase_code = 1
+    max_rewards = 200
+    odorant_trigger_phase_code = 2
     trial_type_id = 0
-
+    inter_trial_interval = 8000
+    hemodynamic_delay = 0
 
     # protocol parameter defaults
     mouse = 434  # can I make this an illegal value so that it forces me to change it????
 
     session = 18
     stamp = time_stamp()
-    inter_trial_interval = 8000
-    hemodynamic_delay = 0
+    tr = 1000
     
     # protocol
     protocol = Passive_odor_presentation(trial_number,
@@ -1991,7 +1999,8 @@ if __name__ == '__main__':
                                          trial_duration,
                                          odorant_trigger_phase_code,
                                          lick_grace_period,
-                                         hemodynamic_delay
+                                         hemodynamic_delay,
+                                         tr,
                                          )
 
     # Testing code when no hardware attached.
