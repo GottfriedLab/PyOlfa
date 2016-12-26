@@ -63,7 +63,7 @@ class Valvegroup(QWidget, QObject):
     olfactometer_address = Int(1)
     # Minimum time needed between different valves/vials being opened to prevent
     # contamination. Value is in milliseconds.
-    MINIMUM_VALVE_OFF_TIME = 1000
+    MINIMUM_VALVE_OFF_TIME = 500
     def __init__(self,
                  monitor,
                  parent=None, 
@@ -854,7 +854,7 @@ def getMFCrate_analog(self, *args, **kwargs):
     self.flow = float(rate)
     if (rate < 0):
         print "Couldn't get MFC flow rate measure"
-        print "mfc index: " + str(self.mfcindex), "error code: ", rate
+        print "MFC index: " + str(self.mfcindex), "error code: ", rate
         return None
     else:
         return float(rate)
@@ -933,7 +933,7 @@ def getMFCrate_alicat(self, *args, **kwargs):
 
         li = returnstring.split(' ')
         mfc_str = li[0]
-        if mfc_str == "A":
+        if (mfc_str == "A") & (11 <= len(li) <= 12):
             try:
                 r_str = li[4]  # 5th column is mass flow, so index 4.
                 flow = float(r_str)
@@ -941,15 +941,15 @@ def getMFCrate_alicat(self, *args, **kwargs):
                 # print "flow extracted: ", flow
                 if (flow < 0):
                     print "Couldn't get MFC flow rate measure"
-                    print "mfc index: " + str(self.mfcindex), "error code: ", flow
+                    print "MFC index: " + str(self.mfcindex), "error code: ", flow
                     return None
-                #print "It took: ", time.clock()-start_time, "seconds"
-                #print "MFC returned message: ", returnstring
+                # print "It took: ", time.clock()-start_time, "seconds"
+                # print "MFC returned message: ", returnstring
                 self.flow = flow
                 return flow
             except:  # if any errors, print the return string.
-               print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,
-                                                                                                        returnstring)
+               print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,returnstring)
+               print "len(li)=", len(li)
         return None
     
 def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
@@ -976,6 +976,7 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
         try:
             rate = float(confirmation)
         except:
+            print "confirmation", confirmation, " confirmation", confirmation
             warning_str = "Got a non-float value as a response when reading MFC {0:d}"\
                      " flow rate.".format(self.mfcindex)
             raise Warning(warning_str)
@@ -983,7 +984,7 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
         self.flow = rate
         if (rate < 0):
             print "Couldn't get MFC flow rate measure"
-            print "mfc index: " + str(self.mfcindex), "error code: ", self.flow
+            print "MFC index: " + str(self.mfcindex), "error code: ", self.flow
             return None
         return rate
     return None
