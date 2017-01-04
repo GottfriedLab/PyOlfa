@@ -11,6 +11,7 @@ License: GPLv3 or earlier version of GPL if user chooses so.
 import itertools
 import time, serial, os
 from serial import Serial, SerialException
+from time import sleep
 
 # Change the gui toolkit from the default to qt version 4
 from traits.etsconfig import etsconfig
@@ -31,6 +32,8 @@ from traits.api import Instance, Int, Str, Float, List
 # Utilities written for the voyeur package.
 from Voyeur_utilities import parse_rig_config
 from voyeur.monitor import Monitor
+
+from time import sleep
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
@@ -63,7 +66,7 @@ class Valvegroup(QWidget, QObject):
     olfactometer_address = Int(1)
     # Minimum time needed between different valves/vials being opened to prevent
     # contamination. Value is in milliseconds.
-    MINIMUM_VALVE_OFF_TIME = 1000
+    MINIMUM_VALVE_OFF_TIME = 500
     def __init__(self,
                  monitor,
                  parent=None, 
@@ -527,7 +530,6 @@ class MFC(QWidget):
         """ Timer overflow SLOT. Updates the MFC flow representation"""
         # print QtCore.QTime.currentTime() # debuging printout to see frequency of polling
         flow = self.getMFCrate(self)
-        #print "Polling...", flow
         if flow is not None:
             self.mfcslider.setValue(flow * self.mfccapacity)
             self.last_poll_time = time.time()
@@ -854,7 +856,7 @@ def getMFCrate_analog(self, *args, **kwargs):
     self.flow = float(rate)
     if (rate < 0):
         print "Couldn't get MFC flow rate measure"
-        print "mfc index: " + str(self.mfcindex), "error code: ", rate
+        print "MFC index: " + str(self.mfcindex), "error code: ", rate
         return None
     else:
         return float(rate)
@@ -927,29 +929,27 @@ def getMFCrate_alicat(self, *args, **kwargs):
         if confirmation.startswith("MFC set"):
             command = "DMFC {0:d} {1:d}".format(self.olfactometer_address, self.mfcindex)
             returnstring = self.olfa_communication.send_command(command)
-        else:
-            warning_str = "MFC {0:d} not read.".format(self.mfcindex)
-            raise Warning(warning_str)
+            li = returnstring.split(' ')
+            if li[0] == "A" and (12 <= len(li) <= 14):
+                tries = 10
+                for x in range(tries):
+                    try:
+                        r_str = li[4]  # 5th column is mass flow, so index 4.
+                        flow = float(r_str)
+                        flow = flow / self.mfccapacity  # normalize as per analog api.
+                    except Exception as str_error:
+                        if x < (tries -1):
+                            continue
+                        else:
+                            warning_str = "MFC {0:d} not read.".format(self.mfcindex)
+                            raise Warning(warning_str)
 
-        li = returnstring.split(' ')
-        mfc_str = li[0]
-        if mfc_str == "A":
-            try:
-                r_str = li[4]  # 5th column is mass flow, so index 4.
-                flow = float(r_str)
-                flow = flow / self.mfccapacity  # normalize as per analog api.
-                # print "flow extracted: ", flow
                 if (flow < 0):
                     print "Couldn't get MFC flow rate measure"
-                    print "mfc index: " + str(self.mfcindex), "error code: ", flow
+                    print "MFC index: " + str(self.mfcindex), "error code: ", flow
                     return None
-                #print "It took: ", time.clock()-start_time, "seconds"
-                #print "MFC returned message: ", returnstring
                 self.flow = flow
                 return flow
-            except:  # if any errors, print the return string.
-               print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,
-                                                                                                        returnstring)
         return None
     
 def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
@@ -969,22 +969,28 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
     command = "analogRead {0:d} {1:d}".format(self.olfactometer_address,
                                               self.auxilary_analog_read_pin)
     
-    # Try for 250 ms. If we fail, return None
-    while (time.clock() - start_time < .25):
+    # Try for 1000 ms. If we fail, return None
+    while (time.clock() - start_time < 0.25):
         confirmation = self.olfa_communication.send_command(command)
-        
-        try:
-            rate = float(confirmation)
-        except:
-            warning_str = "Got a non-float value as a response when reading MFC {0:d}"\
-                     " flow rate.".format(self.mfcindex)
-            raise Warning(warning_str)
-        
+
+        tries = 10
+        for x in range(tries):
+            try:
+                rate = float(confirmation)
+            except Exception as str_error:
+                if x < tries -1:
+                    continue
+                else:
+                    warning_str = "Got a non-float value as a response when reading MFC {0:d}" \
+                                  " flow rate.".format(self.mfcindex)
+                    raise Warning(warning_str)
+
         self.flow = rate
         if (rate < 0):
             print "Couldn't get MFC flow rate measure"
-            print "mfc index: " + str(self.mfcindex), "error code: ", self.flow
+            print "MFC index: " + str(self.mfcindex), "error code: ", self.flow
             return None
+
         return rate
     return None
 
