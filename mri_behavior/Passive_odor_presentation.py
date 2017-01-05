@@ -66,7 +66,7 @@ class Passive_odor_presentation(Protocol):
     STREAM_SIZE = 5000
     
     # Number of trials in a block.
-    BLOCK_SIZE = 200
+    BLOCK_SIZE = 20
 
     # Flag to indicate whether we have an Arduino connected. Set to 0 for
     # debugging.
@@ -87,8 +87,8 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_TRIALS_TYPE = 0 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 100 # Must be even number
+    INITIAL_TRIALS_TYPE = 2 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS = 0 # Must be even number
 
     # Number of samples for HRF
     # tr = 5000
@@ -98,8 +98,8 @@ class Passive_odor_presentation(Protocol):
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
-                          "Left" : 0,
-                          "Right": 1,
+                          "Left" : 1,
+                          "Right": 0,
                           }
     # Dictionary of all stimuli defined (arranged by category), with each
     # category having a list of stimuli.
@@ -108,7 +108,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 0
+    odorant_trigger_phase_code = 2
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -1383,8 +1383,6 @@ class Passive_odor_presentation(Protocol):
         
         #update a couple last parameters from the next_stimulus object, then make it the current_stimulus..
         self.calculate_current_trial_parameters()
-        self._last_trial_type = self.trial_type
-        self.trial_type = self.next_trial_type
         self.current_stimulus = deepcopy(self.next_stimulus) # set the parameters for the following trial from nextstim.
         #calculate a new next stim.
         self.calculate_next_trial_parameters() # generate a new nextstim for the next next trial. 
@@ -1713,22 +1711,14 @@ class Passive_odor_presentation(Protocol):
     def _odorvalveon(self):
         """ Turn on odorant valve """
 
-        # print "odorant valve on time", time.clock()
         if(self.olfactometer is None) or self.start_label == 'Start' or self.pause_label == "Unpause":
             return
-        # self.olfactometer.valves.setodorvalve(self._currentvial)
         for i in range(self.olfactometer.deviceCount):
-            # print "current stim: ", self.current_stimulus
             olfa = self.olfas[i]
             olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
 
             if olfavalve != 0:
                 self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) #set the vial,
-        #         if self.olfactometer.olfas[i].valves.checkedID != olfavalve: #check that the vial was set...
-        #             self._pause_button_fired()
-        #             print "Pausing, valve not set due to lockout or error, see error above."
-        # """olfavalve = self.olfas[0][self.current_stimulus.odorvalves[0]][2]
-        # self.olfactometer.olfas[0].valves.setodorvalve(olfavalve)"""
     
     
     def _setflows(self):
@@ -1741,10 +1731,6 @@ class Passive_odor_presentation(Protocol):
             self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
             self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
             self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
-            # self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, 0)
-            # self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, 0)
-            # self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 0)
-
 
     def end_of_trial(self):
         # set new trial parameters
@@ -1830,18 +1816,16 @@ class Passive_odor_presentation(Protocol):
         
         self.trial_number = self.next_trial_number
         self.current_stimulus = self.next_stimulus
-        self.trial_type = self.current_stimulus.trial_type
+        self.trial_type = self.next_trial_type
         self.odorant = self.next_odorant
         self.nitrogen_flow = self.next_nitrogen_flow
         self.air_flow = self.next_air_flow
         
         # For the first trial recalculate the next trial parameters again
         # so that the second trial is also prepared and ready.
-        # if self.trial_number == 1:
-        self.calculate_next_trial_parameters()
-        
-        # print "Current stimulus: ", self.current_stimulus
-    
+        if self.trial_number == 1:
+            self.calculate_next_trial_parameters()
+
     def calculate_next_trial_parameters(self):
         """ Calculate parameters for the trial that will follow the currently \
         scheduled trial.
@@ -1879,6 +1863,7 @@ class Passive_odor_presentation(Protocol):
                                                  self.stimuli.values())
         
         self.next_trial_type = self.next_stimulus.trial_type
+        print "self.next_trial_number:", self.next_trial_number, "self.next_trial_type:", self.next_trial_type
         nextodorvalve = self.next_stimulus.odorvalves[0]
         self.next_odorant = self.olfas[0][nextodorvalve][0]
         self.next_air_flow = self.next_stimulus.flows[0][0]
