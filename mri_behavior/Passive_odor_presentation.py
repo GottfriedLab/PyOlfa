@@ -66,7 +66,7 @@ class Passive_odor_presentation(Protocol):
     STREAM_SIZE = 5000
     
     # Number of trials in a block.
-    BLOCK_SIZE = 20
+    BLOCK_SIZE = 4
 
     # Flag to indicate whether we have an Arduino connected. Set to 0 for
     # debugging.
@@ -88,7 +88,7 @@ class Passive_odor_presentation(Protocol):
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
     INITIAL_TRIALS_TYPE = 2 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 0 # Must be even number
+    INITIAL_TRIALS = 100 # Must be even number
 
     # Number of samples for HRF
     # tr = 5000
@@ -108,7 +108,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 2
+    odorant_trigger_phase_code = 0
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -187,10 +187,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [7500, 9000]
+    iti_bounds  = [3500, 5000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [10000, 11500]
+    iti_bounds_false_alarm = [5000, 6500]
     # Current overall session performance.
     percent_correct = Float(0, label="Total percent correct")
 
@@ -928,17 +928,17 @@ class Passive_odor_presentation(Protocol):
         if len(self.responses) == 1:
             return
 
-        self.trial_number_tick = arange(0, len(self.responses))
-
         leftcorrect = int
         rightcorrect = int
         lastelement = self.responses[-1]
-        
+
         if(lastelement == 1):  # LEFT HIT
             self._total_left_hits += 1
             if len(self._sliding_window_left_array) == self.BLOCK_SIZE:
                 del self._sliding_window_left_array[:]
-                del self._sliding_window_left_hits
+                if self._sliding_window_left_hits != 0:
+                    del self._sliding_window_left_hits
+                del self._left_trials_line
                 self._sliding_window_left_hits += 1
             else:
                 self._sliding_window_left_hits += 1
@@ -948,7 +948,9 @@ class Passive_odor_presentation(Protocol):
             self._total_right_hits += 1
             if len(self._sliding_window_right_array) == self.BLOCK_SIZE:
                 del self._sliding_window_right_array[:]
-                del self._sliding_window_right_hits
+                if self._sliding_window_right_hits != 0:
+                    del self._sliding_window_right_hits
+                del self._right_trials_line
                 self._sliding_window_right_hits += 1
             else:
                 self._sliding_window_right_hits += 1
@@ -958,14 +960,18 @@ class Passive_odor_presentation(Protocol):
             self._total_left_misses += 1
             if len(self._sliding_window_left_array) == self.BLOCK_SIZE:
                 del self._sliding_window_left_array[:]
-                del self._sliding_window_left_hits
+                if self._sliding_window_left_hits != 0:
+                    del self._sliding_window_left_hits
+                self._left_trials_line = [1]
             self._sliding_window_left_array.append(lastelement)
 
         elif (lastelement == 4):  # RIGHT MISS
             self._total_right_misses += 1
             if len(self._sliding_window_right_array) == self.BLOCK_SIZE:
                 del self._sliding_window_right_array[:]
-                del self._sliding_window_right_hits
+                if self._sliding_window_right_hits != 0:
+                    del self._sliding_window_right_hits
+                self._right_trials_line = [1]
             self._sliding_window_right_array.append(lastelement)
         
         # sliding window data arrays
@@ -983,8 +989,7 @@ class Passive_odor_presentation(Protocol):
                 
         self._left_trials_line = append(self._left_trials_line, leftcorrect*100)
         self._right_trials_line = append(self._right_trials_line, rightcorrect*100)
-        # print "self._left_trials_line:", self._left_trials_line
-        # print "self.trial_number_tick:", self.trial_number_tick
+        self.trial_number_tick = arange(0, len(self._right_trials_line))
         # print "LeftHits: " + str(self._total_left_hits) + "\tRightHits: " + str(self._total_right_hits)
         
         self.event_plot_data.set_data("trial_number_tick", self.trial_number_tick)        
@@ -1222,8 +1227,8 @@ class Passive_odor_presentation(Protocol):
         self.max_rewards = max_rewards
         
         # Setup the performance plots
-        self.event_plot_data = ArrayPlotData(trial_number_tick=self.trial_number_tick,
-                                             _left_trials_line=self._left_trials_line,
+        self.event_plot_data = ArrayPlotData(trial_number_tick = self.trial_number_tick,
+                                             _left_trials_line = self._left_trials_line,
                                              _right_trials_line = self._right_trials_line)
         plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=80, border_visible=False)
         self.event_plot = plot
@@ -1863,7 +1868,6 @@ class Passive_odor_presentation(Protocol):
                                                  self.stimuli.values())
         
         self.next_trial_type = self.next_stimulus.trial_type
-        print "self.next_trial_number:", self.next_trial_number, "self.next_trial_type:", self.next_trial_type
         nextodorvalve = self.next_stimulus.odorvalves[0]
         self.next_odorant = self.olfas[0][nextodorvalve][0]
         self.next_air_flow = self.next_stimulus.flows[0][0]
