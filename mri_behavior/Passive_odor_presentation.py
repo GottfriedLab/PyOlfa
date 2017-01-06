@@ -66,13 +66,16 @@ class Passive_odor_presentation(Protocol):
     STREAM_SIZE = 5000
     
     # Number of trials in a block.
-    BLOCK_SIZE = 4
+    BLOCK_SIZE = 200
 
     # Flag to indicate whether we have an Arduino connected. Set to 0 for
     # debugging.
     ARDUINO = 1
     
-    # Number of trials in one sliding window used for continuous 
+    # Flag to indicate whether we are training mouse to lick or not. Set to 1 during training period
+    LICKING_TRAINING = 1
+
+    # Number of trials in one sliding window used for continuous
     # visualizing of session performance.
     SLIDING_WINDOW = BLOCK_SIZE
     
@@ -88,7 +91,7 @@ class Passive_odor_presentation(Protocol):
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
     INITIAL_TRIALS_TYPE = 2 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 100 # Must be even number
+    INITIAL_TRIALS = 4 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
     # tr = 5000
@@ -1190,6 +1193,7 @@ class Passive_odor_presentation(Protocol):
                         lick_grace_period,
                         hemodynamic_delay,
                         tr,
+                        licking_training,
                         **kwtraits):
         
         super(Passive_odor_presentation, self).__init__(**kwtraits)
@@ -1221,6 +1225,7 @@ class Passive_odor_presentation(Protocol):
         self.trial_duration = trial_duration
         self.hemodynamic_delay = hemodynamic_delay
         self.tr = self.TR
+        self.licking_training = self.LICKING_TRAINING
         
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
@@ -1294,6 +1299,7 @@ class Passive_odor_presentation(Protocol):
                     "lick_grace_period"         : (7, db.Int, self.lick_grace_period),
                     "hemodynamic_delay"         : (8, db.Int, self.hemodynamic_delay),
                     "tr"                        : (9, db.Int, self.tr),
+                    "licking_training"          : (10, db.Int, self.licking_training)
         }
    
         return TrialParameters(
@@ -1332,7 +1338,8 @@ class Passive_odor_presentation(Protocol):
             "trial_type_id"              : db.Int,
             "lick_grace_period"          : db.Int,
             "hemodynamic_delay"          : db.Int,
-            "tr"                         : db.Int
+            "tr"                         : db.Int,
+            "licking_training"           : db.Int
         }
            
         return params_def
@@ -1765,7 +1772,7 @@ class Passive_odor_presentation(Protocol):
                     new block..."
         
         # Generate an initial block of trials if needed.
-        if self.INITIAL_TRIALS and self.trial_number < self.INITIAL_TRIALS:
+        if self.trial_number < self.INITIAL_TRIALS :
             block_size = self.INITIAL_TRIALS + 1 - self.trial_number
             if self.INITIAL_TRIALS_TYPE == 0:
                 self.stimulus_block = [self.stimuli["Left"][0]] * block_size
@@ -1913,6 +1920,7 @@ if __name__ == '__main__':
     session = 18
     stamp = time_stamp()
     tr = 1000
+    licking_training = 0
     
     # protocol
     protocol = Passive_odor_presentation(trial_number,
@@ -1928,6 +1936,7 @@ if __name__ == '__main__':
                                          lick_grace_period,
                                          hemodynamic_delay,
                                          tr,
+                                         licking_training
                                          )
 
     # Testing code when no hardware attached.
