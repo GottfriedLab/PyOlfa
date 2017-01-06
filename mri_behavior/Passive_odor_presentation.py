@@ -56,7 +56,8 @@ from chaco.scales.api import CalendarScaleSystem
 from traits.has_traits import on_trait_change
 
 import warnings
-warnings.simplefilter(action = "ignore", category = FutureWarning)
+# warnings.simplefilter(action = "ignore", category = FutureWarning)
+warnings.filterwarnings("ignore")
 
 
 class Passive_odor_presentation(Protocol):
@@ -94,8 +95,6 @@ class Passive_odor_presentation(Protocol):
     INITIAL_TRIALS = 4 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
-    # tr = 5000
-    # HRF_SAMPLES = 10
     TR = 1000
     HRF_SAMPLES = 1
     
