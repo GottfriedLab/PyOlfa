@@ -580,7 +580,11 @@ class Olfactometer(QWidget):
     def check_MFCs(self):
         flows_on = True
         for mfc in self.mfcs:
-            time_elapsed = time.time() - mfc.last_poll_time
+            if hasattr(mfc,'last_poll_time'):
+                time_elapsed = time.time() - mfc.last_poll_time
+            else:
+                time_elapsed = time.time()
+
             if time_elapsed > 2.1 * self.polling_interval:  #TODO: don't hardcode this, although this is ~2 timer ticks.
                 raise Exception('MFC polling is not ok.')
             if mfc.flow < 0.:
