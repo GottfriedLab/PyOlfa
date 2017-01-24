@@ -74,7 +74,7 @@ class Passive_odor_presentation(Protocol):
     ARDUINO = 1
     
     # Flag to indicate whether we are training mouse to lick or not. Set to 1 during training period
-    LICKING_TRAINING = 1
+    LICKING_TRAINING_PROBABILITY = 0
 
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.
@@ -189,10 +189,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [5000, 6000]
+    iti_bounds  = [7000, 8000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [6000, 7000]
+    iti_bounds_false_alarm = [9000, 10000]
     # Current overall session performance.
     percent_correct = Float(0, label="Total percent correct")
 
@@ -1192,7 +1192,7 @@ class Passive_odor_presentation(Protocol):
                         lick_grace_period,
                         hemodynamic_delay,
                         tr,
-                        licking_training,
+                        licking_training_probability,
                         **kwtraits):
         
         super(Passive_odor_presentation, self).__init__(**kwtraits)
@@ -1224,7 +1224,7 @@ class Passive_odor_presentation(Protocol):
         self.trial_duration = trial_duration
         self.hemodynamic_delay = hemodynamic_delay
         self.tr = self.TR
-        self.licking_training = self.LICKING_TRAINING
+        self.licking_training_probability = self.LICKING_TRAINING_PROBABILITY
         
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
@@ -1289,16 +1289,16 @@ class Passive_odor_presentation(Protocol):
         
         # Parameters sent to the controller (Arduino)
         controller_dict = {
-                    "trialNumber"               : (1, db.Int, self.trial_number),
-                    "final_valve_duration"      : (2, db.Int, self.final_valve_duration),
-                    "trial_duration"            : (3, db.Int, self.trial_duration),
-                    "inter_trial_interval"      : (4, db.Int, self.inter_trial_interval),
-                    "odorant_trigger_phase_code": (5, db.Int, self.odorant_trigger_phase_code),
-                    "trial_type_id"             : (6, db.Int, self.current_stimulus.id),
-                    "lick_grace_period"         : (7, db.Int, self.lick_grace_period),
-                    "hemodynamic_delay"         : (8, db.Int, self.hemodynamic_delay),
-                    "tr"                        : (9, db.Int, self.tr),
-                    "licking_training"          : (10, db.Int, self.licking_training)
+                    "trialNumber"                   : (1, db.Int, self.trial_number),
+                    "final_valve_duration"          : (2, db.Int, self.final_valve_duration),
+                    "trial_duration"                : (3, db.Int, self.trial_duration),
+                    "inter_trial_interval"          : (4, db.Int, self.inter_trial_interval),
+                    "odorant_trigger_phase_code"    : (5, db.Int, self.odorant_trigger_phase_code),
+                    "trial_type_id"                 : (6, db.Int, self.current_stimulus.id),
+                    "lick_grace_period"             : (7, db.Int, self.lick_grace_period),
+                    "hemodynamic_delay"             : (8, db.Int, self.hemodynamic_delay),
+                    "tr"                            : (9, db.Int, self.tr),
+                    "licking_training_probability"  : (10, db.Int, self.licking_training_probability)
         }
    
         return TrialParameters(
@@ -1329,16 +1329,16 @@ class Passive_odor_presentation(Protocol):
         """Returns a dictionary of {name => db.type} defining controller (Arduino) parameters"""
 
         params_def = {
-            "trialNumber"                : db.Int,
-            "final_valve_duration"       : db.Int,
-            "trial_duration"             : db.Int,
-            "inter_trial_interval"       : db.Int,
-            "odorant_trigger_phase_code" : db.Int,
-            "trial_type_id"              : db.Int,
-            "lick_grace_period"          : db.Int,
-            "hemodynamic_delay"          : db.Int,
-            "tr"                         : db.Int,
-            "licking_training"           : db.Int
+            "trialNumber"                   : db.Int,
+            "final_valve_duration"          : db.Int,
+            "trial_duration"                : db.Int,
+            "inter_trial_interval"          : db.Int,
+            "odorant_trigger_phase_code"    : db.Int,
+            "trial_type_id"                 : db.Int,
+            "lick_grace_period"             : db.Int,
+            "hemodynamic_delay"             : db.Int,
+            "tr"                            : db.Int,
+            "licking_training_probability"  : db.Int
         }
            
         return params_def
@@ -1919,7 +1919,7 @@ if __name__ == '__main__':
     session = 18
     stamp = time_stamp()
     tr = 1000
-    licking_training = 0
+    licking_training_probability = 0
     
     # protocol
     protocol = Passive_odor_presentation(trial_number,
@@ -1935,7 +1935,7 @@ if __name__ == '__main__':
                                          lick_grace_period,
                                          hemodynamic_delay,
                                          tr,
-                                         licking_training
+                                         licking_training_probability
                                          )
 
     # Testing code when no hardware attached.
