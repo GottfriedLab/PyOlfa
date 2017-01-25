@@ -59,7 +59,6 @@ import warnings
 # warnings.simplefilter(action = "ignore", category = FutureWarning)
 warnings.filterwarnings("ignore")
 
-
 class Passive_odor_presentation(Protocol):
     """Protocol and GUI for a 2AFC behavioral paradigm."""
 
