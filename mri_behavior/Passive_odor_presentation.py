@@ -72,8 +72,8 @@ class Passive_odor_presentation(Protocol):
     # debugging.
     ARDUINO = 1
     
-    # Flag to indicate whether we are training mouse to lick or not. Set to 1 during training period
-    LICKING_TRAINING_PROBABILITY = 0
+    # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
+    LICKING_TRAINING_PROBABILITY = 0.3
 
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.
@@ -109,7 +109,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 0
+    odorant_trigger_phase_code = 2
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -188,10 +188,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [7000, 8000]
+    iti_bounds  = [8000, 10000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [9000, 10000]
+    iti_bounds_false_alarm = [13000, 15000]
     # Current overall session performance.
     percent_correct = Float(0, label="Total percent correct")
 
@@ -594,7 +594,7 @@ class Passive_odor_presentation(Protocol):
 
         # y-axis range. Change this if you want to re-scale or offset it.
         y_range = DataRange1D(low=-300, high=300)  # for training non-mri sniff sensor
-        # y_range = DataRange1D(low=200, high=-200) # for mri pressure sensor
+        # y_range = DataRange1D(low=-2000, high=0) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 70)
         plot.value_range = y_range
         plot.y_axis.visible = True
@@ -974,6 +974,24 @@ class Passive_odor_presentation(Protocol):
                     del self._sliding_window_right_hits
                 self._right_trials_line = [1]
             self._sliding_window_right_array.append(lastelement)
+
+        elif (lastelement == 5):  # LEFT NO RESPONSE
+            self._total_left_misses += 1
+            if len(self._sliding_window_left_array) == self.BLOCK_SIZE:
+                del self._sliding_window_left_array[:]
+                if self._sliding_window_left_hits != 0:
+                    del self._sliding_window_left_hits
+                self._left_trials_line = [1]
+            self._sliding_window_left_array.append(lastelement)
+
+        elif (lastelement == 6):  # RIGHT NO RESPONSE
+            self._total_right_misses += 1
+            if len(self._sliding_window_right_array) == self.BLOCK_SIZE:
+                del self._sliding_window_right_array[:]
+                if self._sliding_window_right_hits != 0:
+                    del self._sliding_window_right_hits
+                self._right_trials_line = [1]
+            self._sliding_window_right_array.append(lastelement)
         
         # sliding window data arrays
         slwlefttrials = len(self._sliding_window_left_array)
@@ -1223,7 +1241,7 @@ class Passive_odor_presentation(Protocol):
         self.trial_duration = trial_duration
         self.hemodynamic_delay = hemodynamic_delay
         self.tr = self.TR
-        self.licking_training_probability = self.LICKING_TRAINING_PROBABILITY
+        self.licking_training_probability = self.LICKING_TRAINING_PROBABILITY*10+1
         
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
@@ -1381,10 +1399,12 @@ class Passive_odor_presentation(Protocol):
             self.rewards += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
                 self._start_button_fired()  # ends the session if the reward target has been reached.
+            self.inter_trial_interval = randint(self.iti_bounds[0], self.iti_bounds[1])
 
         if (response == 3) or (response == 4): # a false alarm
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
-        else:
+
+        if (response == 5) or (response == 6): # no response
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
 
         self.responses = append(self.responses, response)
@@ -1904,7 +1924,7 @@ if __name__ == '__main__':
     trial_number = 0
     trial_type_id = 0
     final_valve_duration = 1000
-    trial_duration = 2000
+    trial_duration = 3000
     lick_grace_period = 0
     max_rewards = 200
     odorant_trigger_phase_code = 2
