@@ -90,7 +90,7 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_TRIALS_TYPE = 2 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS_TYPE = 3 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
     INITIAL_TRIALS = 0 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
@@ -109,7 +109,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 2
+    odorant_trigger_phase_code = 0
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -188,10 +188,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [8000, 10000]
+    iti_bounds  = [9000, 11000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [13000, 15000]
+    iti_bounds_false_alarm = [14000, 16000]
     # Current overall session performance.
     percent_correct = Float(0, label="Total percent correct")
 
@@ -1924,7 +1924,7 @@ if __name__ == '__main__':
     trial_number = 0
     trial_type_id = 0
     final_valve_duration = 1000
-    trial_duration = 3000
+    trial_duration = 2000
     lick_grace_period = 0
     max_rewards = 200
     odorant_trigger_phase_code = 2
