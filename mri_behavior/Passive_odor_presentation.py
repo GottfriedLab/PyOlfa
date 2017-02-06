@@ -109,7 +109,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 2
+    odorant_trigger_phase_code = 0
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
