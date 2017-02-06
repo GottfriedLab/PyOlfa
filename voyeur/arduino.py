@@ -91,6 +91,7 @@ class SerialPort(object):
 
     def read_byte_streams(self, num_bytes,tries=8):
         count = 0
+        #print num_bytes
         while self.serial.inWaiting() != num_bytes and count < tries: #wait until number of bytes in recieve buffer is equal to expected number of bytes.
             # Reading the serial stream is part of the separate serial acquisition thread and will not break or make the UI lag
             if tries <= 8:
@@ -105,6 +106,7 @@ class SerialPort(object):
                 return bytestream
         # TODO: Take partially transmitted data but warn of data loss?? Implement a retry protocol?
         else: # if buffer never fills to expected value, do not read the packet, instead flush the incoming serial of partial packet and return.
+            #print "serial buffer has ", self.serial.inWaiting(), "bytes"
             self.serial.flushInput()
             print 'ERROR in serial stream acquisition: not enough bytes transmitted by arduino'
             return None
@@ -125,7 +127,7 @@ class SerialPort(object):
             # Collect statistics about the transmission rate and lost packets
             streamtime = time.clock()
             rate = streamtime - self.lastStreamTime
-            #print "Stream received: ", rate            
+            #print "Stream received: ", rate
             # Skip the first measurement as that depends on when the user starts the streaming and
             #  the first transmission will for sure overflow the buffer
             if self.lastStreamTime > 0:
@@ -135,6 +137,7 @@ class SerialPort(object):
                     self.overflownpackets += 1
             self.lastStreamTime = streamtime
             #print "Stream returned: ", packets, " time: ", time.clock()
+            #print packets
             return parse_serial(packets, stream_def, self)
 
     def request_event(self, event_def, tries=10):
@@ -174,7 +177,7 @@ class SerialPort(object):
             self.write(command)
             self.write("\r")
             line = self.read_line()
-            print line
+            #print line
             if line and int(line[:1]) == 2:
                 return True
 
@@ -225,6 +228,8 @@ class SerialPort(object):
 
 def parse_serial(packets, protocol_def, serial_obj):
     """Parse serial read"""
+    #print "packet: ", packets
+    #print "protocol_def: ", protocol_def
     data = {}
     eot = False
     #print protocol_def
@@ -259,6 +264,7 @@ def parse_serial(packets, protocol_def, serial_obj):
                     for stream_number in range(num_streams):
                         bytes_per_stream.append(int(payload[1+stream_number]))
                     bytes_to_read = sum(bytes_per_stream)
+                    #print "Reading ", bytes_to_read, " bytes"
                     bytestream = serial_obj.read_byte_streams(bytes_to_read)
                     
                     if bytestream == None: # failure, no streams recieved,

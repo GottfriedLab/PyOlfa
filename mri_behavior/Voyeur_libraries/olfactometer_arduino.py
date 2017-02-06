@@ -1,6 +1,6 @@
 '''
 Created on 2011-03-11, 
-Updated on 2015-08-07
+Uportdated on 2015-08-07
 version: 1.2
 
 @author: Admir Resulaj
@@ -11,6 +11,7 @@ License: GPLv3 or earlier version of GPL if user chooses so.
 import itertools
 import time, serial, os
 from serial import Serial, SerialException
+from time import sleep
 
 # Change the gui toolkit from the default to qt version 4
 from traits.etsconfig import etsconfig
@@ -31,6 +32,8 @@ from traits.api import Instance, Int, Str, Float, List
 # Utilities written for the voyeur package.
 from Voyeur_utilities import parse_rig_config
 from voyeur.monitor import Monitor
+
+from time import sleep
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
@@ -63,13 +66,13 @@ class Valvegroup(QWidget, QObject):
     olfactometer_address = Int(1)
     # Minimum time needed between different valves/vials being opened to prevent
     # contamination. Value is in milliseconds.
-    MINIMUM_VALVE_OFF_TIME = 1000
+    MINIMUM_VALVE_OFF_TIME = 500
     def __init__(self,
-                 monitor, 
+                 monitor,
                  parent=None, 
                  name="Odor Valves", 
                  olfactometer_address=1, 
-                 background_vial=4, 
+                 background_vial=4,
                  valve_numbers=(1, 13),
                  ):
         """ Creates the Valvegroup object with the given number of valve 
@@ -88,7 +91,7 @@ class Valvegroup(QWidget, QObject):
                                 This represents a dummy vial that should
                                 normally output no odorant.
         valve_numbers         : is the [lower, upper) limit for the sequential
-                                numbering of the valves/vial channels. I.e the
+-                                numbering of the valves/vial channels. I.e the
                                 valves/vials will be numbered from lower to 
                                 upper-1.
         
@@ -114,7 +117,7 @@ class Valvegroup(QWidget, QObject):
         # Flag that indicates if a valve/vial can be safely opened without
         # risking contamination. The lock out time is MINIMUM_VALVE_OFF_TIME .
         self.safe_to_open = True
-        
+
         # Add the buttons for each valve/vial.
         for valve_number in range(valve_numbers[0], valve_numbers[1]):
             button = QPushButton(str(valve_number))
@@ -132,9 +135,9 @@ class Valvegroup(QWidget, QObject):
         buttonlayout.addStretch(1)
         self.ON_valve = 0
         # Turn off any vials that may be open.
-        if monitor is not None:
-            self.all_OFF()
-            self.valves.button(self.background_vial).setChecked(True)
+        # if monitor is not None:
+        self.all_OFF()
+        self.valves.button(self.background_vial).setChecked(True)
         # Button clicked signal.
         self.connect(self.valves, SIGNAL('buttonClicked (int)'),
                      self._button_clicked)
@@ -168,10 +171,10 @@ class Valvegroup(QWidget, QObject):
         # A different button was pressed. Turn ON the new vial if possible.
         else:
             self.set_odor_valve(button_number)
-        # If the valve was not set, don't change the button that is checked.
-        if (self.valves.checkedId() != self.ON_valve and self.ON_valve > 0):
-            self.valves.button(self.ON_valve).setChecked(True)
-            self._paint_button(self.valves.button(self.ON_valve), True)
+        # # If the valve was not set, don't change the button that is checked.
+        # if (self.valves.checkedID() != self.ON_valve and self.ON_valve > 0):
+        #     self.valves.button(self.ON_valve).setChecked(True)
+        #     self._paint_button(self.valves.button(self.ON_valve), True)
         
     def _clear_valve_lockout(self):
         """ Clear the lockout and allow new odor channels to open. """ 
@@ -199,12 +202,12 @@ class Valvegroup(QWidget, QObject):
     
     def _send_command(self, command):
         """ Send a command to the olfactometer hardware. """
-        
+
         line = self.olfa_communication.send_command(command)
         if line.split()[0] != 'Error':
             return True
         else:
-            print "Error reported from Arduino: ", line
+            # print "Error reported from Arduino: ", line
             return False
     
     def set_odor_valve(self, valve_number, valve_state=1):
@@ -247,9 +250,9 @@ class Valvegroup(QWidget, QObject):
                             str(valve_number)
                 if self._send_command(command):
                     self.safe_to_open = False
-                    if self.ON_valve != 0:
-                        self._paint_button(self.valves.button(self.ON_valve),
-                                           False)
+                    # if self.ON_valve != 0:
+                    #     self._paint_button(self.valves.button(self.ON_valve),
+                    #                        False)
                     self.ON_valve = valve_number
                     button = self.valves.button(valve_number)
                     button.setChecked(True)
@@ -415,9 +418,9 @@ class MFC(QWidget):
     mfcunits = str()
     timer = Instance(QTimer)
     auxilary_analog_read_pin = 6
-    auxilary_analog_write_pin = 1
+    auxilary_analog_write_pin = 2
 
-    def __init__(self, parent, monitor, mfcindex, name, value=-1, pollingtime=4000, olfactometer_address=1, MFCtype='alicat_digital'):
+    def __init__(self, parent, monitor, mfcindex, name, MFCtype, olfactometer_address, value=-1, pollingtime=4000):
         """ creates an MFC widget """
 
         self.setMFCrate = MFCprotocols[MFCtype]['setMFCrate']
@@ -430,7 +433,7 @@ class MFC(QWidget):
         self.parent_olfactometer = parent
         self.mfcindex = mfcindex  # index of MFC in the module
         self.olfactometer_address = olfactometer_address  # index of the slave in the system
-        self.flow = 0.
+        self.flow = 0
         # TODO: Get MFC info if operating in digital mode
         # self._getMFCtype()
         if name == "Air":
@@ -527,7 +530,6 @@ class MFC(QWidget):
         """ Timer overflow SLOT. Updates the MFC flow representation"""
         # print QtCore.QTime.currentTime() # debuging printout to see frequency of polling
         flow = self.getMFCrate(self)
-        #print "Polling...", flow
         if flow is not None:
             self.mfcslider.setValue(flow * self.mfccapacity)
             self.last_poll_time = time.time()
@@ -540,6 +542,7 @@ class Olfactometer(QWidget):
     """ Olfactometer widget that contains the widgets for a single parent_olfactometer """
     mfc1 = Instance(MFC)  # Mass flow controller object
     mfc2 = Instance(MFC)
+    mfc3 = Instance(MFC)
     valves = Instance(Valvegroup)  # Valve group object
     def __init__(self, parent):
         """ creates an Olfactometer widget """
@@ -552,7 +555,7 @@ class Olfactometer(QWidget):
 
     def start_mfc_polling(self, polling_interval_ms=2000):
         self.polling_interval = polling_interval_ms
-        self.mfcs = [self.mfc1, self.mfc2]
+        self.mfcs = [self.mfc1, self.mfc2, self.mfc3]
         self.last_mfc_checks = []
         for mfc in self.mfcs:
             self.last_mfc_checks.append(0.)
@@ -577,11 +580,16 @@ class Olfactometer(QWidget):
     def check_MFCs(self):
         flows_on = True
         for mfc in self.mfcs:
-            time_elapsed = time.time() - mfc.last_poll_time
+            if hasattr(mfc,'last_poll_time'):
+                time_elapsed = time.time() - mfc.last_poll_time
+            else:
+                time_elapsed = time.time()
+
             if time_elapsed > 2.1 * self.polling_interval:  #TODO: don't hardcode this, although this is ~2 timer ticks.
                 raise Exception('MFC polling is not ok.')
-            if mfc.flow <= 0.:
-                print '{0} MCF reporting no flow.'.format(mfc.name)
+            if mfc.flow < 0.:
+                print '{0} MFC reporting no flow.'.format(mfc.name)
+                print 'mfc.flow:', mfc.flow
                 flows_on = False
         return flows_on
     
@@ -662,7 +670,6 @@ class SerialMonitor(Serial):
             self.write("\r")
             line = self.read_line()
 #            if line == (command+'\r\n'):
-#                print "Echoed command: ", line
             line = self.read_line()
             morebytes = self.inWaiting()
             if morebytes:
@@ -699,18 +706,15 @@ class Olfactometers(ApplicationWindow):
     # olfa =
     monitor = Instance(object)
     deviceCount = 1
-    """mfc1 = Instance(MFC) # Mass flow controller object
-    mfc2 = Instance(MFC)
-    valves = Instance(Valvegroup) # Valve group object"""
     ###########################################################################
     # 'object' interface.
     ###########################################################################
-    def __init__(self, monitor=None, config_obj = None, **traits):
+    def __init__(self, config_obj, **traits):
         """ Creates a new application window. """
         # Base class constructor.
         super(Olfactometers, self).__init__(**traits)
         # Create an action that exits the application.
-        exit_action = Action(name='E&xit', on_perform=self.close)
+        exit_action = Action(name='Exit', on_perform=self.close)
         # Serial Ports Menu
         self.serialPorts = MenuManager(name='Serial Port:')
         # Get the names from the OS
@@ -720,11 +724,14 @@ class Olfactometers(ApplicationWindow):
             portchoice = SerialSelectionAction(name=portname, controller=self, style='radio')
             self.serialPorts.append(portchoice)
             self.serialList.append(portname)
-        # TODO: extend the Behaviour Box option to the connection list
-        if monitor is not None:
-            portchoice = SerialSelectionAction(name="Behaviour Box", controller=self, style='radio')
-            self.serialPorts.append(portchoice)
-            self.serialList.append("Behaviour Box")
+
+        # # TODO: extend the Behaviour Box option to the connection list
+        # if monitor is not None:
+        #     portchoice = SerialSelectionAction(name="Behaviour Box", controller=self, style='radio')
+        #     self.serialPorts.append(portchoice)
+        #     self.serialList.append("Behaviour Box")
+
+
         self.testing_mode = Action(style='toggle', name="Test Mode",
                                    on_perform=self._testing)
         # Add a menu bar.
@@ -741,19 +748,15 @@ class Olfactometers(ApplicationWindow):
                         self.testing_mode,
                         name='&Tools')
         )
-#        self.status_bar_manager = StatusBarManager(message='hi')
-#        self._create_status_bar(self.control)
-        # status_bar = self.status_bar_manager.create_status_bar(self.control)
+
         # monitor is the Voyeur Monitor that handles the COM port
-        self.monitor = monitor
+        self.monitor = SerialMonitor(port='COM4', baudrate=SerialMonitor.BAUDRATE, timeout=1)
+        # self.create_serial('COM4')
         self.config_obj = config_obj
         # check monitor serial connection
-        if (self.monitor is None or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
+        if (self.monitor is None):#or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
             print "Arduino Serial comm failed: Port not open"
-            # return None
-        # else:
-            # TODO: find device number
-            # self.devicecount =
+
         for i in range(self.deviceCount):
             panel = Olfactometer(self.control)
             panel.valves = Valvegroup(self.monitor, panel, olfactometer_address=i + 1)
@@ -769,9 +772,9 @@ class Olfactometers(ApplicationWindow):
                 mfc3type = self.config_obj['olfas'][i]['MFC3_type']
             except:
                 mfc3type = 'auxilary_analog'
-            panel.mfc1 = MFC(panel, self.monitor, 1, "Air", olfactometer_address=i + 1, MFCtype=mfc1type)
-            panel.mfc2 = MFC(panel, self.monitor, 2, "Nitrogen", olfactometer_address=i + 1, MFCtype=mfc2type)
-            panel.mfc3 = MFC(panel, self.monitor, 3, "Background", olfactometer_address=i+1, MFCtype=mfc3type)
+            panel.mfc1 = MFC(panel, self.monitor, 1, "Nitrogen", MFCtype=mfc1type, olfactometer_address=i + 1)
+            panel.mfc2 = MFC(panel, self.monitor, 2, "Air", MFCtype=mfc2type, olfactometer_address=i + 1)
+            panel.mfc3 = MFC(panel, self.monitor, 3, "Background", MFCtype=mfc3type, olfactometer_address=i + 1)
             panel.start_mfc_polling()
             # define the layout
             grid = QGridLayout(panel)
@@ -810,6 +813,7 @@ class Olfactometers(ApplicationWindow):
     def create_serial(self, serial,verbose = True):
         """ Create a Serial connection to the Olfactometer """
         self.monitor = SerialMonitor(port=serial, baudrate=SerialMonitor.BAUDRATE, timeout=1)
+
         if self.monitor.isOpen():
             if verbose:
                 information(self.control, "Port Opened!", serial)
@@ -857,28 +861,28 @@ def getMFCrate_analog(self, *args, **kwargs):
     self.flow = float(rate)
     if (rate < 0):
         print "Couldn't get MFC flow rate measure"
-        print "mfc index: " + str(self.mfcindex), "error code: ", rate
+        print "MFC index: " + str(self.mfcindex), "error code: ", rate
         return None
     else:
         return float(rate)
     return
 
-def setMFCrate_analog(self, flowrate, *args, **kwargs):
+def setMFCrate_analog(self, flow_rate, *args, **kwargs):
     """ sets the value of the MFC flow rate setting as a % from 0.0 to 100.0
         argument is the absolute flow rate """
-    
     if self.olfa_communication is None:
         return
-    if flowrate > self.mfccapacity or flowrate < 0:
+    if flow_rate > self.mfccapacity or flow_rate < 0:
         return  # warn about setting the wrong value here
     # if the rate is already what it should be don't do anything
-    if abs(flowrate - self.mfcvalue) < 0.0005:
+    if abs(flow_rate - self.mfcvalue) < 0.0005:
         return  # floating points have inherent imprecision when using comparisons
-    command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flowrate * 1.0 / self.mfccapacity)
-    set = self.olfa_communication.send_command(command)
-    if(set != "MFC set\r\n"):
-        print "Error setting MFC: ", set
-    self.mfcvalue = float(flowrate)
+    command = "MFC " + str(self.olfactometer_address) + " " + str(self.mfcindex) + " " + str(flow_rate/(self.mfccapacity*1.0))
+
+    confirmation = self.olfa_communication.send_command(command)
+    if(confirmation != "MFC set\r\n"):
+        print "Error setting MFC: ", confirmation
+    self.mfcvalue = float(flow_rate)
     self.mfcslider.setValue(self.mfcvalue)
 
 def setMFCrate_alicat(self, flowrate, *args, **kwargs):
@@ -896,7 +900,7 @@ def setMFCrate_alicat(self, flowrate, *args, **kwargs):
         return
     if abs(flowrate-self.mfcvalue) < 0.0005:
         return
-    flownum = (flowrate * 1. / self.mfccapacity) * 64000.
+    flownum = (flowrate * 1. / self.mfccapacity) * 64000. # CHECK IF THIS FLOW RATE FORMULA IS CORRECT OR NOT
     flownum = int(flownum)
     command = "DMFC {0:d} {1:d} A{2:d}".format(self.olfactometer_address, self.mfcindex, flownum)
     confirmation = self.olfa_communication.send_command(command)
@@ -922,36 +926,35 @@ def getMFCrate_alicat(self, *args, **kwargs):
     if self.olfa_communication is None:
         return
     command = "DMFC {0:d} {1:d} A".format(self.olfactometer_address, self.mfcindex)
-    
-    # Try for 200 ms. If we fail, return None
-    while (time.clock() - start_time < .2):
+
+    # Try for 250 ms. If we fail, return None
+    while (time.clock() - start_time < .25):
         confirmation = self.olfa_communication.send_command(command)
     
         if confirmation.startswith("MFC set"):
             command = "DMFC {0:d} {1:d}".format(self.olfactometer_address, self.mfcindex)
             returnstring = self.olfa_communication.send_command(command)
-        else:
-            warning_str = "MFC {0:d} not read.".format(self.mfcindex)
-            raise Warning(warning_str)
-
-        try:
             li = returnstring.split(' ')
-            r_str = li[4]  # 5th column is mass flow, so index 4.
-            flow = float(r_str)
-            flow = flow / self.mfccapacity  # normalize as per analog api.
-            #print "Rate extracted: ", flow
-            if (flow < 0):
-                print "Couldn't get MFC flow rate measure"
-                print "mfc index: " + str(self.mfcindex), "error code: ", flow
-                return None
-            #print "It took: ", time.clock()-start_time, "seconds"
-            #print "MFC returned message: ", returnstring
-            self.flow = flow
-            return flow
-        except:  # if any errors, print the return string.
-           # print "Couldn't get MFC flow rate measure.\nMFC index: {0:d}, return string: '{1:s}'".format(self.mfcindex,
-           #                                                                                             returnstring)
-           pass
+            if li[0] == "A" and (12 <= len(li) <= 14):
+                tries = 10
+                for x in range(tries):
+                    try:
+                        r_str = li[4]  # 5th column is mass flow, so index 4.
+                        flow = float(r_str)
+                        flow = flow / self.mfccapacity  # normalize as per analog api.
+                    except Exception as str_error:
+                        if x < (tries -1):
+                            continue
+                        else:
+                            warning_str = "MFC {0:d} not read.".format(self.mfcindex)
+                            raise Warning(warning_str)
+
+                if (flow < 0):
+                    print "Couldn't get MFC flow rate measure"
+                    print "MFC index: " + str(self.mfcindex), "error code: ", flow
+                    return None
+                self.flow = flow
+                return flow
         return None
     
 def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
@@ -971,22 +974,28 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
     command = "analogRead {0:d} {1:d}".format(self.olfactometer_address,
                                               self.auxilary_analog_read_pin)
     
-    # Try for 200 ms. If we fail, return None
-    while (time.clock() - start_time < .2):
+    # Try for 1000 ms. If we fail, return None
+    while (time.clock() - start_time < 0.25):
         confirmation = self.olfa_communication.send_command(command)
-        
-        try:
-            rate = float(confirmation)
-        except:
-            warning_str = "Got a non-float value as a response when reading MFC {0:d}"\
-                     " flow rate.".format(self.mfcindex)
-            raise Warning(warning_str)
-        
+
+        tries = 10
+        for x in range(tries):
+            try:
+                rate = float(confirmation)
+            except Exception as str_error:
+                if x < tries -1:
+                    continue
+                else:
+                    warning_str = "Got a non-float value as a response when reading MFC {0:d}" \
+                                  " flow rate.".format(self.mfcindex)
+                    raise Warning(warning_str)
+
         self.flow = rate
         if (rate < 0):
             print "Couldn't get MFC flow rate measure"
-            print "mfc index: " + str(self.mfcindex), "error code: ", flow
+            print "MFC index: " + str(self.mfcindex), "error code: ", self.flow
             return None
+
         return rate
     return None
 
@@ -1013,12 +1022,12 @@ def set_MFC_rate_auxilary_analog(self, flow_rate, *args, **kwargs):
         return
     command = "analogSet {0:d} {1:d} {2:f}".format(self.olfactometer_address,
                                                self.auxilary_analog_write_pin,
-                                               flow_rate/self.mfccapacity)
+                                               flow_rate/(self.mfccapacity*1.0))
     confirmation = self.olfa_communication.send_command(command)
     if(confirmation != "analog-out set\r\n"):
         print "Error setting MFC: ", confirmation
         return
-        
+
     self.mfcvalue = float(flow_rate)
     self.mfcslider.setValue(self.mfcvalue)
 
@@ -1040,7 +1049,7 @@ if __name__ == '__main__':
     # Create the GUI (this does NOT start the GUI event loop).
     gui = GUI()
     # Create and open the main window.
-    config_obj = parse_rig_config("C:\\workspace\\sMellRI\\voyeur_rig_config.conf")
+    config_obj = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
     window = Olfactometers(config_obj=config_obj)
     window.open()
     # Start the GUI event loop!
