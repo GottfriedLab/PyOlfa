@@ -109,7 +109,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 0
+    odorant_trigger_phase_code = 2
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -188,10 +188,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [9000, 11000]
+    iti_bounds  = [13000, 15000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [14000, 16000]
+    iti_bounds_false_alarm = [18000, 20000]
     # Current overall session performance.
     percent_correct = Float(0, label="Total percent correct")
 
@@ -448,26 +448,12 @@ class Passive_odor_presentation(Protocol):
                                  ),
                           HGroup(
                                  Item('enable_blocks', width=-70),
-                                 Item('block_size',
-                                      visible_when='enable_blocks',
-                                      tooltip="Block Size",
-                                      full_size=False,
-                                      springy=True,
-                                      resizable=False)
-                                 ),
-                          HGroup(
                                  Item('odorant_trigger_phase', style='readonly')
-                                ),
+                                 ),
                           HGroup(
                                  Item('rewards', style='readonly', width=-70),
-                                 Item('max_rewards',
-                                      tooltip="Maximum number of rewarded" 
-                                                   " trials",
-                                      full_size=False,
-                                      springy=True,
-                                      resizable=False)
+                                 Item('percent_correct', style='readonly'),
                                  ),
-                          Item('percent_correct', style='readonly'),
                           label='Session',
                           show_border=True
                           )
@@ -515,10 +501,8 @@ class Passive_odor_presentation(Protocol):
                   Item('event_plot',
                        editor=ComponentEditor(),
                        show_label=False,
-                       height=100,
-                       padding=-15),
+                       height=125),
                   label='Performance',
-                  padding=2,
                   show_border=False,
                   )
 
@@ -526,10 +510,8 @@ class Passive_odor_presentation(Protocol):
                    Item('stream_plots',
                         editor=ComponentEditor(),
                         show_label=False,
-                        height=400,
-                        padding=2),
+                        height=250),
                    label='Streaming',
-                   padding=2,
                    show_border=False,
                    )
 
@@ -545,8 +527,8 @@ class Passive_odor_presentation(Protocol):
                        show_labels=True,
                        ),
                 title='Voyeur - Left/Right protocol',
-                width=1024,
-                height=700,
+                width=1300,
+                height=768,
                 x=30,
                 y=70,
                 resizable=True,
@@ -576,7 +558,7 @@ class Passive_odor_presentation(Protocol):
 
         # Create the Plot object for the streaming data.
         plot = Plot(self.stream_plot_data, padding=20,
-                    padding_top=0, padding_bottom=45, padding_left=80, border_visible=False)
+                    padding_top=5, padding_bottom=18, padding_left=80, border_visible=False)
 
         # Initialize the data arrays and re-assign the values to the
         # ArrayPlotData collection.
@@ -595,7 +577,7 @@ class Passive_odor_presentation(Protocol):
         # y-axis range. Change this if you want to re-scale or offset it.
         y_range = DataRange1D(low=-300, high=300)  # for training non-mri sniff sensor
         # y_range = DataRange1D(low=-2000, high=0) # for mri pressure sensor
-        plot.fixed_preferred_size = (100, 70)
+        plot.fixed_preferred_size = (100, 50)
         plot.value_range = y_range
         plot.y_axis.visible = True
         plot.x_axis.visible = False
@@ -646,7 +628,7 @@ class Passive_odor_presentation(Protocol):
         plot = Plot(self.stream_lick1_data,
                     padding=20,
                     padding_top=0,
-                    padding_bottom=5,
+                    padding_bottom=4,
                     padding_left=80,
                     border_visible=False,
                     index_mapper=self.stream_plot.index_mapper)
@@ -688,7 +670,7 @@ class Passive_odor_presentation(Protocol):
         plot = Plot(self.stream_lick2_data,
                     padding=20,
                     padding_top=0,
-                    padding_bottom=5,
+                    padding_bottom=4,
                     padding_left=80,
                     border_visible=False,
                     index_mapper=self.stream_plot.index_mapper)
@@ -732,7 +714,7 @@ class Passive_odor_presentation(Protocol):
         plot = Plot(self.stream_mri_data,
                     padding=20,
                     padding_top=0,
-                    padding_bottom=5,
+                    padding_bottom=4,
                     padding_left=80,
                     border_visible=False,
                     index_mapper=self.stream_plot.index_mapper,)
