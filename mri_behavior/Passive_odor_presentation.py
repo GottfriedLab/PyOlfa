@@ -1250,7 +1250,8 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-        self.olfactometer = Olfactometers(config_obj=self.config)
+        # self.olfactometer = Olfactometers(config_obj=self.config)
+        self.olfactometer = Olfactometers(config_obj=None)
         if len(self.olfactometer.olfas) == 0:
             print "self.olfactometer = None"
             self.olfactometer = None
@@ -1258,7 +1259,7 @@ class Passive_odor_presentation(Protocol):
             self.olfactometer.olfas[0].valves.set_background_valve(valve_state=0)
         self._setflows()
 
-        if self.ARDUINO:
+        if self.ARDUINO:00
             self.monitor = Monitor()
             self.monitor.protocol = self
 

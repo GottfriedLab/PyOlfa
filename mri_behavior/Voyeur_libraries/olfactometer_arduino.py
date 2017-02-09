@@ -709,7 +709,8 @@ class Olfactometers(ApplicationWindow):
     ###########################################################################
     # 'object' interface.
     ###########################################################################
-    def __init__(self, config_obj, **traits):
+    # def __init__(self, config_obj, **traits):
+    def __init__(self, config_obj = None, **traits):
         """ Creates a new application window. """
         # Base class constructor.
         super(Olfactometers, self).__init__(**traits)
@@ -750,7 +751,8 @@ class Olfactometers(ApplicationWindow):
         )
 
         # monitor is the Voyeur Monitor that handles the COM port
-        self.monitor = SerialMonitor(port='COM4', baudrate=SerialMonitor.BAUDRATE, timeout=1)
+        # self.monitor = SerialMonitor(port='COM4', baudrate=SerialMonitor.BAUDRATE, timeout=1)
+        self.monitor = None
         # self.create_serial('COM4')
         self.config_obj = config_obj
         # check monitor serial connection
