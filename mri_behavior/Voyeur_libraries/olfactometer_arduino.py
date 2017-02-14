@@ -37,6 +37,7 @@ from time import sleep
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
+OLFA = True
 
 # Imports for listing the communication ports available by the OS.
 if os.name == 'nt':
@@ -709,8 +710,10 @@ class Olfactometers(ApplicationWindow):
     ###########################################################################
     # 'object' interface.
     ###########################################################################
-    # def __init__(self, config_obj, **traits):
-    def __init__(self, config_obj = None, **traits):
+    if not OLFA:
+        config_obj = None
+
+    def __init__(self, config_obj, **traits):
         """ Creates a new application window. """
         # Base class constructor.
         super(Olfactometers, self).__init__(**traits)
@@ -751,8 +754,11 @@ class Olfactometers(ApplicationWindow):
         )
 
         # monitor is the Voyeur Monitor that handles the COM port
-        # self.monitor = SerialMonitor(port='COM4', baudrate=SerialMonitor.BAUDRATE, timeout=1)
-        self.monitor = None
+        if not OLFA:
+            self.monitor = None
+        else:
+            self.monitor = SerialMonitor(port='COM4', baudrate=SerialMonitor.BAUDRATE, timeout=1)
+
         # self.create_serial('COM4')
         self.config_obj = config_obj
         # check monitor serial connection

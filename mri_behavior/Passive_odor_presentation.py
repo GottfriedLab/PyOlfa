@@ -68,9 +68,10 @@ class Passive_odor_presentation(Protocol):
     # Number of trials in a block.
     BLOCK_SIZE = 20
 
-    # Flag to indicate whether we have an Arduino connected. Set to 0 for
+    # Flag to indicate whether we have an Arduino or Olfactometer connected. Set to 0 for
     # debugging.
     ARDUINO = 1
+    OLFA = 1
     
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
     LICKING_TRAINING_PROBABILITY = 0
@@ -188,12 +189,12 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [15000, 17000]
+    iti_bounds  = [20000, 22000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [20000, 22000]
+    iti_bounds_false_alarm = [25000, 27000]
     # Current overall session performance.
-    total_available_rewards = 0;
+    total_available_rewards = 0
     percent_correct = Float(0, label="Total percent correct")
 
         
@@ -849,7 +850,7 @@ class Passive_odor_presentation(Protocol):
         self.stimuli["Right"] = []
         self.stimuli["Left"] = []
         
-        self.lick_grace_period = 100 # grace period after FV open where responses are recorded but not scored.
+        self.lick_grace_period = 0 # grace period after FV open where responses are recorded but not scored.
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
         odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
@@ -1250,8 +1251,11 @@ class Passive_odor_presentation(Protocol):
         
         time.clock()
 
-        # self.olfactometer = Olfactometers(config_obj=self.config)
-        self.olfactometer = Olfactometers(config_obj=None)
+        if self.OLFA:
+            self.olfactometer = Olfactometers(config_obj=self.config)
+        else:
+            self.olfactometer = Olfactometers(config_obj=None)
+
         if len(self.olfactometer.olfas) == 0:
             print "self.olfactometer = None"
             self.olfactometer = None
@@ -1259,7 +1263,7 @@ class Passive_odor_presentation(Protocol):
             self.olfactometer.olfas[0].valves.set_background_valve(valve_state=0)
         self._setflows()
 
-        if self.ARDUINO:00
+        if self.ARDUINO:
             self.monitor = Monitor()
             self.monitor.protocol = self
 
