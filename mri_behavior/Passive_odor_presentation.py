@@ -87,7 +87,7 @@ class Passive_odor_presentation(Protocol):
     
     # Maximum trial duration to wait for, in seconds, before we assume problems
     # in communication.
-    MAX_TRIAL_DURATION = 500
+    MAX_TRIAL_DURATION = 100
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
@@ -579,7 +579,7 @@ class Passive_odor_presentation(Protocol):
 
         # y-axis range. Change this if you want to re-scale or offset it.
         y_range = DataRange1D(low=-300, high=300)  # for training non-mri sniff sensor
-        # y_range = DataRange1D(low=-2000, high=0) # for mri pressure sensor
+        # y_range = DataRange1D(low=-2000, high=2000) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 50)
         plot.value_range = y_range
         plot.y_axis.visible = True
