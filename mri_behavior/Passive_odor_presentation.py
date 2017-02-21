@@ -91,7 +91,7 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_TRIALS_TYPE = 3 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS_TYPE = 0 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
     INITIAL_TRIALS = 0 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
@@ -578,7 +578,7 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-300, high=300)  # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-400, high=400)  # for training non-mri sniff sensor
         # y_range = DataRange1D(low=-2000, high=2000) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 50)
         plot.value_range = y_range
