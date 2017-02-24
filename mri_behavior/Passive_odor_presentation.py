@@ -468,7 +468,7 @@ class Passive_odor_presentation(Protocol):
                                        ),
                                 HGroup(
                                        Item('odorant', style='readonly', width=-170),
-                                       Item('odor_valve', style='readonly'),
+                                       # Item('odor_valve', style='readonly'),
                                        ),
                                 HGroup(
                                        Item('nitrogen_flow', style='readonly', width=-147),
@@ -490,7 +490,7 @@ class Passive_odor_presentation(Protocol):
                                     ),
                              HGroup(
                                     Item('next_odorant', style="readonly", width=-100),
-                                    Item('odor_valve', style='readonly'),
+                                    # Item('odor_valve', style='readonly'),
                                     ),
                              HGroup(
                                     Item('nitrogen_flow', style='readonly', width=-77),
