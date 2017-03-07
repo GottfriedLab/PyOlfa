@@ -15,7 +15,7 @@ from numpy.random import permutation  #numpy >= 1.7 for choice function
 from random import choice, randint, shuffle, seed, random
 from datetime import datetime
 from configobj import ConfigObj
-from itertools import chain
+from itertools import chain, groupby
 from PyQt4.QtCore import QThread
 
 # Voyeur imports
@@ -110,7 +110,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 0
+    odorant_trigger_phase_code = 2
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -578,8 +578,8 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-400, high=400)  # for training non-mri sniff sensor
-        # y_range = DataRange1D(low=-2000, high=2000) # for mri pressure sensor
+        y_range = DataRange1D(low=-150, high=150)  # for training non-mri sniff sensor
+        # y_range = DataRange1D(low=-400, high=400) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 50)
         plot.value_range = y_range
         plot.y_axis.visible = True
@@ -1818,10 +1818,22 @@ class Passive_odor_presentation(Protocol):
                       len(self.stimulus_block))
             
         # Shuffle the set.
-        shuffle(self.stimulus_block, random)
+        attempts = 0
+        while attempts < 20:
+            try:
+                shuffle(self.stimulus_block, random)
+                if all(len(list(group)) < 4 for _, group in groupby(self.stimulus_block)):
+                    break
+            except:
+                attempts += 1
+                if attempts == 19:
+                    print "Failed to generate new stimulus block"
+                    break
+
         print "\nGenerated new stimulus block:"
         for i in range(len(self.stimulus_block)):
-            print "\t", self.stimulus_block[i]
+            trial = i + 1
+            print "\t", trial, "\t", self.stimulus_block[i]
         print "\n"
     
     def calculate_current_trial_parameters(self):
@@ -1843,8 +1855,8 @@ class Passive_odor_presentation(Protocol):
         
         # For the first trial recalculate the next trial parameters again
         # so that the second trial is also prepared and ready.
-        if self.trial_number == 1:
-            self.calculate_next_trial_parameters()
+        # if self.trial_number == 1:
+        #     self.calculate_next_trial_parameters()
 
     def calculate_next_trial_parameters(self):
         """ Calculate parameters for the trial that will follow the currently \
@@ -1873,7 +1885,8 @@ class Passive_odor_presentation(Protocol):
         if self.enable_blocks:
             if not len(self.stimulus_block):
                 self.generate_next_stimulus_block()
-            self.next_stimulus = self.stimulus_block.pop()
+            self.next_stimulus = self.stimulus_block.pop(0)
+
         else:
             # Pick a random stimulus from the stimulus set of the next
             # trial type.
