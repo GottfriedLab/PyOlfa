@@ -110,7 +110,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 2
+    odorant_trigger_phase_code = 0
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -189,10 +189,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [20000, 22000]
+    iti_bounds  = [30000, 32000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [25000, 27000]
+    iti_bounds_false_alarm = [35000, 37000]
     # Current overall session performance.
     total_available_rewards = 0
     percent_correct = Float(0, label="Total percent correct")
@@ -578,7 +578,7 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-150, high=150)  # for training non-mri sniff sensor
+        y_range = DataRange1D(low=-80, high=80)  # for training non-mri sniff sensor
         # y_range = DataRange1D(low=-400, high=400) # for mri pressure sensor
         plot.fixed_preferred_size = (100, 50)
         plot.value_range = y_range
