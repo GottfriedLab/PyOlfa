@@ -100,8 +100,9 @@ class Passive_odor_presentation(Protocol):
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
-                          "Left" : 1,
                           "Right": 0,
+                          "Left" : 1,
+                          "None" : 2,
                           }
     # Dictionary of all stimuli defined (arranged by category), with each
     # category having a list of stimuli.
@@ -189,10 +190,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [30000, 32000]
+    iti_bounds  = [15000, 17000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [35000, 37000]
+    iti_bounds_false_alarm = [17500, 22500]
     # Current overall session performance.
     total_available_rewards = 0
     percent_correct = Float(0, label="Total percent correct")
@@ -849,31 +850,42 @@ class Passive_odor_presentation(Protocol):
 
         self.stimuli["Right"] = []
         self.stimuli["Left"] = []
+        self.no_stimuli = []
         
         self.lick_grace_period = 0 # grace period after FV open where responses are recorded but not scored.
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
         odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
         odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
+        odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Empty', 1)['key']
 
         # randomly select the vial from the list for stimulation block. it may be same or different vials
         for i in range(len(odorvalves_left_stimulus)):
-            left_stimulus = LaserTrainStimulus(
-                                    odorvalves=[choice(odorvalves_left_stimulus)],
-                                    flows=[(880, 100)],  # [(AIR, Nitrogen)]
-                                    id = 1,
-                                    description="Left stimulus",
-                                    trial_type = "Left"
-                                    )
             right_stimulus = LaserTrainStimulus(
-                                    odorvalves=[choice(odorvalves_right_stimulus)],
-                                    flows=[(880, 100)],  # [(AIR, Nitrogen)]
-                                    id=0,
+                                    odorvalves = [choice(odorvalves_right_stimulus)],
+                                    flows = [(880, 100)],  # [(AIR, Nitrogen)]
+                                    id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
                                     )
+            left_stimulus = LaserTrainStimulus(
+                                    odorvalves = [choice(odorvalves_left_stimulus)],
+                                    flows = [(880, 100)],  # [(AIR, Nitrogen)]
+                                    id = 1,
+                                    description = "Left stimulus",
+                                    trial_type = "Left"
+                                    )
+            no_stimulus = LaserTrainStimulus(
+                                    odorvalves = [choice(odorvalves_no_stimulus)],
+                                    flows = [(880, 100)],  # [(AIR, Nitrogen)]
+                                    id = 2,
+                                    description="No stimulus",
+                                    trial_type = "None"
+                                    )
+
             self.stimuli['Left'].append(left_stimulus)
             self.stimuli['Right'].append(right_stimulus)
+        self.no_stimuli.append(no_stimulus)
 
 
         print "---------- Stimuli changed ----------"
@@ -1397,6 +1409,12 @@ class Passive_odor_presentation(Protocol):
             self.total_available_rewards += 1
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
 
+        if (response == 7) or (response == 8): # a false alarm to no stimulus
+            self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
+
+        if (response == 9): # no response to no stimulus
+            self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
+
         self.responses = append(self.responses, response)
 
         self.hemodynamic_delay = randint(0,self.HRF_SAMPLES-1) * self.tr / self.HRF_SAMPLES
@@ -1829,6 +1847,9 @@ class Passive_odor_presentation(Protocol):
                 if attempts == 19:
                     print "Failed to generate new stimulus block"
                     break
+        for i in range(len(self.stimulus_block)-1):
+            self.stimulus_block[-(i*2-1):-(i*2-1)] = self.no_stimuli
+        self.stimulus_block[len(self.stimulus_block):len(self.stimulus_block)] = self.no_stimuli
 
         print "\nGenerated new stimulus block:"
         for i in range(len(self.stimulus_block)):
