@@ -124,7 +124,7 @@ class Passive_odor_presentation(Protocol):
     # (Arduino). These may change from trial to trial. They are stored in
     # the database file for each trial.
     #--------------------------------------------------------------------------
-    mouse = Int(0, label='Mouse')   # mouse number.
+    mouse = Str(0, label='Mouse')   # mouse name
     rig = Str("", label='Rig')   # rig ID.
     session = Int(0, label='Session')   # session number.
     block_size = Int(BLOCK_SIZE, label="Block size")
@@ -190,10 +190,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [15000, 17000]
+    iti_bounds  = [14000, 16000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [17500, 22500]
+    iti_bounds_false_alarm = [19000, 21000]
     # Current overall session performance.
     total_available_rewards = 0
     percent_correct = Float(0, label="Total percent correct")
@@ -857,7 +857,7 @@ class Passive_odor_presentation(Protocol):
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
         odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
         odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
-        odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Empty', 1)['key']
+        odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank', 1)['key']
 
         # randomly select the vial from the list for stimulation block. it may be same or different vials
         for i in range(len(odorvalves_left_stimulus)):
@@ -1212,7 +1212,7 @@ class Passive_odor_presentation(Protocol):
                 
         self.db = 'mouse' + str(mouse) + '_' + 'sess' + str(session) \
                     + '_' + self.stamp     
-        self.mouse = mouse
+        self.mouse = str(mouse)
         self.session = session
         
         self.protocol_name = self.__class__.__name__
@@ -1325,7 +1325,7 @@ class Passive_odor_presentation(Protocol):
         """Returns a dictionary of {name => db.type} defining protocol parameters"""
 
         params_def = {
-            "mouse"                 : db.Int,
+            "mouse"                 : db.String32,
             "rig"                   : db.String32,
             "session"               : db.Int,
             "block_size"            : db.Int,
