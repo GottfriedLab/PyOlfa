@@ -840,7 +840,7 @@ class Passive_odor_presentation(Protocol):
 
     def _mouse_changed(self):
         new_stamp = time_stamp()
-        db = 'mouse' + str(self.mouse) + '_' + 'sess' + str(self.session) \
+        db = 'mouse_' + str(self.mouse) + '_' + 'sess' + str(self.session) \
                     + '_' + new_stamp
         if self.db != db:
             self.db = db
