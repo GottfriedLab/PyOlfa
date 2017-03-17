@@ -68,11 +68,12 @@ class Passive_odor_presentation(Protocol):
     # Number of trials in a block.
     BLOCK_SIZE = 20
 
-    # Flag to indicate whether we have an Arduino or Olfactometer connected. Set to 0 for
+    # Flag to indicate whether we have an Arduino, Olfactometer, Scanner connected. Set to 0 for
     # debugging.
     ARDUINO = 1
     OLFA = 1
-    
+    FMRI = 0
+
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
     LICKING_TRAINING_PROBABILITY = 0
 
@@ -579,8 +580,10 @@ class Passive_odor_presentation(Protocol):
         # Change plot properties.
 
         # y-axis range. Change this if you want to re-scale or offset it.
-        y_range = DataRange1D(low=-80, high=80)  # for training non-mri sniff sensor
-        # y_range = DataRange1D(low=-400, high=400) # for mri pressure sensor
+        if self.FMRI:
+            y_range = DataRange1D(low=-400, high=400)  # for mri pressure sensor
+        else:
+            y_range = DataRange1D(low=-80, high=80)  # for training non-mri sniff sensor
         plot.fixed_preferred_size = (100, 50)
         plot.value_range = y_range
         plot.y_axis.visible = True
