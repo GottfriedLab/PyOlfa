@@ -75,7 +75,7 @@ class Passive_odor_presentation(Protocol):
     FMRI = 0
 
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
-    LICKING_TRAINING_PROBABILITY = 1
+    LICKING_TRAINING_PROBABILITY = 0.5
 
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.
@@ -92,8 +92,8 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_TRIALS_TYPE = 0 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 150 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
+    INITIAL_TRIALS_TYPE = 1 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS = 0 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
     TR = 1000
@@ -191,10 +191,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [5000, 7000]
+    iti_bounds  = [10000, 12000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [10000, 12000]
+    iti_bounds_false_alarm = [15000, 17000]
     # Current overall session performance.
     total_available_rewards = 0
     percent_correct = Float(0, label="Total percent correct")
@@ -1952,8 +1952,8 @@ if __name__ == '__main__':
     trial_number = 0
     trial_type_id = 0
     final_valve_duration = 1000
-    response_duration = 4000
-    lick_grace_period = 0
+    response_duration = 5000
+    lick_grace_period = 50
     max_rewards = 200
     odorant_trigger_phase_code = 2
     trial_type_id = 0
