@@ -75,17 +75,17 @@ class Passive_odor_presentation(Protocol):
     FMRI = 0
 
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
-    LICKING_TRAINING_PROBABILITY = 0.5
+    LICKING_TRAINING_PROBABILITY = 0
 
     # Number of trials in one sliding window used for continuous
-    # visualizing of session performance.
+    # visualizing of session performance.  .0+---
     SLIDING_WINDOW = 100
     
     # Amount of time in milliseconds for odorant vial to be ON prior to
     # trial start. This should be sufficiently large so that odorant makes it to
     # the final valve by the trial start.
     VIAL_ON_BEFORE_TRIAL = 1500
-    
+
     # Maximum trial duration to wait for, in seconds, before we assume problems
     # in communication.
     MAX_TRIAL_DURATION = 100
@@ -191,10 +191,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [10000, 12000]
+    iti_bounds  = [20000, 22000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [15000, 17000]
+    iti_bounds_false_alarm = [25000, 27000]
     # Current overall session performance.
     total_available_rewards = 0
     percent_correct = Float(0, label="Total percent correct")
@@ -858,30 +858,32 @@ class Passive_odor_presentation(Protocol):
         self.lick_grace_period = 0 # grace period after FV open where responses are recorded but not scored.
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
-        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
-        odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank', 1)['key']
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
+        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
+        # odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
+        # odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Blank2', 1)['key']
+        odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
 
 
         # randomly select the vial from the list for stimulation block. it may be same or different vials
         for i in range(len(odorvalves_left_stimulus)):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_right_stimulus)],
-                                    flows = [(880, 100)],  # [(AIR, Nitrogen)]
+                                    flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
                                     )
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_left_stimulus)],
-                                    flows = [(880, 100)],  # [(AIR, Nitrogen)]
+                                    flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
                                     trial_type = "Left"
                                     )
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
-                                    flows = [(880, 100)],  # [(AIR, Nitrogen)]
+                                    flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
                                     trial_type = "None"
