@@ -72,10 +72,10 @@ class Passive_odor_presentation(Protocol):
     # debugging.
     ARDUINO = 1
     OLFA = 1
-    FMRI = 0
+    FMRI = 1
 
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
-    LICKING_TRAINING_PROBABILITY = 0
+    LICKING_TRAINING_PROBABILITY = 1
 
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.  .0+---
@@ -855,11 +855,12 @@ class Passive_odor_presentation(Protocol):
         self.stimuli["Left"] = []
         self.no_stimuli = []
         
-        self.lick_grace_period = 0 # grace period after FV open where responses are recorded but not scored.
+        self.lick_grace_period = 0 # grace period aft
+        # er FV open where responses are recorded but not scored.
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
-        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
+        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
         # odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
         # odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Blank2', 1)['key']
         odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
@@ -869,21 +870,24 @@ class Passive_odor_presentation(Protocol):
         for i in range(len(odorvalves_left_stimulus)):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_right_stimulus)],
-                                    flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
                                     )
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_left_stimulus)],
-                                    flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
                                     trial_type = "Left"
                                     )
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
-                                    flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
                                     trial_type = "None"
