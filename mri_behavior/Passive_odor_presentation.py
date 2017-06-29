@@ -859,7 +859,7 @@ class Passive_odor_presentation(Protocol):
         # er FV open where responses are recorded but not scored.
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key'] 
         odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
         # odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
         # odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Blank2', 1)['key']
