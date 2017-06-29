@@ -146,6 +146,8 @@ class Passive_odor_presentation(Protocol):
     enable_blocks = Bool(True, label="Arrange stimuli in blocks")
     # Rewards given from start of session.
     rewards = Int(0, label="Total rewards")
+    left_rewards = Int(0, label="Left rewards")
+    right_rewards = Int(0, label="Right rewards")
     max_rewards = Int(400, label="Reward until")   # maximum rewards allowed.
     
     #-------------------------------------------------------------------------- 
@@ -197,8 +199,11 @@ class Passive_odor_presentation(Protocol):
     iti_bounds_false_alarm = [25000, 27000]
     # Current overall session performance.
     total_available_rewards = 0
+    total_available_left_rewards = 0
+    total_available_right_rewards = 0
     percent_correct = Float(0, label="Total percent correct")
-
+    percent_left_correct = Float(0, label="Left percent correct")
+    percent_right_correct = Float(0, label="Right percent correct")
         
     #--------------------------------------------------------------------------
     # Variables for the event.
@@ -457,7 +462,13 @@ class Passive_odor_presentation(Protocol):
                                  ),
                           HGroup(
                                  Item('rewards', style='readonly', width=-70),
-                                 Item('percent_correct', style='readonly'),
+                                 Item('left_rewards', style='readonly', width=-70),
+                                 Item('right_rewards', style='readonly', width=-70),
+                                 ),
+                          HGroup(
+                                 Item('percent_correct', style='readonly',width=-70),
+                                 Item('percent_left_correct', style='readonly',width=-70),
+                                 Item('percent_right_correct', style='readonly',width=-70),
                                  ),
                           label='Session',
                           show_border=True
@@ -581,7 +592,7 @@ class Passive_odor_presentation(Protocol):
 
         # y-axis range. Change this if you want to re-scale or offset it.
         if self.FMRI:
-            y_range = DataRange1D(low=-400, high=400)  # for mri pressure sensor
+            y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
         else:
             y_range = DataRange1D(low=-80, high=80)  # for training non-mri sniff sensor
         plot.fixed_preferred_size = (100, 50)
@@ -822,6 +833,8 @@ class Passive_odor_presentation(Protocol):
 
         self.trial_number = 1
         self.rewards = 0
+        self.left_rewards = 0
+        self.right_rewards = 0
         self._left_trials_line = [1]
         self._right_trials_line = [1]
         self.trial_number_tick = [0]
@@ -859,7 +872,7 @@ class Passive_odor_presentation(Protocol):
         # er FV open where responses are recorded but not scored.
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key'] 
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
         odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
         # odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
         # odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Blank2', 1)['key']
@@ -1249,6 +1262,8 @@ class Passive_odor_presentation(Protocol):
         
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
+        self.left_rewards = 0
+        self.right_rewards = 0
         self.max_rewards = max_rewards
         
         # Setup the performance plots
@@ -1404,16 +1419,39 @@ class Passive_odor_presentation(Protocol):
         self.trial_end = int(event['trial_end'])
 
         response = int(event['response'])
-        if (response == 1) or (response == 2): # a hit.
+        if (response == 1) : # a left hit.
             self.rewards += 1
+            self.left_rewards += 1
             self.total_available_rewards += 1
+            self.total_available_left_rewards += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
                 self._start_button_fired()  # ends the session if the reward target has been reached.
             self.inter_trial_interval = randint(self.iti_bounds[0], self.iti_bounds[1])
 
-        if (response == 3) or (response == 4): # a false alarm
+        if (response == 2) : # a right hit.
+            self.rewards += 1
+            self.right_rewards += 1
             self.total_available_rewards += 1
+            self.total_available_right_rewards += 1
+            if self.rewards >= self.max_rewards and self.start_label == 'Stop':
+                self._start_button_fired()  # ends the session if the reward target has been reached.
+            self.inter_trial_interval = randint(self.iti_bounds[0], self.iti_bounds[1])
+
+        if (response == 3): # a left false alarm
+            if (self.LICKING_TRAINING_PROBABILITY == 1):
+                self.rewards += 1
+                self.left_rewards += 1
+            self.total_available_rewards += 1
+            self.total_available_left_rewards += 1
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
+
+        if (response == 4):  # a right false alarm
+            if (self.LICKING_TRAINING_PROBABILITY == 1):
+                self.rewards += 1
+                self.right_rewards += 1
+            self.total_available_rewards += 1
+            self.total_available_right_rewards += 1
+            self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0], self.iti_bounds_false_alarm[1])
 
         if (response == 5) or (response == 6): # no response
             self.total_available_rewards += 1
@@ -1444,6 +1482,8 @@ class Passive_odor_presentation(Protocol):
         self.air_flow = self.current_stimulus.flows[0][0]
         self.odorant = self.olfas[0][odorvalve][0]
         self.percent_correct = round((float(self.rewards) / float(self.total_available_rewards)) * 100, 2)
+        self.percent_left_correct = round((float(self.left_rewards) / float(self.total_available_left_rewards)) * 100, 2)
+        self.percent_right_correct = round((float(self.right_rewards) / float(self.total_available_right_rewards)) * 100, 2)
 
         # set up a timer for opening the vial at the begining of the next trial using the parameters from current_stimulus.
         timefromtrial_end = (self._results_time - self._parameters_sent_time) * 1000 #convert from sec to ms for python generated values
