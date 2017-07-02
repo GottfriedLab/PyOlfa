@@ -201,6 +201,9 @@ class Passive_odor_presentation(Protocol):
     total_available_rewards = 0
     total_available_left_rewards = 0
     total_available_right_rewards = 0
+    corrects = 0
+    left_corrects = 0
+    right_corrects = 0
     percent_correct = Float(0, label="Total percent correct")
     percent_left_correct = Float(0, label="Left percent correct")
     percent_right_correct = Float(0, label="Right percent correct")
@@ -835,6 +838,9 @@ class Passive_odor_presentation(Protocol):
         self.rewards = 0
         self.left_rewards = 0
         self.right_rewards = 0
+        self.corrects = 0
+        self.left_corrects = 0
+        self.right_corrects = 0
         self._left_trials_line = [1]
         self._right_trials_line = [1]
         self.trial_number_tick = [0]
@@ -872,8 +878,8 @@ class Passive_odor_presentation(Protocol):
         # er FV open where responses are recorded but not scored.
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
-        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
+        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
         # odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
         # odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Blank2', 1)['key']
         odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
@@ -1264,6 +1270,9 @@ class Passive_odor_presentation(Protocol):
         self.rewards = 0
         self.left_rewards = 0
         self.right_rewards = 0
+        self.corrects = 0
+        self.left_corrects = 0
+        self.right_corrects = 0
         self.max_rewards = max_rewards
         
         # Setup the performance plots
@@ -1422,6 +1431,8 @@ class Passive_odor_presentation(Protocol):
         if (response == 1) : # a left hit.
             self.rewards += 1
             self.left_rewards += 1
+            self.corrects += 1
+            self.left_corrects += 1
             self.total_available_rewards += 1
             self.total_available_left_rewards += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
@@ -1431,6 +1442,8 @@ class Passive_odor_presentation(Protocol):
         if (response == 2) : # a right hit.
             self.rewards += 1
             self.right_rewards += 1
+            self.corrects += 1
+            self.right_corrects += 1
             self.total_available_rewards += 1
             self.total_available_right_rewards += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
@@ -1453,8 +1466,16 @@ class Passive_odor_presentation(Protocol):
             self.total_available_right_rewards += 1
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0], self.iti_bounds_false_alarm[1])
 
-        if (response == 5) or (response == 6): # no response
+        if (response == 5) : # no response
             self.total_available_rewards += 1
+            if (self.LICKING_TRAINING_PROBABILITY == 1):
+                self.total_available_left_rewards += 1
+            self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
+
+        if (response == 6) : # no response
+            self.total_available_rewards += 1
+            if (self.LICKING_TRAINING_PROBABILITY == 1):
+                self.total_available_right_rewards += 1
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
 
         if (response == 7) or (response == 8): # a false alarm to no stimulus
@@ -1481,11 +1502,11 @@ class Passive_odor_presentation(Protocol):
         self.nitrogen_flow = self.current_stimulus.flows[0][1]
         self.air_flow = self.current_stimulus.flows[0][0]
         self.odorant = self.olfas[0][odorvalve][0]
-        self.percent_correct = round((float(self.rewards) / float(self.total_available_rewards)) * 100, 2)
+        self.percent_correct = round((float(self.corrects) / float(self.total_available_rewards)) * 100, 2)
         if float(self.total_available_left_rewards) > 0:
-            self.percent_left_correct = round((float(self.left_rewards) / float(self.total_available_left_rewards)) * 100, 2)
+            self.percent_left_correct = round((float(self.left_corrects) / float(self.total_available_left_rewards)) * 100, 2)
         if float(self.total_available_right_rewards) > 0:
-            self.percent_right_correct = round((float(self.right_rewards) / float(self.total_available_right_rewards)) * 100, 2)
+            self.percent_right_correct = round((float(self.right_corrects) / float(self.total_available_right_rewards)) * 100, 2)
 
         # set up a timer for opening the vial at the begining of the next trial using the parameters from current_stimulus.
         timefromtrial_end = (self._results_time - self._parameters_sent_time) * 1000 #convert from sec to ms for python generated values
