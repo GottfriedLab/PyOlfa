@@ -77,9 +77,6 @@ class Passive_odor_presentation(Protocol):
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
     LICKING_TRAINING_PROBABILITY = 1
 
-    # Grace period after FV open where responses are recorded but not scored.
-    LICKING_GRACE_PERIOD = 100
-
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.  .0+---
     SLIDING_WINDOW = 100
@@ -876,6 +873,9 @@ class Passive_odor_presentation(Protocol):
         self.stimuli["Right"] = []
         self.stimuli["Left"] = []
         self.no_stimuli = []
+        
+        self.lick_grace_period = 0 # grace period aft
+        # er FV open where responses are recorded but not scored.
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
         odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
@@ -1265,7 +1265,6 @@ class Passive_odor_presentation(Protocol):
         self.hemodynamic_delay = hemodynamic_delay
         self.tr = self.TR
         self.licking_training_probability = self.LICKING_TRAINING_PROBABILITY*10
-        self.lick_grace_period = self.LICKING_GRACE_PERIOD
         
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
@@ -1335,12 +1334,6 @@ class Passive_odor_presentation(Protocol):
                    "description"            : self.current_stimulus.description,
                    "trial_category"         : self.trial_type,
                    "odorant_trigger_phase"  : self.odorant_trigger_phase,
-                   "rewards"                : self.rewards,
-                   "left_rewards"           : self.left_rewards,
-                   "right_rewards"          : self.right_rewards,
-                   "corrects"               : self.rewards,
-                   "left_corrects"          : self.left_rewards,
-                   "right_correctss"        : self.right_rewards,
                    }
         
         # Parameters sent to the controller (Arduino)
@@ -1376,13 +1369,7 @@ class Passive_odor_presentation(Protocol):
             "stimulus_id"           : db.Int,
             "description"           : db.String32,
             "trial_category"        : db.String32,
-            "odorant_trigger_phase" : db.String32,
-            "rewards"               : db.Float,
-            "left_rewards"          : db.Float,
-            "right_rewards"         : db.Float,
-            "corrects"              : db.Float,
-            "left_corrects"         : db.Float,
-            "right_correctss"       : db.Float,
+            "odorant_trigger_phase" : db.String32
         }
 
         return params_def
@@ -2035,7 +2022,7 @@ if __name__ == '__main__':
     trial_type_id = 0
     final_valve_duration = 1000
     response_duration = 5000
-    lick_grace_period = 100
+    lick_grace_period = 50
     max_rewards = 200
     odorant_trigger_phase_code = 2
     trial_type_id = 0
