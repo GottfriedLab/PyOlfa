@@ -196,7 +196,7 @@ class Passive_odor_presentation(Protocol):
     iti_bounds  = [20000, 22000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [25000,27000]
+    iti_bounds_false_alarm = [25000, 27000]
     # Current overall session performance.
     total_available_rewards = 0
     total_available_left_rewards = 0
@@ -1437,7 +1437,7 @@ class Passive_odor_presentation(Protocol):
                 self._start_button_fired()  # ends the session if the reward target has been reached.
             self.inter_trial_interval = randint(self.iti_bounds[0], self.iti_bounds[1])
 
-        if (response == 3) : # a left false alarm
+        if (response == 3): # a left false alarm
             if (self.LICKING_TRAINING_PROBABILITY == 1):
                 self.rewards += 1
                 self.left_rewards += 1
@@ -1482,10 +1482,8 @@ class Passive_odor_presentation(Protocol):
         self.air_flow = self.current_stimulus.flows[0][0]
         self.odorant = self.olfas[0][odorvalve][0]
         self.percent_correct = round((float(self.rewards) / float(self.total_available_rewards)) * 100, 2)
-        if float(self.total_available_left_rewards) > 0:
-            self.percent_left_correct = round((float(self.left_rewards) / float(self.total_available_left_rewards)) * 100, 2)
-        if float(self.total_available_right_rewards) > 0:
-            self.percent_right_correct = round((float(self.right_rewards) / float(self.total_available_right_rewards)) * 100, 2)
+        self.percent_left_correct = round((float(self.left_rewards) / float(self.total_available_left_rewards)) * 100, 2)
+        self.percent_right_correct = round((float(self.right_rewards) / float(self.total_available_right_rewards)) * 100, 2)
 
         # set up a timer for opening the vial at the begining of the next trial using the parameters from current_stimulus.
         timefromtrial_end = (self._results_time - self._parameters_sent_time) * 1000 #convert from sec to ms for python generated values
