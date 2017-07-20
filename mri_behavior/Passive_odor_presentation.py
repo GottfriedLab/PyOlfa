@@ -77,6 +77,7 @@ class Passive_odor_presentation(Protocol):
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
     LICKING_TRAINING_PROBABILITY = 1
 
+
     # Grace period after FV open where responses are recorded but not scored.
     LICKING_GRACE_PERIOD = 100
 
@@ -87,7 +88,7 @@ class Passive_odor_presentation(Protocol):
     # Amount of time in milliseconds for odorant vial to be ON prior to
     # trial start. This should be sufficiently large so that odorant makes it to
     # the final valve by the trial start.
-    VIAL_ON_BEFORE_TRIAL = 1500
+    VIAL_ON_BEFORE_TRIAL = 4000
 
     # Maximum trial duration to wait for, in seconds, before we assume problems
     # in communication.
@@ -95,7 +96,7 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_TRIALS_TYPE = 1 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS_TYPE = 0 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
     INITIAL_TRIALS = 0 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
@@ -878,8 +879,8 @@ class Passive_odor_presentation(Protocol):
         self.no_stimuli = []
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
-        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
+        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
         # odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
         # odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Blank2', 1)['key']
         odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
@@ -1338,9 +1339,9 @@ class Passive_odor_presentation(Protocol):
                    "rewards"                : self.rewards,
                    "left_rewards"           : self.left_rewards,
                    "right_rewards"          : self.right_rewards,
-                   "corrects"               : self.rewards,
-                   "left_corrects"          : self.left_rewards,
-                   "right_correctss"        : self.right_rewards,
+                   "corrects"               : self.corrects,
+                   "left_corrects"          : self.left_corrects,
+                   "right_corrects"         : self.right_corrects,
                    }
         
         # Parameters sent to the controller (Arduino)
@@ -1382,7 +1383,7 @@ class Passive_odor_presentation(Protocol):
             "right_rewards"         : db.Float,
             "corrects"              : db.Float,
             "left_corrects"         : db.Float,
-            "right_correctss"       : db.Float,
+            "right_corrects"       : db.Float,
         }
 
         return params_def
