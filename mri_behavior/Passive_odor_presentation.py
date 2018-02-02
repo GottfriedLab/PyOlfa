@@ -72,11 +72,10 @@ class Passive_odor_presentation(Protocol):
     # debugging.
     ARDUINO = 1
     OLFA = 1
-    FMRI = 1
+    FMRI = 0
 
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
-    LICKING_TRAINING_PROBABILITY = 1
-
+    LICKING_TRAINING = 0
 
     # Grace period after FV open where responses are recorded but not scored.
     LICKING_GRACE_PERIOD = 100
@@ -107,7 +106,6 @@ class Passive_odor_presentation(Protocol):
     stimuli_categories = {
                           "Right": 0,
                           "Left" : 1,
-                          "None" : 2,
                           }
     # Dictionary of all stimuli defined (arranged by category), with each
     # category having a list of stimuli.
@@ -167,6 +165,8 @@ class Passive_odor_presentation(Protocol):
     water_duration1 = Int(0, label="Left water duration")
     water_duration2 = Int(0, label="Right water duration")
     final_valve_duration = Int(0, label="Final valve duration")
+    training_times1 = Int(0, label="Left water licking training")
+    training_times2 = Int(0, label="Right water licking training")
     response_duration = Int(0, label="Response duration")
     inter_trial_interval = Int(0, label='ITI')
     hemodynamic_delay = Int(0, label='HRF phase-lock delay')
@@ -197,10 +197,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [20000, 22000]
+    iti_bounds  = [5000, 7000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [25000,27000]
+    iti_bounds_false_alarm = [10000,12000]
     # Current overall session performance.
     total_available_rewards = 0
     total_available_left_rewards = 0
@@ -335,6 +335,10 @@ class Passive_odor_presentation(Protocol):
     left_water_label = Str('Left Water Valve')
     right_water_button = Button()
     right_water_label = Str('Right Water Valve')
+    left_water_training_button = Button()
+    left_water_training_label = Str("Training Licking Left Water")
+    right_water_training_button = Button()
+    right_water_training_label = Str("Training Licking Right Water")
     pulse_generator1_button = Button(label="Trigger")
     pulse_generator2_button = pulse_generator1_button
     pulse_amplitude1 = Range(low=0,
@@ -426,7 +430,14 @@ class Passive_odor_presentation(Protocol):
                                             editor=ButtonEditor(
                                                 style="button"),
                                             show_label=False),
-                                       Item('water_duration1')
+                                       Item('water_duration1'),
+                                        ),
+                                  VGroup(
+                                       Item('left_water_training_button',
+                                            editor=ButtonEditor(
+                                                style="button"),
+                                            show_label=False),
+                                       Item('training_times1')
                                         ),
                                   VGroup(
                                        Item('right_water_button',
@@ -437,7 +448,14 @@ class Passive_odor_presentation(Protocol):
                                             editor=ButtonEditor(
                                                 style="button"),
                                             show_label=False),
-                                       Item('water_duration2')
+                                       Item('water_duration2'),
+                                        ),
+                                  VGroup(
+                                       Item('right_water_calibrate_button',
+                                            editor=ButtonEditor(
+                                                style="button"),
+                                            show_label=False),
+                                       Item('training_times2')
                                         ),
                                   ),
                            label="Arduino Control",
@@ -1233,7 +1251,7 @@ class Passive_odor_presentation(Protocol):
                         lick_grace_period,
                         hemodynamic_delay,
                         tr,
-                        licking_training_probability,
+                        licking_training,
                         **kwtraits):
         
         super(Passive_odor_presentation, self).__init__(**kwtraits)
@@ -1265,7 +1283,7 @@ class Passive_odor_presentation(Protocol):
         self.response_duration = response_duration
         self.hemodynamic_delay = hemodynamic_delay
         self.tr = self.TR
-        self.licking_training_probability = self.LICKING_TRAINING_PROBABILITY*10
+        self.licking_training = self.LICKING_TRAINING*10
         self.lick_grace_period = self.LICKING_GRACE_PERIOD
         
         self.block_size = self.BLOCK_SIZE
@@ -1355,7 +1373,7 @@ class Passive_odor_presentation(Protocol):
                     "lick_grace_period"             : (7, db.Int, self.lick_grace_period),
                     "hemodynamic_delay"             : (8, db.Int, self.hemodynamic_delay),
                     "tr"                            : (9, db.Int, self.tr),
-                    "licking_training_probability"  : (10, db.Int, self.licking_training_probability)
+                    "licking_training"  : (10, db.Int, self.licking_training)
         }
    
         return TrialParameters(
@@ -1401,7 +1419,7 @@ class Passive_odor_presentation(Protocol):
             "lick_grace_period"             : db.Int,
             "hemodynamic_delay"             : db.Int,
             "tr"                            : db.Int,
-            "licking_training_probability"  : db.Int
+            "licking_training"  : db.Int
         }
            
         return params_def
@@ -1465,37 +1483,23 @@ class Passive_odor_presentation(Protocol):
             self.inter_trial_interval = randint(self.iti_bounds[0], self.iti_bounds[1])
 
         if (response == 3) : # a left false alarm
-            if (self.LICKING_TRAINING_PROBABILITY == 1):
-                self.rewards += 1
-                self.left_rewards += 1
             self.total_available_rewards += 1
             self.total_available_left_rewards += 1
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
 
         if (response == 4):  # a right false alarm
-            if (self.LICKING_TRAINING_PROBABILITY == 1):
-                self.rewards += 1
-                self.right_rewards += 1
             self.total_available_rewards += 1
             self.total_available_right_rewards += 1
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0], self.iti_bounds_false_alarm[1])
 
         if (response == 5) : # no response
             self.total_available_rewards += 1
-            if (self.LICKING_TRAINING_PROBABILITY == 1):
-                self.total_available_left_rewards += 1
+            self.total_available_left_rewards += 1
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
 
         if (response == 6) : # no response
             self.total_available_rewards += 1
-            if (self.LICKING_TRAINING_PROBABILITY == 1):
-                self.total_available_right_rewards += 1
-            self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
-
-        if (response == 7) or (response == 8): # a false alarm to no stimulus
-            self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
-
-        if (response == 9): # no response to no stimulus
+            self.total_available_right_rewards += 1
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
 
         self.responses = append(self.responses, response)
@@ -2049,7 +2053,7 @@ if __name__ == '__main__':
     session = 18
     stamp = time_stamp()
     tr = 1000
-    licking_training_probability = 0
+    licking_training = 0
     
     # protocol
     protocol = Passive_odor_presentation(trial_number,
@@ -2065,7 +2069,7 @@ if __name__ == '__main__':
                                          lick_grace_period,
                                          hemodynamic_delay,
                                          tr,
-                                         licking_training_probability
+                                         licking_training
                                          )
 
     # Testing code when no hardware attached.
