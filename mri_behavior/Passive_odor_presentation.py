@@ -108,7 +108,7 @@ class Passive_odor_presentation(Protocol):
                           "Left" : 1,
                           }
     # Dictionary of all stimuli defined (arranged by category), with each
-    # category having a list of stimuli.
+    # category having a list of stimuli
     stimuli = {
                stim_category: [] for stim_category in stimuli_categories.keys()
                }
