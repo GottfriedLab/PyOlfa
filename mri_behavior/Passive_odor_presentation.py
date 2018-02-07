@@ -81,13 +81,13 @@ class Passive_odor_presentation(Protocol):
     LICKING_GRACE_PERIOD = 100
 
     # Number of trials in one sliding window used for continuous
-    # visualizing of session performance.  .0+---
-    SLIDING_WINDOW = 100
+    # visualizing of session performance.
+    SLIDING_WINDOW = 400
     
     # Amount of time in milliseconds for odorant vial to be ON prior to
     # trial start. This should be sufficiently large so that odorant makes it to
     # the final valve by the trial start.
-    VIAL_ON_BEFORE_TRIAL = 4000
+    VIAL_ON_BEFORE_TRIAL = 3000
 
     # Maximum trial duration to wait for, in seconds, before we assume problems
     # in communication.
@@ -95,8 +95,8 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_TRIALS_TYPE = 0 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 0 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
+    INITIAL_TRIALS_TYPE = 3 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS = 200 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
     TR = 1000
@@ -114,7 +114,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 0
+    odorant_trigger_phase_code = 2
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -165,8 +165,8 @@ class Passive_odor_presentation(Protocol):
     water_duration1 = Int(0, label="Left water duration")
     water_duration2 = Int(0, label="Right water duration")
     final_valve_duration = Int(0, label="Final valve duration")
-    training_times1 = Int(0, label="Left water licking training")
-    training_times2 = Int(0, label="Right water licking training")
+    training_times1 = Int(100, label="Left water licking training")
+    training_times2 = Int(100, label="Right water licking training")
     response_duration = Int(0, label="Response duration")
     inter_trial_interval = Int(0, label='ITI')
     hemodynamic_delay = Int(0, label='HRF phase-lock delay')
@@ -305,7 +305,6 @@ class Passive_odor_presentation(Protocol):
     stream_lick_plot = Instance(Plot, label="Licks")
     stream_mri_plot = Instance(Plot, label="MRI")
 
-
     start_button = Button()
     start_label = Str('Start')
 
@@ -320,6 +319,8 @@ class Passive_odor_presentation(Protocol):
     auto_final_valve_repetitions = Int(5, label="Times")
     auto_final_valve_repetitions_label = Str("Times")
     auto_final_valve_repetitions_off_time = Int(5, label="ITI")
+    licking_training_button = Button()
+    licking_training_label = Str('Licking training')
     pause_button = Button()
     pause_label = Str('Pause')
     save_as_button = Button("Save as")
@@ -358,6 +359,9 @@ class Passive_odor_presentation(Protocol):
                      HGroup(
                             Item('start_button',
                                  editor=ButtonEditor(label_value='start_label'),
+                                 show_label=False),
+                            Item('licking_training_button',
+                                 editor=ButtonEditor(label_value='licking_training_label'),
                                  show_label=False),
                             Item('pause_button',
                                  editor=ButtonEditor(label_value='pause_label'),
@@ -433,13 +437,6 @@ class Passive_odor_presentation(Protocol):
                                        Item('water_duration1'),
                                         ),
                                   VGroup(
-                                       Item('left_water_training_button',
-                                            editor=ButtonEditor(
-                                                style="button"),
-                                            show_label=False),
-                                       Item('training_times1')
-                                        ),
-                                  VGroup(
                                        Item('right_water_button',
                                             editor=ButtonEditor(
                                                 style="button"),
@@ -449,13 +446,6 @@ class Passive_odor_presentation(Protocol):
                                                 style="button"),
                                             show_label=False),
                                        Item('water_duration2'),
-                                        ),
-                                  VGroup(
-                                       Item('right_water_calibrate_button',
-                                            editor=ButtonEditor(
-                                                style="button"),
-                                            show_label=False),
-                                       Item('training_times2')
                                         ),
                                   ),
                            label="Arduino Control",
@@ -619,7 +609,7 @@ class Passive_odor_presentation(Protocol):
         if self.FMRI:
             y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
         else:
-            y_range = DataRange1D(low=-80, high=80)  # for training non-mri sniff sensor
+            y_range = DataRange1D(low=-20, high=20)  # for training non-mri sniff sensor
         plot.fixed_preferred_size = (100, 50)
         plot.value_range = y_range
         plot.y_axis.visible = True
@@ -909,7 +899,7 @@ class Passive_odor_presentation(Protocol):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_right_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(975, 25)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
@@ -917,7 +907,7 @@ class Passive_odor_presentation(Protocol):
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_left_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(975, 25)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
                                     trial_type = "Left"
@@ -925,7 +915,7 @@ class Passive_odor_presentation(Protocol):
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(975, 25)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
                                     trial_type = "None"
@@ -1081,6 +1071,30 @@ class Passive_odor_presentation(Protocol):
     def _start_button_fired(self):
         if self.monitor.running:
             self.start_label = 'Start'
+            if self.olfactometer is not None:
+                for i in range(self.olfactometer.deviceCount):
+                    self.olfactometer.olfas[i].mfc1.setMFCrate(self.olfactometer.olfas[i].mfc1, 0)
+                    self.olfactometer.olfas[i].mfc2.setMFCrate(self.olfactometer.olfas[i].mfc2, 0)
+                    self.olfactometer.olfas[i].mfc3.setMFCrate(self.olfactometer.olfas[i].mfc3, 0)
+            if self.final_valve_label == "Final Valve (ON)":
+                self._final_valve_button_fired()
+            self.monitor.stop_acquisition()
+            print "Unsynced trials: ", self._unsynced_packets
+            #save_data_file(self.monitor.database_file,self.config['serverPaths']['mountPoint']+self.config['serverPaths']['chrisw'])
+        else:
+            self.start_label = 'Stop'
+            self._restart()
+            self._odorvalveon()
+            self.monitor.database_file = 'C:/VoyeurData/' + self.db
+            self.monitor.start_acquisition()
+            # TODO: make the monitor start acquisition start an ITI, not a trial.
+        return
+
+    def _licking_training_button_fired(self):
+        # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
+        LICKING_TRAINING = 1
+        if self.monitor.running:
+            self.start_label = 'Licking_training'
             if self.olfactometer is not None:
                 for i in range(self.olfactometer.deviceCount):
                     self.olfactometer.olfas[i].mfc1.setMFCrate(self.olfactometer.olfas[i].mfc1, 0)
@@ -1283,7 +1297,7 @@ class Passive_odor_presentation(Protocol):
         self.response_duration = response_duration
         self.hemodynamic_delay = hemodynamic_delay
         self.tr = self.TR
-        self.licking_training = self.LICKING_TRAINING*10
+        self.licking_training = self.LICKING_TRAINING
         self.lick_grace_period = self.LICKING_GRACE_PERIOD
         
         self.block_size = self.BLOCK_SIZE
