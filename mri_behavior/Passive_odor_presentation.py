@@ -96,7 +96,7 @@ class Passive_odor_presentation(Protocol):
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
     INITIAL_TRIALS_TYPE = 3 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 200 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
+    INITIAL_TRIALS = 100 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
     TR = 1000
@@ -114,7 +114,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 2
+    odorant_trigger_phase_code = 0
     sniff_phases = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -360,9 +360,6 @@ class Passive_odor_presentation(Protocol):
                             Item('start_button',
                                  editor=ButtonEditor(label_value='start_label'),
                                  show_label=False),
-                            Item('licking_training_button',
-                                 editor=ButtonEditor(label_value='licking_training_label'),
-                                 show_label=False),
                             Item('pause_button',
                                  editor=ButtonEditor(label_value='pause_label'),
                                  show_label=False,
@@ -505,7 +502,6 @@ class Passive_odor_presentation(Protocol):
                                 HGroup(
                                         Item('response_duration', style='readonly', width=-52),
                                         Item('inter_trial_interval', style='readonly', width=-50),
-                                        Item('hemodynamic_delay', style='readonly')
                                 ),
                                 label='Current Trial',
                                 show_border=True
@@ -899,7 +895,7 @@ class Passive_odor_presentation(Protocol):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_right_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(975, 25)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
@@ -907,7 +903,7 @@ class Passive_odor_presentation(Protocol):
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_left_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(975, 25)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
                                     trial_type = "Left"
@@ -915,7 +911,7 @@ class Passive_odor_presentation(Protocol):
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(975, 25)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
                                     trial_type = "None"
@@ -1090,29 +1086,6 @@ class Passive_odor_presentation(Protocol):
             # TODO: make the monitor start acquisition start an ITI, not a trial.
         return
 
-    def _licking_training_button_fired(self):
-        # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
-        LICKING_TRAINING = 1
-        if self.monitor.running:
-            self.start_label = 'Licking_training'
-            if self.olfactometer is not None:
-                for i in range(self.olfactometer.deviceCount):
-                    self.olfactometer.olfas[i].mfc1.setMFCrate(self.olfactometer.olfas[i].mfc1, 0)
-                    self.olfactometer.olfas[i].mfc2.setMFCrate(self.olfactometer.olfas[i].mfc2, 0)
-                    self.olfactometer.olfas[i].mfc3.setMFCrate(self.olfactometer.olfas[i].mfc3, 0)
-            if self.final_valve_label == "Final Valve (ON)":
-                self._final_valve_button_fired()
-            self.monitor.stop_acquisition()
-            print "Unsynced trials: ", self._unsynced_packets
-            #save_data_file(self.monitor.database_file,self.config['serverPaths']['mountPoint']+self.config['serverPaths']['chrisw'])
-        else:
-            self.start_label = 'Stop'
-            self._restart()
-            self._odorvalveon()
-            self.monitor.database_file = 'C:/VoyeurData/' + self.db
-            self.monitor.start_acquisition()
-            # TODO: make the monitor start acquisition start an ITI, not a trial.
-        return
 
     def _auto_final_valve_fired(self, button_not_clicked=True):
         """ Automatically cycle the final valve ON and OFF.
@@ -1387,7 +1360,7 @@ class Passive_odor_presentation(Protocol):
                     "lick_grace_period"             : (7, db.Int, self.lick_grace_period),
                     "hemodynamic_delay"             : (8, db.Int, self.hemodynamic_delay),
                     "tr"                            : (9, db.Int, self.tr),
-                    "licking_training"  : (10, db.Int, self.licking_training)
+                    "licking_training"              : (10, db.Int, self.licking_training)
         }
    
         return TrialParameters(
@@ -1433,7 +1406,7 @@ class Passive_odor_presentation(Protocol):
             "lick_grace_period"             : db.Int,
             "hemodynamic_delay"             : db.Int,
             "tr"                            : db.Int,
-            "licking_training"  : db.Int
+            "licking_training"              : db.Int
         }
            
         return params_def
