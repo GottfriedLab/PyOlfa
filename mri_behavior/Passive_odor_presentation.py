@@ -95,8 +95,8 @@ class Passive_odor_presentation(Protocol):
     
     # Number of initial trials to help motivating the subject to start
     # responding to trials.
-    INITIAL_TRIALS_TYPE = 3 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 100 # Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
+    INITIAL_TRIALS_TYPE = 0 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS = 0# Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
 
     # Number of samples for HRF
     TR = 1000
@@ -1925,9 +1925,7 @@ class Passive_odor_presentation(Protocol):
                 if attempts == 19:
                     print "Failed to generate new stimulus block"
                     break
-        # for i in range(len(self.stimulus_block)-1):
-        #     self.stimulus_block[-(i*2-1):-(i*2-1)] = self.no_stimuli
-        # self.stimulus_block[len(self.stimulus_block):len(self.stimulus_block)] = self.no_stimuli
+
 
         print "\nGenerated new stimulus block:"
         for i in range(len(self.stimulus_block)):
