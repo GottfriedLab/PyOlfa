@@ -74,11 +74,13 @@ class Passive_odor_presentation(Protocol):
     OLFA = 1
     FMRI = 0
 
+    # WORKING IN PROGRESS
     # Flag to indicate whether we are training mouse to lick or not. Set to 0 when not training
     LICKING_TRAINING = 0
 
     # Grace period after FV open where responses are recorded but not scored.
-    LICKING_GRACE_PERIOD = 100
+    LICKING_GRACE_PERIOD = 0
+    REPONSE_DURATION = 3000
 
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.
@@ -148,8 +150,8 @@ class Passive_odor_presentation(Protocol):
     enable_blocks = Bool(True, label="Arrange stimuli in blocks")
     # Rewards given from start of session.
     rewards = Int(0, label="Total rewards")
-    left_rewards = Int(0, label="Left rewards")
-    right_rewards = Int(0, label="Right rewards")
+    rewards_left = Int(0, label="Left rewards")
+    rewards_right = Int(0, label="Right rewards")
     max_rewards = Int(400, label="Reward until")   # maximum rewards allowed.
     
     #-------------------------------------------------------------------------- 
@@ -167,7 +169,7 @@ class Passive_odor_presentation(Protocol):
     final_valve_duration = Int(0, label="Final valve duration")
     training_times1 = Int(100, label="Left water licking training")
     training_times2 = Int(100, label="Right water licking training")
-    response_duration = Int(0, label="Response duration")
+    response_window = Int(0, label="Response duration")
     inter_trial_interval = Int(0, label='ITI')
     hemodynamic_delay = Int(0, label='HRF phase-lock delay')
     tr = Int(0, label='Repetition time')
@@ -197,16 +199,16 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [5000, 7000]
+    iti_bounds  = [10000, 12000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [10000,12000]
+    iti_bounds_false_alarm = [20000,22000]
     # Current overall session performance.
     total_available_rewards = 0
-    total_available_left_rewards = 0
-    total_available_right_rewards = 0
+    total_available_rewards_left = 0
+    total_available_rewards_right = 0
     corrects = 0
-    left_corrects = 0
+    corrects_left = 0
     right_corrects = 0
     percent_correct = Float(0, label="Total percent correct")
     percent_left_correct = Float(0, label="Left percent correct")
@@ -474,8 +476,8 @@ class Passive_odor_presentation(Protocol):
                                  ),
                           HGroup(
                                  Item('rewards', style='readonly', width=-70),
-                                 Item('left_rewards', style='readonly', width=-70),
-                                 Item('right_rewards', style='readonly', width=-70),
+                                 Item('rewards_left', style='readonly', width=-70),
+                                 Item('rewards_right', style='readonly', width=-70),
                                  ),
                           HGroup(
                                  Item('percent_correct', style='readonly',width=-70),
@@ -500,7 +502,7 @@ class Passive_odor_presentation(Protocol):
                                        Item('air_flow', style='readonly')
                                        ),
                                 HGroup(
-                                        Item('response_duration', style='readonly', width=-52),
+                                        Item('response_window', style='readonly', width=-52),
                                         Item('inter_trial_interval', style='readonly', width=-50),
                                 ),
                                 label='Current Trial',
@@ -844,11 +846,11 @@ class Passive_odor_presentation(Protocol):
 
         self.trial_number = 1
         self.rewards = 0
-        self.left_rewards = 0
-        self.right_rewards = 0
+        self.rewards_left = 0
+        self.rewards_right = 0
         self.corrects = 0
-        self.left_corrects = 0
-        self.right_corrects = 0
+        self.corrects_left = 0
+        self.corrects_right = 0
         self._left_trials_line = [1]
         self._right_trials_line = [1]
         self.trial_number_tick = [0]
@@ -1233,7 +1235,7 @@ class Passive_odor_presentation(Protocol):
                         trial_type_id,
                         max_rewards,
                         final_valve_duration,
-                        response_duration,
+                        response_window,
                         odorant_trigger_phase_code,
                         lick_grace_period,
                         hemodynamic_delay,
@@ -1267,7 +1269,7 @@ class Passive_odor_presentation(Protocol):
         
         self.inter_trial_interval = inter_trial_interval
         self.final_valve_duration = final_valve_duration
-        self.response_duration = response_duration
+        self.response_window = self.LICKING_GRACE_PERIOD + self.REPONSE_DURATION
         self.hemodynamic_delay = hemodynamic_delay
         self.tr = self.TR
         self.licking_training = self.LICKING_TRAINING
@@ -1275,11 +1277,11 @@ class Passive_odor_presentation(Protocol):
         
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
-        self.left_rewards = 0
-        self.right_rewards = 0
+        self.rewards_left = 0
+        self.rewards_right = 0
         self.corrects = 0
-        self.left_corrects = 0
-        self.right_corrects = 0
+        self.corrects_left = 0
+        self.corrects_right = 0
         self.max_rewards = max_rewards
         
         # Setup the performance plots
@@ -1342,18 +1344,18 @@ class Passive_odor_presentation(Protocol):
                    "trial_category"         : self.trial_type,
                    "odorant_trigger_phase"  : self.odorant_trigger_phase,
                    "rewards"                : self.rewards,
-                   "left_rewards"           : self.left_rewards,
-                   "right_rewards"          : self.right_rewards,
+                   "rewards_left"           : self.rewards_left,
+                   "rewards_right"          : self.rewards_right,
                    "corrects"               : self.corrects,
-                   "left_corrects"          : self.left_corrects,
-                   "right_corrects"         : self.right_corrects,
+                   "corrects_left"          : self.corrects_left,
+                   "corrects_right"         : self.corrects_right,
                    }
         
         # Parameters sent to the controller (Arduino)
         controller_dict = {
                     "trialNumber"                   : (1, db.Int, self.trial_number),
                     "final_valve_duration"          : (2, db.Int, self.final_valve_duration),
-                    "response_duration"             : (3, db.Int, self.response_duration),
+                    "response_window"               : (3, db.Int, self.response_window),
                     "inter_trial_interval"          : (4, db.Int, self.inter_trial_interval),
                     "odorant_trigger_phase_code"    : (5, db.Int, self.odorant_trigger_phase_code),
                     "trial_type_id"                 : (6, db.Int, self.current_stimulus.id),
@@ -1384,11 +1386,11 @@ class Passive_odor_presentation(Protocol):
             "trial_category"        : db.String32,
             "odorant_trigger_phase" : db.String32,
             "rewards"               : db.Float,
-            "left_rewards"          : db.Float,
-            "right_rewards"         : db.Float,
+            "rewards_left"          : db.Float,
+            "rewards_right"         : db.Float,
             "corrects"              : db.Float,
-            "left_corrects"         : db.Float,
-            "right_corrects"       : db.Float,
+            "corrects_left"         : db.Float,
+            "corrects_right"       : db.Float,
         }
 
         return params_def
@@ -1399,7 +1401,7 @@ class Passive_odor_presentation(Protocol):
         params_def = {
             "trialNumber"                   : db.Int,
             "final_valve_duration"          : db.Int,
-            "response_duration"             : db.Int,
+            "response_window"               : db.Int,
             "inter_trial_interval"          : db.Int,
             "odorant_trigger_phase_code"    : db.Int,
             "trial_type_id"                 : db.Int,
@@ -1449,44 +1451,44 @@ class Passive_odor_presentation(Protocol):
         response = int(event['response'])
         if (response == 1) : # a left hit.
             self.rewards += 1
-            self.left_rewards += 1
+            self.rewards_left += 1
             self.corrects += 1
-            self.left_corrects += 1
+            self.corrects_left += 1
             self.total_available_rewards += 1
-            self.total_available_left_rewards += 1
+            self.total_available_rewards_left += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
                 self._start_button_fired()  # ends the session if the reward target has been reached.
             self.inter_trial_interval = randint(self.iti_bounds[0], self.iti_bounds[1])
 
         if (response == 2) : # a right hit.
             self.rewards += 1
-            self.right_rewards += 1
+            self.rewards_right += 1
             self.corrects += 1
-            self.right_corrects += 1
+            self.corrects_right += 1
             self.total_available_rewards += 1
-            self.total_available_right_rewards += 1
+            self.total_available_rewards_right += 1
             if self.rewards >= self.max_rewards and self.start_label == 'Stop':
                 self._start_button_fired()  # ends the session if the reward target has been reached.
             self.inter_trial_interval = randint(self.iti_bounds[0], self.iti_bounds[1])
 
         if (response == 3) : # a left false alarm
             self.total_available_rewards += 1
-            self.total_available_left_rewards += 1
+            self.total_available_rewards_left += 1
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
 
         if (response == 4):  # a right false alarm
             self.total_available_rewards += 1
-            self.total_available_right_rewards += 1
+            self.total_available_rewards_right += 1
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0], self.iti_bounds_false_alarm[1])
 
         if (response == 5) : # no response
             self.total_available_rewards += 1
-            self.total_available_left_rewards += 1
+            self.total_available_rewards_left += 1
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
 
         if (response == 6) : # no response
             self.total_available_rewards += 1
-            self.total_available_right_rewards += 1
+            self.total_available_rewards_right += 1
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
 
         self.responses = append(self.responses, response)
@@ -1508,10 +1510,10 @@ class Passive_odor_presentation(Protocol):
         self.air_flow = self.current_stimulus.flows[0][0]
         self.odorant = self.olfas[0][odorvalve][0]
         self.percent_correct = round((float(self.corrects) / float(self.total_available_rewards)) * 100, 2)
-        if float(self.total_available_left_rewards) > 0:
-            self.percent_left_correct = round((float(self.left_corrects) / float(self.total_available_left_rewards)) * 100, 2)
-        if float(self.total_available_right_rewards) > 0:
-            self.percent_right_correct = round((float(self.right_corrects) / float(self.total_available_right_rewards)) * 100, 2)
+        if float(self.total_available_rewards_left) > 0:
+            self.percent_left_correct = round((float(self.corrects_left) / float(self.total_available_rewards_left)) * 100, 2)
+        if float(self.total_available_rewards_right) > 0:
+            self.percent_right_correct = round((float(self.corrects_right) / float(self.total_available_rewards_right)) * 100, 2)
 
         # set up a timer for opening the vial at the begining of the next trial using the parameters from current_stimulus.
         timefromtrial_end = (self._results_time - self._parameters_sent_time) * 1000 #convert from sec to ms for python generated values
@@ -1893,7 +1895,10 @@ class Passive_odor_presentation(Protocol):
                     self.stimulus_block = [self.stimuli["Left"][0]] * (block_size / 2)
             return
 
-        
+        # When mouse is showing strong side perference (ex.only licking on one side of water), generate
+        # block of trials for the bad side to motive mouse to lick
+
+
         # Randomize seed from system clock.
         seed()
         if not len(self.stimuli):
@@ -2024,7 +2029,7 @@ if __name__ == '__main__':
     trial_number = 0
     trial_type_id = 0
     final_valve_duration = 1000
-    response_duration = 5000
+    response_window = 3000
     lick_grace_period = 100
     max_rewards = 200
     odorant_trigger_phase_code = 2
@@ -2049,7 +2054,7 @@ if __name__ == '__main__':
                                          trial_type_id,
                                          max_rewards,
                                          final_valve_duration,
-                                         response_duration,
+                                         response_window,
                                          odorant_trigger_phase_code,
                                          lick_grace_period,
                                          hemodynamic_delay,
