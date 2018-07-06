@@ -607,8 +607,7 @@ class Passive_odor_presentation(Protocol):
         if self.FMRI:
             y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
         else:
-            # y_range = DataRange1D(low=-20, high=20)  # for training non-mri sniff sensor
-            y_range = DataRange1D(low=-20, high=20)  # for training non-mri sniff sensor
+            y_range = DataRange1D(low=-40, high=40)  # for training non-mri sniff sensor
         plot.fixed_preferred_size = (100, 50)
         plot.value_range = y_range
         plot.y_axis.visible = True
