@@ -1,7 +1,6 @@
 '''
-Created on 2015_08_04
-
-@author: Admir Resulaj
+Created on 2015_08_04 @author: Admir Resulaj
+Modified on 2016_06_24 @author: Pei-Ching Chang
 
 This protocol implements a passive odor paradigm for the Voyeur/Arduino 
 platform. This includes the protocol behaviour as well as visualization (GUI).
@@ -34,9 +33,9 @@ from range_selections_overlay import RangeSelectionsOverlay
 from Voyeur_utilities import save_data_file, parse_rig_config, find_odor_vial
 
 # Enthought's traits imports (For GUI) - Place these imports under
-#   voyeur imports since voyeur will select the GUI toolkit to be QT
-#   By default traits will pick wx as the GUI toolkit. By importing voyeur
-#   first, QT is set and used subsequently for all gui related things
+# voyeur imports since voyeur will select the GUI toolkit to be QT
+# By default traits will pick wx as the GUI toolkit. By importing voyeur
+# first, QT is set and used subsequently for all gui related things
 from traits.trait_types import Button
 from traits.api import Int, Str, Array, Float, Enum, Bool, Range,\
                                 Instance, HasTraits, Trait, Dict, DelegatesTo
@@ -56,7 +55,6 @@ from chaco.scales.api import CalendarScaleSystem
 from traits.has_traits import on_trait_change
 
 import warnings
-# warnings.simplefilter(action = "ignore", category = FutureWarning)
 warnings.filterwarnings("ignore")
 
 class Passive_odor_presentation(Protocol):
@@ -96,9 +94,10 @@ class Passive_odor_presentation(Protocol):
     MAX_TRIAL_DURATION = 100
     
     # Number of initial trials to help motivating the subject to start
-    # responding to trials.
+    # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
+    # half of initial trials will be right and the rest is left
     INITIAL_TRIALS_TYPE = 1 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 20# Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3, there will half of initial trials right and half of initial trials left
+    INITIAL_TRIALS = 20
 
     # Number of samples for HRF
     TR = 1000
@@ -109,6 +108,7 @@ class Passive_odor_presentation(Protocol):
                           "Right": 0,
                           "Left" : 1,
                           }
+
     # Dictionary of all stimuli defined (arranged by category), with each
     # category having a list of stimuli
     stimuli = {
@@ -143,7 +143,7 @@ class Passive_odor_presentation(Protocol):
     odor_valve = Int(label="Valve")
 
     
-    # Other session parameters that do not change from trial to trial. These
+    # Session parameters do not change from trial to trial. These
     # are currently not stored in the trials table of the database file.
     stamp = Str(label='Stamp')   # time stamp.
     protocol_name = Str(label='Protocol')
@@ -649,7 +649,6 @@ class Passive_odor_presentation(Protocol):
         
         # This second plot is for the event signals (e.g. the lick signal).
         # It shares the same timescale as the streaming plot.
-        # Data definiton.
         
         # Lick left
         self.stream_lick1_data = ArrayPlotData(iteration=self.iteration,
@@ -737,7 +736,7 @@ class Passive_odor_presentation(Protocol):
         self.stream_lick2_plot = plot
         
         
-        #### MRI trigger signal plot
+        # MRI trigger signal plot.
         self.stream_mri_data = ArrayPlotData(iteration=self.iteration,
                                                 mri=self.mri)
 
@@ -1042,16 +1041,15 @@ class Passive_odor_presentation(Protocol):
         self._left_trials_line = append(self._left_trials_line, leftcorrect*100)
         self._right_trials_line = append(self._right_trials_line, rightcorrect*100)
         self.trial_number_tick = arange(0, len(self._right_trials_line))
-        # print "LeftHits: " + str(self._total_left_hits) + "\tRightHits: " + str(self._total_right_hits)
         
         self.event_plot_data.set_data("trial_number_tick", self.trial_number_tick)        
         self.event_plot_data.set_data("_left_trials_line", self._left_trials_line)
         self.event_plot_data.set_data("_right_trials_line", self._right_trials_line)
         self.event_plot.request_redraw()
 
-    #TODO: fix the cycle
+    # TODO: fix the cycle
     def _callibrate(self):
-        """ Fire the final valve on and off every 2.5s.
+        """ Fire the final valve on and off in cycles.
         
         This is is a convenience method used when PIDing for automatic
         triggering of the final valve.
@@ -1254,7 +1252,7 @@ class Passive_odor_presentation(Protocol):
         
         self.protocol_name = self.__class__.__name__
         
-        #get a configuration object with the default settings.
+        # Get a configuration object with the default settings.
         self.config = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
         self.rig = self.config['rigName']
         self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
@@ -1495,14 +1493,14 @@ class Passive_odor_presentation(Protocol):
 
         self.hemodynamic_delay = randint(0,self.HRF_SAMPLES-1) * self.tr / self.HRF_SAMPLES
         
-        #update a couple last parameters from the next_stimulus object, then make it the current_stimulus..
+        # Update a couple last parameters from the next_stimulus object, then make it the current_stimulus..
         self.calculate_current_trial_parameters()
         self.current_stimulus = deepcopy(self.next_stimulus) # set the parameters for the following trial from nextstim.
-        #calculate a new next stim.
+        # Calculate a new next stim.
         self.calculate_next_trial_parameters() # generate a new nextstim for the next next trial. 
         # If actual next trial is determined by the trial that just finished, calculate next trial parameters can set current_stimulus.
         
-        # use the current_stimulus parameters to calculate values that we'll record when we start the trial.
+        # Use the current_stimulus parameters to calculate values that we'll record when we start the trial.
         self._setflows()
         odorvalve = self.current_stimulus.odorvalves[0]
         valveConc = self.olfas[0][odorvalve][1]
@@ -1515,7 +1513,7 @@ class Passive_odor_presentation(Protocol):
         if float(self.total_available_rewards_right) > 0:
             self.percent_right_correct = round((float(self.corrects_right) / float(self.total_available_rewards_right)) * 100, 2)
 
-        # set up a timer for opening the vial at the begining of the next trial using the parameters from current_stimulus.
+        # Set up a timer for opening the vial at the begining of the next trial using the parameters from current_stimulus.
         timefromtrial_end = (self._results_time - self._parameters_sent_time) * 1000 #convert from sec to ms for python generated values
         timefromtrial_end -= (self.trial_end - self.parameters_received_time) * 1.0 
         nextvalveontime = self.inter_trial_interval - timefromtrial_end - self.VIAL_ON_BEFORE_TRIAL
@@ -1525,7 +1523,6 @@ class Passive_odor_presentation(Protocol):
             nextvalveontime = 20
             self.next_trial_start = 1000
         Timer.singleShot(int(nextvalveontime), self._odorvalveon)
-        # print "ITI: ", self._next_inter_trial_interval, " timer set duration: ", int(nextvalveontime)
         
         return
 
@@ -1542,7 +1539,7 @@ class Passive_odor_presentation(Protocol):
                 if lostsniffsamples > self.STREAM_SIZE:
                     lostsniffsamples = self.STREAM_SIZE
                 lostsniffsamples = int(lostsniffsamples)
-                # pad sniff signal with last value for the lost samples first then append received sniff signal
+                # Pad sniff signal with last value for the lost samples first then append received sniff signal
                 new_sniff = hstack((self.sniff[-self.STREAM_SIZE + lostsniffsamples:], [self.sniff[-1]] * lostsniffsamples))
                 if stream['sniff'] is not None:
                     self.sniff = hstack((new_sniff[-self.STREAM_SIZE + num_sniffs:], negative(stream['sniff'])))
@@ -1564,17 +1561,16 @@ class Passive_odor_presentation(Protocol):
 
             self._last_stream_index = packet_sent_time
 
-            # if we haven't received results by MAX_TRIAL_DURATION, pause and unpause as there was probably some problem with comm.
+            # If we haven't received results by MAX_TRIAL_DURATION, pause and unpause as there was probably some problem with comm.
             if (self.trial_number > 1) and ((time.clock() - self._results_time) > self.MAX_TRIAL_DURATION) and self.pause_label == "Pause":
                 print "=============== Pausing to restart Trial =============="
-                # print "param_sent time: ",self._parameters_sent_time, "_results_time:", self._results_time
                 self._unsynced_packets += 1
                 self._results_time = time.clock()
                 # Pause and unpause only iff running
                 if self.pause_label == "Pause":
                     self.pause_label = 'Unpause'
                     self._pause_button_fired()
-                    # unpause in 1 second
+                    # Unpause in 1 second
                     Timer.singleShot(1000, self._pause_button_fired)
         return
 
@@ -1610,11 +1606,9 @@ class Passive_odor_presentation(Protocol):
                 if stream[lick1signal] is None:
                     lick1array = hstack((lick1array[-self.STREAM_SIZE + maxshift:], [lick1array[-1]] * maxshift))
                 else:
-                    # print "lick1s: ", stream['lick1'], "\tnum sniffs: ", currentshift
                     last_state = lick1array[-1]
                     last_lick1_tick = self._last_stream_index
                     for lick1 in stream[lick1signal]:
-                        # print "last lick1 tick: ", last_lick1_tick, "\tlast state: ", last_state
                         shift = int(lick1 - last_lick1_tick)
                         if shift <= 0:
                             if shift < self.STREAM_SIZE * -1:
@@ -1623,7 +1617,7 @@ class Passive_odor_presentation(Protocol):
                                 lick1array[shift - 1:] = [i + 1] * (-shift + 1)
                             else:
                                 lick1array[shift - 1:] = [nan] * (-shift + 1)
-                        # lick1 timestamp exceeds packet sent time. Just change the signal state but don't shift
+                        # Lick1 timestamp exceeds packet sent time. Just change the signal state but don't shift
                         elif lick1 > packet_sent_time:
                             if isnan(last_state):
                                 lick1array[-1] = i + 1
@@ -1639,7 +1633,7 @@ class Passive_odor_presentation(Protocol):
                                 lick1array = hstack((lick1array[-self.STREAM_SIZE + 1:], [nan]))
                             last_lick1_tick = lick1
                         last_state = lick1array[-1]
-                        # last timestamp of lick1 signal change
+                        # Last timestamp of lick1 signal change
                         self._last_lick1_index = lick1
                     lastshift = int(packet_sent_time - last_lick1_tick)
                     if lastshift >= self.STREAM_SIZE:
@@ -1649,7 +1643,6 @@ class Passive_odor_presentation(Protocol):
                         lick1array = hstack((lick1array[-self.STREAM_SIZE + lastshift:], [lick1array[-1]] * lastshift))
                 if len(lick1array) > 0:
                     self.stream_lick1_data.set_data(lick1signal, lick1array)
-                    # self.stream_lick1_plot.request_redraw()
                     lick1arrays[i] = lick1array
 
         return lick1arrays
@@ -1684,11 +1677,9 @@ class Passive_odor_presentation(Protocol):
                 if stream[lick2signal] is None:
                     lick2array = hstack((lick2array[-self.STREAM_SIZE + maxshift:], [lick2array[-1]] * maxshift))
                 else:
-                    # print "lick2s: ", stream['lick2'], "\tnum sniffs: ", currentshift
                     last_state = lick2array[-1]
                     last_lick2_tick = self._last_stream_index
                     for lick2 in stream[lick2signal]:
-                        # print "last lick2 tick: ", last_lick2_tick, "\tlast state: ", last_state
                         shift = int(lick2 - last_lick2_tick)
                         if shift <= 0:
                             if shift < self.STREAM_SIZE * -1:
@@ -1697,7 +1688,7 @@ class Passive_odor_presentation(Protocol):
                                 lick2array[shift - 1:] = [i + 1] * (-shift + 1)
                             else:
                                 lick2array[shift - 1:] = [nan] * (-shift + 1)
-                        # lick2 timestamp exceeds packet sent time. Just change the signal state but don't shift
+                        # Lick2 timestamp exceeds packet sent time. Just change the signal state but don't shift
                         elif lick2 > packet_sent_time:
                             if isnan(last_state):
                                 lick2array[-1] = i + 1
@@ -1713,7 +1704,7 @@ class Passive_odor_presentation(Protocol):
                                 lick2array = hstack((lick2array[-self.STREAM_SIZE + 1:], [nan]))
                             last_lick2_tick = lick2
                         last_state = lick2array[-1]
-                        # last timestamp of lick2 signal change
+                        # Last timestamp of lick2 signal change
                         self._last_lick2_index = lick2
                     lastshift = int(packet_sent_time - last_lick2_tick)
                     if lastshift >= self.STREAM_SIZE:
@@ -1723,7 +1714,6 @@ class Passive_odor_presentation(Protocol):
                         lick2array = hstack((lick2array[-self.STREAM_SIZE + lastshift:], [lick2array[-1]] * lastshift))
                 if len(lick2array) > 0:
                     self.stream_lick2_data.set_data(lick2signal, lick2array)
-                    # self.stream_lick2_plot.request_redraw()
                     lick2arrays[i] = lick2array
 
         return lick2arrays
@@ -1794,7 +1784,6 @@ class Passive_odor_presentation(Protocol):
                         mriarray = hstack((mriarray[-self.STREAM_SIZE + lastshift:], [mriarray[-1]] * lastshift))
                 if len(mriarray) > 0:
                     self.stream_mri_data.set_data(mrisignal, mriarray)
-                    # self.stream_mri_plot.request_redraw()
                     mriarrays[i] = mriarray
 
         return mriarrays
@@ -1836,7 +1825,7 @@ class Passive_odor_presentation(Protocol):
             olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
 
             if olfavalve != 0:
-                self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) #set the vial,
+                self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) #Set the vial
     
     
     def _setflows(self):
@@ -1849,7 +1838,6 @@ class Passive_odor_presentation(Protocol):
             self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
             self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
             self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
-
 
     def end_of_trial(self):
         # set new trial parameters
