@@ -1259,7 +1259,6 @@ class Passive_odor_presentation(Protocol):
         self.water_duration2 = self.config['waterValveDurations']['valve_2_right']['0.25ul']
         self.olfas = self.config['olfas']
         self.olfaComPort1 = 'COM' + str(self.olfas[0]['comPort'])
-        self.laser_power_table = self.config['lightSource']['powerTable']
 
         self._build_stimulus_set()
         self.calculate_next_trial_parameters()
@@ -1825,7 +1824,7 @@ class Passive_odor_presentation(Protocol):
             olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
 
             if olfavalve != 0:
-                self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) #Set the vial
+                self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) # Set the vial
     
     
     def _setflows(self):

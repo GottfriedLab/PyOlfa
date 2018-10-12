@@ -1,11 +1,13 @@
 '''
 Created on Sep 23, 2013
 Modified on Jan 2, 2014
+Modified on June 24, 2016
 
 Description: Collection of utilities for use by Voyeur program and Voyeur protocols
 Version: 1.1
 
 @author: Admir Resulaj
+@author: Pei-Ching Chang
 '''
 
 from pyface.api import Dialog, ConfirmationDialog, FileDialog, YES, NO, OK, DirectoryDialog, error, warning, information, CANCEL
@@ -200,12 +202,6 @@ def parse_rig_config(configFilename=''):
     else:
         olfas = (olfa1,)
 
-    # process lightsource power information.
-
-    lightSource  = conf['lightSource']
-    for k,v in lightSource['powerTable'].iteritems():
-        lightSource['powerTable'][k] = map(int, v)
-
     try:
         micro_manipulators = conf['micro_manipulators']
     except KeyError:
@@ -217,7 +213,6 @@ def parse_rig_config(configFilename=''):
     return {'rigName': rigName,
             'waterValveDurations': valveDurations,
             'olfas': olfas,
-            'lightSource': lightSource,
             'serverPaths': serverPaths,
             'localPaths': localPaths,
             'configFilename': configFilename,
@@ -226,13 +221,12 @@ def parse_rig_config(configFilename=''):
 
 
 def find_odor_vial(olfas,desiredOdorString,desiredOdorConc):
-#     This method will return the vial number where an odor-concentration pair exists within the olfactometer object that is passed to it.
+    # This method will return the vial number where an odor-concentration pair exists within the olfactometer object that is passed to it.
     #first make a list of all the vial keys that contain the desiredOdorString. 
     #if no desiredOdorConc == -1 it will return all vials containing the odor, regardless of concentration.
     
     if type(desiredOdorString) is not str:
         print 'Cannot find odor, desired odor value is not a string.'
-        #return
     else:
         desiredOdorString = desiredOdorString.lower() #make lower case for comparison.
     if desiredOdorConc != -1: # if this is true, the method will return all of the vials containing the odor, regardless of concentration.
