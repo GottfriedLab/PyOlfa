@@ -54,6 +54,8 @@ from chaco.scales_tick_generator import ScalesTickGenerator
 from chaco.scales.api import CalendarScaleSystem
 from traits.has_traits import on_trait_change
 
+import os
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -660,8 +662,7 @@ class Passive_odor_presentation(Protocol):
                     padding_top=0,
                     padding_bottom=4,
                     padding_left=80,
-                    border_visible=False,
-                    index_mapper=self.stream_plot.index_mapper)
+                    border_visible=False)
 
         # Data array for the signal.
         # The last value is not nan so that the first incoming streaming value
@@ -896,7 +897,7 @@ class Passive_odor_presentation(Protocol):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_right_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(0, 0)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
@@ -904,7 +905,7 @@ class Passive_odor_presentation(Protocol):
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_left_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(0, 0)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
                                     trial_type = "Left"
@@ -912,7 +913,7 @@ class Passive_odor_presentation(Protocol):
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
                                     # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(0, 0)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
                                     trial_type = "None"
@@ -1253,7 +1254,11 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.__class__.__name__
         
         # Get a configuration object with the default settings.
-        self.config = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
+        if os.name =='nt': #widnows
+            self.config = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Olfactometer_Module\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
+        else:
+            self.config = parse_rig_config(
+                "/Users/Gottfried_Lab/PycharmProjects/Olfactometer_Module/mri_behavior/Voyeur_libraries/voyeur_rig_config.conf")
         self.rig = self.config['rigName']
         self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
         self.water_duration2 = self.config['waterValveDurations']['valve_2_right']['0.25ul']

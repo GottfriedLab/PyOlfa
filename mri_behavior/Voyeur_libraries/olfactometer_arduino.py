@@ -17,6 +17,7 @@ from time import sleep
 from traits.etsconfig import etsconfig
 etsconfig.ETSConfig.toolkit = 'qt4'
 
+
 # Pyside import modules for gui elements.
 from PySide import QtCore, QtGui
 from PySide.QtCore import QObject, QTimer, SIGNAL
@@ -757,9 +758,8 @@ class Olfactometers(ApplicationWindow):
         if not OLFA:
             self.monitor = None
         else:
-            self.monitor = SerialMonitor(port='COM4', baudrate=SerialMonitor.BAUDRATE, timeout=1)
+            self.monitor = SerialMonitor(port='/dev/tty.usbmodem12341', baudrate=SerialMonitor.BAUDRATE, timeout=1)
 
-        # self.create_serial('COM4')
         self.config_obj = config_obj
         # check monitor serial connection
         if (self.monitor is None):#or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
