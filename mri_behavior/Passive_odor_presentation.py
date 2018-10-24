@@ -1082,7 +1082,10 @@ class Passive_odor_presentation(Protocol):
             self.start_label = 'Stop'
             self._restart()
             self._odorvalveon()
-            self.monitor.database_file = 'C:/VoyeurData/' + self.db
+            if os.name =='nt': #widnows
+                self.monitor.database_file = 'C:/VoyeurData/' + self.db
+            else:
+                self.monitor.database_file = '/VoyeurData/' + self.db
             self.monitor.start_acquisition()
             # TODO: make the monitor start acquisition start an ITI, not a trial.
         return
