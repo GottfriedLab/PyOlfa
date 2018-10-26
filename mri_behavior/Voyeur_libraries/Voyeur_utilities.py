@@ -93,7 +93,7 @@ def save_data_file(sourceFile, destination = None, subdirectory = None, user = N
             destinationFolder = destination
     # Look up a default destination from the config file since no <destination> parameter was provided.
     else:
-        configFile = os.environ.get("VOYEUR_CONFIG")
+        configFile = os.environ.get("Voyeur_config")
         config = ConfigObj(configFile)
 
         # A user specific folder was provided.

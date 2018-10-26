@@ -17,7 +17,6 @@ from time import sleep
 from traits.etsconfig import etsconfig
 etsconfig.ETSConfig.toolkit = 'qt4'
 
-
 # Pyside import modules for gui elements.
 from PySide import QtCore, QtGui
 from PySide.QtCore import QObject, QTimer, SIGNAL
@@ -38,7 +37,7 @@ from time import sleep
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
-OLFA = True
+OLFA = False
 
 # Imports for listing the communication ports available by the OS.
 if os.name == 'nt':
@@ -760,6 +759,7 @@ class Olfactometers(ApplicationWindow):
         else:
             self.monitor = SerialMonitor(port='/dev/tty.usbmodem12341', baudrate=SerialMonitor.BAUDRATE, timeout=1)
 
+        # self.create_serial('COM4')
         self.config_obj = config_obj
         # check monitor serial connection
         if (self.monitor is None):#or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
@@ -1057,7 +1057,8 @@ if __name__ == '__main__':
     # Create the GUI (this does NOT start the GUI event loop).
     gui = GUI()
     # Create and open the main window.
-    config_obj = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Mod_Voyeur\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
+    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/Olfactometer_Module/mri_behavior/Voyeur_libraries/','voyeur_rig_config.conf')
+    config = parse_rig_config(voyeur_rig_config)
     window = Olfactometers(config_obj=config_obj)
     window.open()
     # Start the GUI event loop!

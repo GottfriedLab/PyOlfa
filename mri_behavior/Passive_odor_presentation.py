@@ -79,8 +79,8 @@ class Passive_odor_presentation(Protocol):
     LICKING_TRAINING = 0
 
     # Grace period after FV open where responses are recorded but not scored.
-    LICKING_GRACE_PERIOD = 200
-    REPONSE_DURATION = 3000
+    LICKING_GRACE_PERIOD = 0
+    RESPONSE_DURATION = 1000
 
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.
@@ -99,7 +99,7 @@ class Passive_odor_presentation(Protocol):
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
     # half of initial trials will be right and the rest is left
     INITIAL_TRIALS_TYPE = 1 #0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 20
+    INITIAL_TRIALS = 0
 
     # Number of samples for HRF
     TR = 1000
@@ -201,10 +201,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [10000, 12000]
+    iti_bounds  = [5000, 6000]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [20000,22000]
+    iti_bounds_false_alarm = [5000, 6000]
     # Current overall session performance.
     total_available_rewards = 0
     total_available_rewards_left = 0
@@ -662,7 +662,8 @@ class Passive_odor_presentation(Protocol):
                     padding_top=0,
                     padding_bottom=4,
                     padding_left=80,
-                    border_visible=False)
+                    border_visible=False,
+                    index_mapper=self.stream_plot.index_mapper)
 
         # Data array for the signal.
         # The last value is not nan so that the first incoming streaming value
@@ -896,7 +897,7 @@ class Passive_odor_presentation(Protocol):
         for i in range(len(odorvalves_left_stimulus)):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_right_stimulus)],
-                                    # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     flows=[(0, 0)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
@@ -904,7 +905,7 @@ class Passive_odor_presentation(Protocol):
                                     )
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_left_stimulus)],
-                                    # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     flows=[(0, 0)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
@@ -912,7 +913,7 @@ class Passive_odor_presentation(Protocol):
                                     )
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
-                                    # flows = [(888, 98.7)],  # [(AIR, Nitrogen)]
+                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     flows=[(0, 0)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
@@ -1082,10 +1083,8 @@ class Passive_odor_presentation(Protocol):
             self.start_label = 'Stop'
             self._restart()
             self._odorvalveon()
-            if os.name =='nt': #widnows
-                self.monitor.database_file = 'C:/VoyeurData/' + self.db
-            else:
-                self.monitor.database_file = '/VoyeurData/' + self.db
+            VoyeurData = os.path.join('/VoyeurData/')
+            self.monitor.database_file = VoyeurData + self.db
             self.monitor.start_acquisition()
             # TODO: make the monitor start acquisition start an ITI, not a trial.
         return
@@ -1257,16 +1256,12 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.__class__.__name__
         
         # Get a configuration object with the default settings.
-        if os.name =='nt': #widnows
-            self.config = parse_rig_config("C:\Users\Gottfried_Lab\PycharmProjects\Olfactometer_Module\mri_behavior\Voyeur_libraries\\voyeur_rig_config.conf")
-        else:
-            self.config = parse_rig_config(
-                "/Users/Gottfried_Lab/PycharmProjects/Olfactometer_Module/mri_behavior/Voyeur_libraries/voyeur_rig_config.conf")
+        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/Olfactometer_Module/mri_behavior/Voyeur_libraries/','voyeur_rig_config.conf')
+        self.config = parse_rig_config(voyeur_rig_config)
         self.rig = self.config['rigName']
         self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
         self.water_duration2 = self.config['waterValveDurations']['valve_2_right']['0.25ul']
         self.olfas = self.config['olfas']
-        self.olfaComPort1 = 'COM' + str(self.olfas[0]['comPort'])
 
         self._build_stimulus_set()
         self.calculate_next_trial_parameters()
@@ -1274,7 +1269,7 @@ class Passive_odor_presentation(Protocol):
         
         self.inter_trial_interval = inter_trial_interval
         self.final_valve_duration = final_valve_duration
-        self.response_window = self.LICKING_GRACE_PERIOD + self.REPONSE_DURATION
+        self.response_window = self.LICKING_GRACE_PERIOD + self.RESPONSE_DURATION
         self.hemodynamic_delay = hemodynamic_delay
         self.tr = self.TR
         self.licking_training = self.LICKING_TRAINING
@@ -1337,23 +1332,23 @@ class Passive_odor_presentation(Protocol):
         """
 
         protocol_params = {
-                   "mouse"                  : self.mouse,
-                   "rig"                    : self.rig,
-                   "session"                : self.session,
-                   "block_size"             : self.block_size,
-                   "air_flow"               : self.air_flow,
-                   "nitrogen_flow"          : self.nitrogen_flow,
-                   "odorant"                : self.odorant,
-                   "stimulus_id"            : self.current_stimulus.id,
-                   "description"            : self.current_stimulus.description,
-                   "trial_category"         : self.trial_type,
-                   "odorant_trigger_phase"  : self.odorant_trigger_phase,
-                   "rewards"                : self.rewards,
-                   "rewards_left"           : self.rewards_left,
-                   "rewards_right"          : self.rewards_right,
-                   "corrects"               : self.corrects,
-                   "corrects_left"          : self.corrects_left,
-                   "corrects_right"         : self.corrects_right,
+                   "mouse"                          : self.mouse,
+                   "rig"                            : self.rig,
+                   "session"                        : self.session,
+                   "block_size"                     : self.block_size,
+                   "air_flow"                       : self.air_flow,
+                   "nitrogen_flow"                  : self.nitrogen_flow,
+                   "odorant"                        : self.odorant,
+                   "stimulus_id"                    : self.current_stimulus.id,
+                   "description"                    : self.current_stimulus.description,
+                   "trial_category"                 : self.trial_type,
+                   "odorant_trigger_phase"          : self.odorant_trigger_phase,
+                   "rewards"                        : self.rewards,
+                   "rewards_left"                   : self.rewards_left,
+                   "rewards_right"                  : self.rewards_right,
+                   "percent_correct"                : self.percent_correct,
+                   "percent_left_correct"           : self.percent_left_correct,
+                   "percent_right_correct"          : self.percent_right_correct,
                    }
         
         # Parameters sent to the controller (Arduino)
@@ -1379,23 +1374,23 @@ class Passive_odor_presentation(Protocol):
         """Returns a dictionary of {name => db.type} defining protocol parameters"""
 
         params_def = {
-            "mouse"                 : db.String32,
-            "rig"                   : db.String32,
-            "session"               : db.Int,
-            "block_size"            : db.Int,
-            "air_flow"              : db.Float,
-            "nitrogen_flow"         : db.Float,
-            "odorant"               : db.String32,
-            "stimulus_id"           : db.Int,
-            "description"           : db.String32,
-            "trial_category"        : db.String32,
-            "odorant_trigger_phase" : db.String32,
-            "rewards"               : db.Float,
-            "rewards_left"          : db.Float,
-            "rewards_right"         : db.Float,
-            "corrects"              : db.Float,
-            "corrects_left"         : db.Float,
-            "corrects_right"       : db.Float,
+            "mouse"                         : db.String32,
+            "rig"                           : db.String32,
+            "session"                       : db.Int,
+            "block_size"                    : db.Int,
+            "air_flow"                      : db.Float,
+            "nitrogen_flow"                 : db.Float,
+            "odorant"                       : db.String32,
+            "stimulus_id"                   : db.Int,
+            "description"                   : db.String32,
+            "trial_category"                : db.String32,
+            "odorant_trigger_phase"         : db.String32,
+            "rewards"                       : db.Int,
+            "rewards_left"                  : db.Int,
+            "rewards_right"                 : db.Int,
+            "percent_correct"               : db.Float,
+            "percent_left_correct"          : db.Float,
+            "percent_right_correct"         : db.Float,
         }
 
         return params_def
@@ -1438,9 +1433,9 @@ class Passive_odor_presentation(Protocol):
             "packet_sent_time"         : (1, 'unsigned long', db.Int),
             "sniff_samples"            : (2, 'unsigned int', db.Int),
             "sniff"                    : (3, 'int', db.FloatArray),
-            "lick1"                    : (4, 'unsigned long', db.FloatArray),
-            "lick2"                    : (5, 'unsigned long', db.FloatArray),
-            "mri"                      : (6, 'unsigned long', db.FloatArray)
+            "lick1"                    : (4, 'unsigned long', db.IntArray),
+            "lick2"                    : (5, 'unsigned long', db.IntArray),
+            "mri"                      : (6, 'unsigned long', db.IntArray)
         }
 
     def process_event_request(self, event):
@@ -1527,6 +1522,8 @@ class Passive_odor_presentation(Protocol):
         self.next_trial_start = nextvalveontime + self.VIAL_ON_BEFORE_TRIAL / 2
         if nextvalveontime < 0:
             print "Warning! nextvalveontime < 0"
+            print "timefromtrial_end = (self._results_time - self._parameters_sent_time) * 1000 ", timefromtrial_end, self._results_time, self._parameters_sent_time
+            print "timefromtrial_end -= (self.trial_end - self.parameters_received_time", timefromtrial_end, self.trial_end, self.parameters_received_time
             nextvalveontime = 20
             self.next_trial_start = 1000
         Timer.singleShot(int(nextvalveontime), self._odorvalveon)
@@ -2029,8 +2026,7 @@ if __name__ == '__main__':
     lick_grace_period = 100
     max_rewards = 200
     odorant_trigger_phase_code = 2
-    trial_type_id = 0
-    inter_trial_interval = 15000
+    inter_trial_interval = 2000
     hemodynamic_delay = 0
 
     # protocol parameter defaults
