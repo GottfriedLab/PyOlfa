@@ -24,12 +24,12 @@ from voyeur.protocol import Protocol, TrialParameters, time_stamp
 from voyeur.exceptions import SerialException, ProtocolException
 
 # Olfactometer module
-from olfactometer_arduino import Olfactometers
-from olfactometer_arduino import SerialMonitor as olfa_monitor
+from Olfactometer_arduino import Olfactometers
+from Olfactometer_arduino import SerialMonitor as olfa_monitor
 
 # Utilities
 from Stimulus import LaserStimulus, LaserTrainStimulus  # OdorStimulus
-from range_selections_overlay import RangeSelectionsOverlay
+from Range_selections_overlay import RangeSelectionsOverlay
 from Voyeur_utilities import save_data_file, parse_rig_config, find_odor_vial
 
 # Enthought's traits imports (For GUI) - Place these imports under
@@ -1257,7 +1257,7 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.__class__.__name__
         
         # Get a configuration object with the default settings.
-        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/Olfactometer_Module/mri_behavior/Voyeur_libraries/','voyeur_rig_config.conf')
+        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Odor_Discrimination_Task/Voyeur_libraries/','Voyeur_rig_config.conf')
         self.config = parse_rig_config(voyeur_rig_config)
         self.rig = self.config['rigName']
         self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']

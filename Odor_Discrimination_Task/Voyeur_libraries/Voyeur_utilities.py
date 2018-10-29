@@ -159,7 +159,7 @@ def parse_rig_config(configFilename=''):
         configFilename = os.environ.get("RIG_CONFIG")
         #if it didnt find it there, it tries the legacy default
         if configFilename < 1:
-            configFilename='C:\\voyeur_rig_config\\voyeur_rig_config.conf'
+            configFilename='C:\\voyeur_rig_config\\Voyeur_rig_config.conf'
             print "No RIG_CONFIG os variable, trying with legacy default " + configFilename
     
     if os.path.isfile(configFilename)== False:

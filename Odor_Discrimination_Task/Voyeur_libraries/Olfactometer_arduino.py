@@ -1057,7 +1057,7 @@ if __name__ == '__main__':
     # Create the GUI (this does NOT start the GUI event loop).
     gui = GUI()
     # Create and open the main window.
-    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/Olfactometer_Module/mri_behavior/Voyeur_libraries/','voyeur_rig_config.conf')
+    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Odor_Discrimination_Task/Voyeur_libraries/','Voyeur_rig_config.conf')
     config = parse_rig_config(voyeur_rig_config)
     window = Olfactometers(config_obj=config_obj)
     window.open()

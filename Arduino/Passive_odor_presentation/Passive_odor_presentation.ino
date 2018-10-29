@@ -7,9 +7,9 @@
 
 // include the library code:
 #include <SPI.h>
-#include </Users/Gottfried_Lab/PycharmProjects/Olfactometer_Arduino/voyeur_timer_lib.pde>
-#include </Users/Gottfried_Lab/PycharmProjects/Olfactometer_Arduino/ioFunctions_external_timers.pde>
-#include </Users/Gottfried_Lab/PycharmProjects/Olfactometer_Arduino/voyeur_serial_stream_tools.pde>
+#include </Users/Gottfried_Lab/PycharmProjects/Olfactometer_Arduino/Voyeur_timer_lib.pde>
+#include </Users/Gottfried_Lab/PycharmProjects/Olfactometer_Arduino/IoFunctions_external_timers.pde>
+#include </Users/Gottfried_Lab/PycharmProjects/Olfactometer_Arduino/Voyeur_serial_stream_tools.pde>
 
 #define LED_PIN   13
 
