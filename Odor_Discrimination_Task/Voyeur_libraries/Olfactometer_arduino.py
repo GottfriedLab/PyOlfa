@@ -11,7 +11,6 @@ License: GPLv3 or earlier version of GPL if user chooses so.
 import itertools
 import time, serial, os
 from serial import Serial, SerialException
-from time import sleep
 
 # Change the gui toolkit from the default to qt version 4
 from traits.etsconfig import etsconfig
@@ -33,17 +32,24 @@ from traits.api import Instance, Int, Str, Float, List
 from Voyeur_utilities import parse_rig_config
 from voyeur.monitor import Monitor
 
-from time import sleep
+from configobj import ConfigObj
+
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
-OLFA = False
+OLFA = True
 
 # Imports for listing the communication ports available by the OS.
 if os.name == 'nt':
     import _winreg as winreg
 else:
-    from serial.tools import list_ports 
+    from serial.tools import list_ports
+
+# Get a configuration object with the default settings.
+voyeur_rig_config = os.path.join(
+    '/Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Odor_Discrimination_Task/Voyeur_libraries/',
+    'Voyeur_rig_config.conf')
+conf = ConfigObj(voyeur_rig_config)
 
 class Valvegroup(QWidget, QObject):
     """ Widget that has a button group object for a set of vials(pair of valves)
@@ -664,7 +670,7 @@ class SerialSelectionAction(Action):
 class SerialMonitor(Serial):
     """ Serial Connection Class that handles communication with Arduino """
     TIMEOUT = 1
-    BAUDRATE = 115200
+    BAUDRATE = conf['serial']['baudrate']
     def send_command(self, command, tries=10):
         for i in range(tries):
             self.write(command)
@@ -754,10 +760,15 @@ class Olfactometers(ApplicationWindow):
         )
 
         # monitor is the Voyeur Monitor that handles the COM port
+        if os.name == 'nt':
+            olf_port = conf['serial']['window']['port2']
+        else:
+            olf_port = conf['serial']['osx']['port2']
+
         if not OLFA:
             self.monitor = None
         else:
-            self.monitor = SerialMonitor(port='/dev/tty.usbmodem12341', baudrate=SerialMonitor.BAUDRATE, timeout=1)
+            self.monitor = SerialMonitor(port=olf_port, baudrate=SerialMonitor.BAUDRATE, timeout=SerialMonitor.TIMEOUT)
 
         # self.create_serial('COM4')
         self.config_obj = config_obj
@@ -820,7 +831,7 @@ class Olfactometers(ApplicationWindow):
             olfa.mfc3.olfa_communication = self.monitor
     def create_serial(self, serial,verbose = True):
         """ Create a Serial connection to the Olfactometer """
-        self.monitor = SerialMonitor(port=serial, baudrate=SerialMonitor.BAUDRATE, timeout=1)
+        self.monitor = SerialMonitor(port=serial, baudrate=SerialMonitor.BAUDRATE, timeout=SerialMonitor.TIMEOUT)
 
         if self.monitor.isOpen():
             if verbose:
