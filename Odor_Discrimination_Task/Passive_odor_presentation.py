@@ -344,10 +344,6 @@ class Passive_odor_presentation(Protocol):
     left_water_label = Str('Left Water Valve')
     right_water_button = Button()
     right_water_label = Str('Right Water Valve')
-    left_water_training_button = Button()
-    left_water_training_label = Str("Training Licking Left Water")
-    right_water_training_button = Button()
-    right_water_training_label = Str("Training Licking Right Water")
     pulse_generator1_button = Button(label="Trigger")
     pulse_generator2_button = pulse_generator1_button
     pulse_amplitude1 = Range(low=0,
@@ -1246,6 +1242,8 @@ class Passive_odor_presentation(Protocol):
                         tr,
                         licking_training,
                         free_water,
+                        water_duration1,
+                        water_duration2,
                         **kwtraits):
         
         super(Passive_odor_presentation, self).__init__(**kwtraits)
@@ -1260,7 +1258,7 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.__class__.__name__
         
         # Get a configuration object with the default settings.
-        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Odor_Discrimination_Task/Voyeur_libraries/','Voyeur_rig_config.conf')
+        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/Odor_Discrimination_Task/Voyeur_libraries/','Voyeur_rig_config.conf')
         self.config = parse_rig_config(voyeur_rig_config)
         self.rig = self.config['rigName']
         self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
@@ -1365,7 +1363,9 @@ class Passive_odor_presentation(Protocol):
                     "lick_grace_period"             : (7, db.Int, self.lick_grace_period),
                     "tr"                            : (8, db.Int, self.tr),
                     "licking_training"              : (9, db.Int, self.licking_training),
-                    "free_water"                    : (10, db.Int, self.free_water)
+                    "free_water"                    : (10, db.Int, self.free_water),
+                    "water_duration1"               : (11, db.Int, self.water_duration1),
+                    "water_duration2"               : (12, db.Int, self.water_duration2),
         }
    
         return TrialParameters(
@@ -1411,7 +1411,9 @@ class Passive_odor_presentation(Protocol):
             "lick_grace_period"             : db.Int,
             "tr"                            : db.Int,
             "licking_training"              : db.Int,
-            "free_water"                    : db.Int
+            "free_water"                    : db.Int,
+            "water_duration1"               : db.Int,
+            "water_duration2"               : db.Int,
         }
            
         return params_def
@@ -2077,6 +2079,8 @@ if __name__ == '__main__':
     tr = 1000
     licking_training = 0
     free_water = 0
+    water_duration1 = 150
+    water_duration2 = 150
     
     # protocol
     protocol = Passive_odor_presentation(trial_number,
@@ -2092,7 +2096,9 @@ if __name__ == '__main__':
                                          lick_grace_period,
                                          tr,
                                          licking_training,
-                                         free_water
+                                         free_water,
+                                         water_duration1,
+                                         water_duration2
                                          )
 
     # Testing code when no hardware attached.

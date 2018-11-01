@@ -37,7 +37,7 @@ from configobj import ConfigObj
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
-OLFA = True
+OLFA = False
 
 # Imports for listing the communication ports available by the OS.
 if os.name == 'nt':
@@ -47,7 +47,7 @@ else:
 
 # Get a configuration object with the default settings.
 voyeur_rig_config = os.path.join(
-    '/Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Odor_Discrimination_Task/Voyeur_libraries/',
+    '/Users/Gottfried_Lab/PycharmProjects/PyOlfa/Odor_Discrimination_Task/Voyeur_libraries/',
     'Voyeur_rig_config.conf')
 conf = ConfigObj(voyeur_rig_config)
 
@@ -805,7 +805,7 @@ class Olfactometers(ApplicationWindow):
             # add the layout container to the main window widget
             panel.setLayout(grid)
             palette = QtGui.QPalette(panel.palette())
-            palette.setColor(QtGui.QPalette.Window, QtGui.QColor('red'))
+            palette.setColor(QtGui.QPalette.Window, QtGui.QColor('blue'))
             # set palette brushes here
             panel.setPalette(palette)
             panel.setAutoFillBackground(True)
@@ -1068,7 +1068,7 @@ if __name__ == '__main__':
     # Create the GUI (this does NOT start the GUI event loop).
     gui = GUI()
     # Create and open the main window.
-    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Odor_Discrimination_Task/Voyeur_libraries/','Voyeur_rig_config.conf')
+    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/Odor_Discrimination_Task/Voyeur_libraries/','Voyeur_rig_config.conf')
     config = parse_rig_config(voyeur_rig_config)
     window = Olfactometers(config_obj=config_obj)
     window.open()

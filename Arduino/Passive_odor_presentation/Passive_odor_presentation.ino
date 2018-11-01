@@ -7,9 +7,9 @@
 
 // include the library code:
 #include <SPI.h>
-#include </Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Arduino/Passive_odor_presentation/libraries/Voyeur_timer_lib.pde>
-#include </Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Arduino/Passive_odor_presentation/libraries/IoFunctions_external_timers.pde>
-#include </Users/Gottfried_Lab/PycharmProjects/PyOlfactometer/Arduino/Passive_odor_presentation/libraries/Voyeur_serial_stream_tools.pde>
+#include </Users/Gottfried_Lab/PycharmProjects/PyOlfa/Arduino/Passive_odor_presentation/libraries/Voyeur_timer_lib.pde>
+#include </Users/Gottfried_Lab/PycharmProjects/PyOlfa/Arduino/Passive_odor_presentation/libraries/IoFunctions_external_timers.pde>
+#include </Users/Gottfried_Lab/PycharmProjects/PyOlfa/Arduino/Passive_odor_presentation/libraries/Voyeur_serial_stream_tools.pde>
 
 #define LED_PIN   13
 
@@ -467,8 +467,8 @@ void loop() {
       case 89: // stop execution. 89 = 'Y';
         state = 0;
         Serial.print(3);
-        Serial.print(F(","));
-        Serial.print(F("*"));
+        Serial.print(",");
+        Serial.print("*");
         break;
 
       case 90: // Start trial state (i.e. need to read from the serial port)

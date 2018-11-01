@@ -109,8 +109,8 @@ void RunSerialCom(int code) {
           user_command_buffer[user_command_buffer_index++] = c;
       }
       Serial.print(2);
-      Serial.print(F(","));
-      Serial.println(F("*"));
+      Serial.print(",");
+      Serial.println("*");
       break;
 
 
@@ -121,8 +121,8 @@ void RunSerialCom(int code) {
       if( trial_done_flag && send_last_packet ){
         // send end code
         Serial.print(5);
-        Serial.print(F(","));
-        Serial.println(F("*"));
+        Serial.print(",");
+        Serial.println("*");
         trial_done_flag = false;
         send_last_packet = false;
         break;
@@ -132,7 +132,7 @@ void RunSerialCom(int code) {
         send_last_packet = true;
       }
       Serial.print(6);
-      Serial.print(F(","));
+      Serial.print(",");
 
       // transmit sniff signal.
       // TODO: Check for sniff buffer overflow
@@ -227,17 +227,17 @@ void RunSerialCom(int code) {
       
       // SEND HEADER INFORMATION: NUMBER STREAMS, NUMBER OF PACKETS PER STREAM
       Serial.print(6); // number of streams to send
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(4); //number of bytes for mstream 1 (packet_sent_time)
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(2); //number of bytes for sniff_samples (single integer)
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(sniff_bytes); //number of bytes for actual sniff stream.
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(lick1bytes);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(lick2bytes);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.println(mribytes); //number of bytes for actual mri stream.
 
       // end line here so that python will read and parse the handshake. Then...
@@ -277,20 +277,20 @@ void RunSerialCom(int code) {
    case 88: // trail ended and the trial details were requested
       // tell the monitor about the trial details
       Serial.print(4);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(parameters_received_time);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(trial_start);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(trial_end);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(final_valve_onset);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(response);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(first_lick);
-      Serial.print(F(","));
-      Serial.println(F("*"));
+      Serial.print(",");
+      Serial.println("*");
       break;
 
     case 90: // Start trial state (i.e. need to read from the serial port)
@@ -307,16 +307,16 @@ void RunSerialCom(int code) {
       free_water = readULongFromBytes();
 
       Serial.print(2);
-      Serial.print(F(","));
-      Serial.println(F("*"));
+      Serial.print(",");
+      Serial.println("*");
       break;
 
     case 91:
       Serial.print(6);
-      Serial.print(F(","));
+      Serial.print(",");
       Serial.print(protocolName);
-      Serial.print(F(","));
-      Serial.println(F("*"));
+      Serial.print(",");
+      Serial.println("*");
       break;
 
   }
