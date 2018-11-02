@@ -10,6 +10,7 @@ License: GPLv3 or earlier version of GPL if user chooses so.
 
 import itertools
 import time, serial, os
+import socket
 from serial import Serial, SerialException
 
 # Change the gui toolkit from the default to qt version 4
@@ -760,10 +761,7 @@ class Olfactometers(ApplicationWindow):
         )
 
         # monitor is the Voyeur Monitor that handles the COM port
-        if os.name == 'nt':
-            olf_port = conf['serial']['window']['port2']
-        else:
-            olf_port = conf['serial']['osx']['port2']
+        olf_port = conf['serial'][socket.gethostname()]['port2']
 
         if not OLFA:
             self.monitor = None

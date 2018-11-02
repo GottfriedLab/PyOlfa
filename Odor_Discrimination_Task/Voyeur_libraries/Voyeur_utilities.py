@@ -159,8 +159,7 @@ def parse_rig_config(configFilename=''):
         configFilename = os.environ.get("RIG_CONFIG")
         #if it didnt find it there, it tries the legacy default
         if configFilename < 1:
-            configFilename='C:\\voyeur_rig_config\\Voyeur_rig_config.conf'
-            print "No RIG_CONFIG os variable, trying with legacy default " + configFilename
+            print "No RIG_CONFIG os variable"
     
     if os.path.isfile(configFilename)== False:
         print "RIG CONFIGURATION FILE  " + configFilename + " IS NOT PRESENT"
@@ -171,7 +170,7 @@ def parse_rig_config(configFilename=''):
     conf = ConfigObj(configFilename)
     rigName = conf['rig_params']['rig_name']
     # get the water valve duration information and make the durations into integers.
-    valveDurations = conf['rig_params']['water_durations'].dict()
+    valveDurations = conf['water_durations'][rigName].dict()
     for k,v in valveDurations.iteritems():
         for k2,v2 in valveDurations[k].iteritems():
             valveDurations[k][k2] = int(v2)

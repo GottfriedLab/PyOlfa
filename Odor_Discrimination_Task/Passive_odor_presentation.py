@@ -7,7 +7,7 @@ platform. This includes the protocol behaviour as well as visualization (GUI).
 '''
 
 
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 #  Python library imports
 from numpy import append, arange, hstack, nan, isnan, copy, negative
@@ -456,56 +456,54 @@ class Passive_odor_presentation(Protocol):
     session_group = Group(
                           HGroup(
                                  Item('stamp', style='readonly',
-                                      width=-140),
+                                      width=-200),
                                  Item('protocol_name', style='readonly'),
+                                ),
+                          HGroup(
+                                 Item('rig', style='readonly', width=-217),
+                                 Item('odorant_trigger_phase', style='readonly')
                                 ),
                           HGroup(
                                  Item('mouse',
                                       enabled_when='not monitor.running',
-                                      width=-70),
+                                      width=-196),
                                  Item('session',
-                                      enabled_when='not monitor.running',
-                                      width=-70),
-                                 Item('rig',
-                                      enabled_when='not monitor.running',
-                                      full_size=False,
-                                      springy=True,
-                                      resizable=False),
-                                 ),
-                          HGroup(
-                                 Item('enable_blocks', width=-70),
-                                 Item('odorant_trigger_phase', style='readonly')
-                                 ),
-                          HGroup(
-                                 Item('rewards', style='readonly', width=-70),
-                                 Item('rewards_left', style='readonly', width=-70),
-                                 Item('rewards_right', style='readonly', width=-70),
-                                 ),
-                          HGroup(
-                                 Item('percent_correct', style='readonly',width=-70),
-                                 Item('percent_left_correct', style='readonly',width=-70),
-                                 Item('percent_right_correct', style='readonly',width=-70),
+                                      enabled_when='not monitor.running'),
                                  ),
                           label='Session',
                           show_border=True
                           )
+
+    result_group = Group(HGroup(
+                                 Item('rewards', style='readonly', width=-91),
+                                 Item('rewards_left', style='readonly', width=-90),
+                                 Item('rewards_right', style='readonly'),
+                                 ),
+                          HGroup(
+                                 Item('percent_correct', style='readonly',width=-50),
+                                 Item('percent_left_correct', style='readonly',width=-50),
+                                 Item('percent_right_correct', style='readonly'),
+                                 ),
+                          label='Session',
+                          show_border=True
+                          )
+
     
     current_trial_group = Group(
                                 HGroup(
-                                       Item('trial_number', style='readonly', width=-135),
+                                       Item('trial_number', style='readonly', width=-100),
                                        Item('trial_type', style='readonly'),
                                        ),
                                 HGroup(
-                                       Item('odorant', style='readonly', width=-170),
-                                       # Item('odor_valve', style='readonly'),
+                                       Item('odorant', style='readonly', width=-146),
+                                       Item('odor_valve', style='readonly'),
                                        ),
                                 HGroup(
-                                       Item('nitrogen_flow', style='readonly', width=-147),
+                                       Item('nitrogen_flow', style='readonly', width=-116),
                                        Item('air_flow', style='readonly')
                                        ),
                                 HGroup(
-                                        Item('response_window', style='readonly', width=-52),
-                                        Item('inter_trial_interval', style='readonly', width=-50),
+                                        Item('inter_trial_interval', style='readonly'),
                                 ),
                                 label='Current Trial',
                                 show_border=True
@@ -533,8 +531,8 @@ class Passive_odor_presentation(Protocol):
                        editor=ComponentEditor(),
                        show_label=False,
                        height=125),
-                  label='Performance',
-                  show_border=False,
+                       label='Performance',
+                       show_border=False,
                   )
 
     stream = Group(
@@ -542,8 +540,8 @@ class Passive_odor_presentation(Protocol):
                         editor=ComponentEditor(),
                         show_label=False,
                         height=250),
-                   label='Streaming',
-                   show_border=False,
+                        label='Streaming',
+                        show_border=False,
                    )
 
     # Arrangement of all the component groups.
@@ -551,13 +549,14 @@ class Passive_odor_presentation(Protocol):
                 VGroup(
                        HGroup(control, arduino_group),
                        HGroup(session_group,
+                              result_group,
                               current_trial_group,
                               next_trial_group),
                        stream,
                        event,
                        show_labels=True,
                        ),
-                title='Voyeur - Left/Right protocol',
+                title='Two Alternative Choice Protocol',
                 width=1300,
                 height=768,
                 x=30,
