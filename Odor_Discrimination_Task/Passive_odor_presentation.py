@@ -106,9 +106,8 @@ class Passive_odor_presentation(Protocol):
     INITIAL_TRIALS_TYPE = 1 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
     INITIAL_TRIALS = 0
 
-    # Number of samples for HRF
+    # MRI sampleing rate
     TR = 1000
-    HRF_SAMPLES = 1
     
     # Mapping of stimuli categories to code sent to Arduino.
     stimuli_categories = {
