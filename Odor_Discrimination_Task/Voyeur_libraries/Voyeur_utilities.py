@@ -163,9 +163,6 @@ def parse_rig_config(configFilename=''):
     
     if os.path.isfile(configFilename)== False:
         print "RIG CONFIGURATION FILE  " + configFilename + " IS NOT PRESENT"
-    else:
-        #Tell if the file was found, whether it was the default or the provided one
-        print "RIG CONFIGURATION FILE  " + configFilename + " FOUND"
         
     conf = ConfigObj(configFilename)
     rigName = conf['rig_params']['rig_name']

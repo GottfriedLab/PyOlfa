@@ -2,12 +2,13 @@
 Created on 2015_08_04 @author: Admir Resulaj
 Modified on 2016_06_24 @author: Pei-Ching Chang
 
-This protocol implements a passive odor paradigm for the Voyeur/Arduino 
+This protocol implements a passive odor and two alternative choice paradigm for the Voyeur/Arduino
 platform. This includes the protocol behaviour as well as visualization (GUI).
 '''
 
 
 #!/usr/bin/env python2.7
+# Passive_odor_presentation.py
 
 #  Python library imports
 from numpy import append, arange, hstack, nan, isnan, copy, negative
@@ -65,6 +66,9 @@ warnings.filterwarnings("ignore")
 class Passive_odor_presentation(Protocol):
     """Protocol and GUI for a 2AFC behavioral paradigm."""
 
+    # Protocol name
+    PROTOCOL_NAME = 'Two Alternative Choice'
+
     # Streaming plot window size in milliseconds.
     STREAM_SIZE = 5000
     
@@ -106,24 +110,31 @@ class Passive_odor_presentation(Protocol):
     INITIAL_TRIALS_TYPE = 1 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
     INITIAL_TRIALS = 0
 
+    # [Upper, lower] bounds in milliseconds when choosing an
+    # inter trial interval for trials when there was no false alarm.
+    ITI_BOUNDS_CORRECT = [5000, 6000]
+    # [Upper, lower] bounds for random inter trial interval assignment
+    # when the animal DID false alarm. Value is in milliseconds.
+    ITI_BOUNDS_FALSE_ALARM = [5000, 6000]
+
     # MRI sampleing rate
     TR = 1000
     
     # Mapping of stimuli categories to code sent to Arduino.
-    stimuli_categories = {
+    STIMULI_CATEGORIES = {
                           "Right": 0,
                           "Left" : 1,
                           }
 
     # Dictionary of all stimuli defined (arranged by category), with each
     # category having a list of stimuli
-    stimuli = {
-               stim_category: [] for stim_category in stimuli_categories.keys()
+    STIMULI = {
+               stim_category: [] for stim_category in STIMULI_CATEGORIES.keys()
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    odorant_trigger_phase_code = 0
-    sniff_phases = {
+    ODORANT_TRIGGER_PHASE = 0
+    SNIFF_PHASES = {
                     0: "Inhalation",
                     1: "Exhalation",
                     2: "PhaseIndependent"
@@ -168,8 +179,8 @@ class Passive_odor_presentation(Protocol):
     #--------------------------------------------------------------------------
     trial_number = Int(0, label='Trial Number')
     # Mapped trait. trial type keyword: code sent to Arduino.
-    trial_type = Trait(stimuli_categories.keys()[0],
-                       stimuli_categories,
+    trial_type = Trait(STIMULI_CATEGORIES.keys()[0],
+                       STIMULI_CATEGORIES,
                        label="Trial type")
     water_duration1 = Int(0, label="Left water duration")
     water_duration2 = Int(0, label="Right water duration")
@@ -184,7 +195,7 @@ class Passive_odor_presentation(Protocol):
     lick_grace_period = Int(0, label="Lick grace period")
     # Sniff phase from the onset of which the latency of triggering the light
     # stimulation pulse/pulses is measured. Default value is "Inhalation".
-    odorant_trigger_phase = Str(sniff_phases[odorant_trigger_phase_code], label="Odorant onset after")
+    sniff_phase = Str(SNIFF_PHASES[ODORANT_TRIGGER_PHASE], label="Odorant onset after")
     
     # Other trial parameters. These are not recording in the database file.
     # but are displayed and/or computed trial to trial.
@@ -205,10 +216,10 @@ class Passive_odor_presentation(Protocol):
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
     # inter trial interval for trials when there was no false alarm.
-    iti_bounds  = [5000, 6000]
+    iti_bounds = [0, 0]
     # [Upper, lower] bounds for random inter trial interval assignment 
     # when the animal DID false alarm. Value is in milliseconds.
-    iti_bounds_false_alarm = [5000, 6000]
+    iti_bounds_false_alarm = [0, 0]
     # Current overall session performance.
     total_available_rewards = Int(0)
     total_available_rewards_left = Int(0)
@@ -460,7 +471,7 @@ class Passive_odor_presentation(Protocol):
                                 ),
                           HGroup(
                                  Item('rig', style='readonly', width=-217),
-                                 Item('odorant_trigger_phase', style='readonly')
+                                 Item('sniff_phase', style='readonly')
                                 ),
                           HGroup(
                                  Item('mouse',
@@ -483,7 +494,7 @@ class Passive_odor_presentation(Protocol):
                                  Item('percent_left_correct', style='readonly',width=-50),
                                  Item('percent_right_correct', style='readonly'),
                                  ),
-                          label='Session',
+                          label='Result',
                           show_border=True
                           )
 
@@ -555,7 +566,7 @@ class Passive_odor_presentation(Protocol):
                        event,
                        show_labels=True,
                        ),
-                title='Two Alternative Choice Protocol',
+                title= "Passive Odor Presentation",
                 width=1300,
                 height=768,
                 x=30,
@@ -608,7 +619,7 @@ class Passive_odor_presentation(Protocol):
             y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
         else:
             y_range = DataRange1D(low=-40, high=40)  # for training non-mri sniff sensor
-        plot.fixed_preferred_size = (100, 50)
+        plot.fixed_preferred_size = (100, 25)
         plot.value_range = y_range
         plot.y_axis.visible = True
         plot.x_axis.visible = False
@@ -879,8 +890,8 @@ class Passive_odor_presentation(Protocol):
 
     def _build_stimulus_set(self):
 
-        self.stimuli["Right"] = []
-        self.stimuli["Left"] = []
+        self.STIMULI["Right"] = []
+        self.STIMULI["Left"] = []
         self.no_stimuli = []
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
@@ -918,13 +929,13 @@ class Passive_odor_presentation(Protocol):
                                     trial_type = "None"
                                     )
 
-            self.stimuli['Left'].append(left_stimulus)
-            self.stimuli['Right'].append(right_stimulus)
+            self.STIMULI['Left'].append(left_stimulus)
+            self.STIMULI['Right'].append(right_stimulus)
         self.no_stimuli.append(no_stimulus)
 
 
         print "---------- Stimuli changed ----------"
-        for stimulus in self.stimuli.values():
+        for stimulus in self.STIMULI.values():
             for stim in stimulus:
                 print stim
         print "Blocksize:", self.block_size
@@ -1235,7 +1246,7 @@ class Passive_odor_presentation(Protocol):
                         max_rewards,
                         final_valve_duration,
                         response_window,
-                        odorant_trigger_phase_code,
+                        odorant_trigger_phase,
                         lick_grace_period,
                         tr,
                         licking_training,
@@ -1253,7 +1264,7 @@ class Passive_odor_presentation(Protocol):
         self.mouse = str(mouse)
         self.session = session
         
-        self.protocol_name = self.__class__.__name__
+        self.protocol_name = self.PROTOCOL_NAME
         
         # Get a configuration object with the default settings.
         voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/Odor_Discrimination_Task/Voyeur_libraries/','Voyeur_rig_config.conf')
@@ -1273,7 +1284,11 @@ class Passive_odor_presentation(Protocol):
         self.tr = self.TR
         self.licking_training = self.LICKING_TRAINING *10
         self.lick_grace_period = self.LICKING_GRACE_PERIOD
-        
+        self.stimuli_categories = self.STIMULI_CATEGORIES
+        self.iti_bounds = self.ITI_BOUNDS_CORRECT
+        self.iti_bounds_false_alarm = self.ITI_BOUNDS_FALSE_ALARM
+        self.odorant_trigger_phase = self.ODORANT_TRIGGER_PHASE
+
         self.block_size = self.BLOCK_SIZE
         self.rewards = 0
         self.rewards_left = 0
@@ -1356,7 +1371,7 @@ class Passive_odor_presentation(Protocol):
                     "final_valve_duration"          : (2, db.Int, self.final_valve_duration),
                     "response_window"               : (3, db.Int, self.response_window),
                     "inter_trial_interval"          : (4, db.Int, self.inter_trial_interval),
-                    "odorant_trigger_phase_code"    : (5, db.Int, self.odorant_trigger_phase_code),
+                    "odorant_trigger_phase"         : (5, db.Int, self.odorant_trigger_phase),
                     "trial_type_id"                 : (6, db.Int, self.current_stimulus.id),
                     "lick_grace_period"             : (7, db.Int, self.lick_grace_period),
                     "tr"                            : (8, db.Int, self.tr),
@@ -1404,7 +1419,7 @@ class Passive_odor_presentation(Protocol):
             "final_valve_duration"          : db.Int,
             "response_window"               : db.Int,
             "inter_trial_interval"          : db.Int,
-            "odorant_trigger_phase_code"    : db.Int,
+            "odorant_trigger_phase"         : db.Int,
             "trial_type_id"                 : db.Int,
             "lick_grace_period"             : db.Int,
             "tr"                            : db.Int,
@@ -1892,27 +1907,27 @@ class Passive_odor_presentation(Protocol):
         if self.trial_number < self.INITIAL_TRIALS :
             block_size = self.INITIAL_TRIALS + 1 - self.trial_number
             if self.INITIAL_TRIALS_TYPE == 0:
-                self.stimulus_block = [self.stimuli["Left"][0]] * block_size
+                self.stimulus_block = [self.STIMULI["Left"][0]] * block_size
             elif self.INITIAL_TRIALS_TYPE == 1:
-                self.stimulus_block = [self.stimuli["Right"][0]] * block_size
+                self.stimulus_block = [self.STIMULI["Right"][0]] * block_size
 
             elif self.INITIAL_TRIALS_TYPE == 2: # right then left
-                self.stimulus_block = [self.stimuli["Left"][0]] * (block_size/2)
+                self.stimulus_block = [self.STIMULI["Left"][0]] * (block_size/2)
                 if self.INITIAL_TRIALS and self.trial_number <= self.INITIAL_TRIALS/2:
-                    self.stimulus_block = [self.stimuli["Right"][0]] * (block_size / 2)
+                    self.stimulus_block = [self.STIMULI["Right"][0]] * (block_size / 2)
             elif self.INITIAL_TRIALS_TYPE == 3: # left then right
-                self.stimulus_block = [self.stimuli["Right"][0]] * (block_size/2)
+                self.stimulus_block = [self.STIMULI["Right"][0]] * (block_size/2)
                 if self.INITIAL_TRIALS and self.trial_number <= self.INITIAL_TRIALS/2:
-                    self.stimulus_block = [self.stimuli["Left"][0]] * (block_size / 2)
+                    self.stimulus_block = [self.STIMULI["Left"][0]] * (block_size / 2)
             return
 
 
         # Randomize seed from system clock.
         seed()
-        if not len(self.stimuli):
+        if not len(self.STIMULI):
             raise ValueError("Stimulus set is empty! Cannot generate a block.")
         # Grab all stimuli arrays from our stimuli sets.
-        list_all_stimuli_arrays = self.stimuli.values()
+        list_all_stimuli_arrays = self.STIMULI.values()
         # Flatten the list so that we have a 1 dimensional array of items
         self.stimulus_block = list(chain.from_iterable(list_all_stimuli_arrays))
                 
@@ -1923,7 +1938,7 @@ class Passive_odor_presentation(Protocol):
                 print "WARNING! Block size is not a multiple of stimulus set:"\
                     "\nBlock size: %d\t Stimulus set size: %d \tConstructed " \
                     " Stimulus block size: %d" \
-                    %(self.block_size, len(self.stimuli.values()),
+                    %(self.block_size, len(self.STIMULI.values()),
                       len(self.stimulus_block))
             
         # Shuffle the set.
@@ -2029,7 +2044,7 @@ class Passive_odor_presentation(Protocol):
             if self.next_trial_number > self.INITIAL_TRIALS:
                 # Randomly choose a stimulus.
                 self.next_stimulus = choice([stimulus] for stimulus in
-                                                 self.stimuli.values())
+                                                 self.STIMULI.values())
         
         self.next_trial_type = self.next_stimulus.trial_type
         nextodorvalve = self.next_stimulus.odorvalves[0]
@@ -2066,7 +2081,7 @@ if __name__ == '__main__':
     response_window = 3000
     lick_grace_period = 100
     max_rewards = 200
-    odorant_trigger_phase_code = 2
+    odorant_trigger_phase = 2
     inter_trial_interval = 2000
 
     # protocol parameter defaults
@@ -2090,7 +2105,7 @@ if __name__ == '__main__':
                                          max_rewards,
                                          final_valve_duration,
                                          response_window,
-                                         odorant_trigger_phase_code,
+                                         odorant_trigger_phase,
                                          lick_grace_period,
                                          tr,
                                          licking_training,
