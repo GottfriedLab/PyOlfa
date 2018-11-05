@@ -2,8 +2,9 @@
 Created on 2011-03-11, 
 Uportdated on 2015-08-07
 version: 1.2
-
 @author: Admir Resulaj
+
+Modified on 2016-06-24 @author: Pei-Ching Chang
 
 License: GPLv3 or earlier version of GPL if user chooses so.
 '''
@@ -38,7 +39,7 @@ from configobj import ConfigObj
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
-OLFA = False
+OLFA = True
 
 # Imports for listing the communication ports available by the OS.
 if os.name == 'nt':
@@ -589,9 +590,9 @@ class Olfactometer(QWidget):
         flows_on = True
         for mfc in self.mfcs:
             if hasattr(mfc,'last_poll_time'):
-                time_elapsed = time.time() - mfc.last_poll_time
-            else:
-                time_elapsed = time.time()
+                    time_elapsed = time.time() - mfc.last_poll_time
+            else :
+                raise Exception('{0} MFC has no last poll time'.format(mfc.name))
 
             if time_elapsed > 2.1 * self.polling_interval:  #TODO: don't hardcode this, although this is ~2 timer ticks.
                 raise Exception('MFC polling is not ok.')
@@ -991,7 +992,7 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
     command = "analogRead {0:d} {1:d}".format(self.olfactometer_address,
                                               self.auxilary_analog_read_pin)
     
-    # Try for 1000 ms. If we fail, return None
+    # Try for 250 ms. If we fail, return None
     while (time.clock() - start_time < 0.25):
         confirmation = self.olfa_communication.send_command(command)
 
