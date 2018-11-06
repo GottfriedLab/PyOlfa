@@ -84,8 +84,8 @@ class Passive_odor_presentation(Protocol):
     # Flag to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
     LICKING_TRAINING = 1
-    SIDE_PREFERENCE_TRIALS = 2
-    MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 2
+    SIDE_PREFERENCE_TRIALS = 10
+    MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 0
 
     # Grace period after FV open where responses are recorded but not scored.
     LICKING_GRACE_PERIOD = 0
@@ -133,7 +133,7 @@ class Passive_odor_presentation(Protocol):
                }
     
     # Mapping of sniff phase name to code sent to Arduino.
-    ODORANT_TRIGGER_PHASE = 0
+    ODORANT_TRIGGER_PHASE = 2
     SNIFF_PHASES = {
                     0: "Inhalation",
                     1: "Exhalation",

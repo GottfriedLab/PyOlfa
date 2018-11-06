@@ -305,7 +305,9 @@ void RunSerialCom(int code) {
       tr = readULongFromBytes();
       licking_training = readULongFromBytes();
       free_water = readULongFromBytes();
-
+      water_duration1 = readULongFromBytes();
+      water_duration2 = readULongFromBytes();
+      
       Serial.print(2);
       Serial.print(",");
       Serial.println("*");
