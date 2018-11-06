@@ -5,6 +5,7 @@ import binascii
 import glob
 import db
 import platform
+import socket
 from Queue import Queue
 from PyQt4.QtCore import QThread
 from numpy import array, int32, float32, append, ndarray, int16
@@ -69,11 +70,10 @@ class SerialPort(object):
         # or further forwarded from Arduino to an acquisition device
         self.send_trial_number = send_trial_number
         self.config = ConfigObj(configFile)
-        self.os = self.config['platform']['os']
         serial = self.config['serial']
         baudrate = serial['baudrate']
         self.board = self.config['platform'][board]
-        serialport  = serial[self.os][port]
+        serialport  = serial[socket.gethostname()][port]
         if os.path.exists(serialport) or platform.win32_ver()[0] != '':
             self.serial = Serial(serialport, baudrate, timeout=1)
         else:

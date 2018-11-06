@@ -110,7 +110,7 @@ class Monitor(HasTraits):
         self.persistor = Persistor()
 
         # config
-        self.configFile = os.environ.get("VOYEUR_CONFIG")
+        self.configFile = os.environ.get("Voyeur_config")
 
         # serial
         self.serial_queue1 = SerialCallThread(monitor=self, max_queue_size=1)        

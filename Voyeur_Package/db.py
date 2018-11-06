@@ -19,8 +19,8 @@ Time = tables.Time64Col()
 Bool = tables.BoolCol()
 
 # Array types
-IntArray = array([], dtype = int32)
-FloatArray = array([], dtype = float32)
+IntArray = array([], dtype=int32)
+FloatArray = array([], dtype=float32)
 Int16Array = array([], dtype = int16)
 
 ExperimentGroup = tables.group
