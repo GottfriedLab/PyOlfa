@@ -906,24 +906,21 @@ class Passive_odor_presentation(Protocol):
         for i in range(len(odorvalves_left_stimulus)):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_right_stimulus)],
-                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
-                                    flows=[(0, 0)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
                                     )
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_left_stimulus)],
-                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
-                                    flows=[(0, 0)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
                                     trial_type = "Left"
                                     )
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
-                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
-                                    flows=[(0, 0)],  # [(AIR, Nitrogen)]
+                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
                                     trial_type = "None"
@@ -1872,12 +1869,9 @@ class Passive_odor_presentation(Protocol):
             return
 
         for i in range(1, self.olfactometer.deviceCount + 1):
-            # self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
-            # self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
-            # self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
-            self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, 0)
-            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, 0)
-            self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 0)
+            self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
+            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
+            self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
 
     def end_of_trial(self):
         # set new trial parameters
