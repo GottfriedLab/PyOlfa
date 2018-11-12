@@ -84,12 +84,12 @@ class Passive_odor_presentation(Protocol):
     # Flag to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
     LICKING_TRAINING = 1
-    SIDE_PREFERENCE_TRIALS = 10
+    SIDE_PREFERENCE_TRIALS = 200
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 0
 
     # Grace period after FV open where responses are recorded but not scored.
     LICKING_GRACE_PERIOD = 0
-    RESPONSE_DURATION = 1000
+    RESPONSE_DURATION = 2000
 
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.
@@ -107,15 +107,15 @@ class Passive_odor_presentation(Protocol):
     # Number of initial trials to help motivating the subject to start
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
     # half of initial trials will be right and the rest is left
-    INITIAL_TRIALS_TYPE = 1 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS_TYPE = 0 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
     INITIAL_TRIALS = 0
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [5000, 6000]
+    ITI_BOUNDS_CORRECT = [10000, 12000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [5000, 6000]
+    ITI_BOUNDS_FALSE_ALARM = [15000, 17000]
 
     # MRI sampleing rate
     TR = 1000
@@ -137,7 +137,7 @@ class Passive_odor_presentation(Protocol):
     SNIFF_PHASES = {
                     0: "Inhalation",
                     1: "Exhalation",
-                    2: "PhaseIndependent"
+                    2: "Independent"
                     }
 
     #--------------------------------------------------------------------------
@@ -157,7 +157,7 @@ class Passive_odor_presentation(Protocol):
     # Current trial odorant name.
     odorant = Str("Current odorant", label="Odor")
     # Current vial number
-    odor_valve = Int(label="Valve")
+    odorvalve = Int(label="Valve")
 
     
     # Session parameters do not change from trial to trial. These
@@ -167,9 +167,9 @@ class Passive_odor_presentation(Protocol):
     enable_blocks = Bool(True, label="Arrange stimuli in blocks")
 
     # Rewards given from start of session.
-    rewards = Int(0, label="Total rewards")
-    rewards_left = Int(0, label="Left rewards")
-    rewards_right = Int(0, label="Right rewards")
+    rewards = Int(0, label="Rewards")
+    rewards_left = Int(0, label="LeftRewards")
+    rewards_right = Int(0, label="RightRewards")
     max_rewards = Int(400, label="Reward until")   # maximum rewards allowed.
     
     #-------------------------------------------------------------------------- 
@@ -227,9 +227,9 @@ class Passive_odor_presentation(Protocol):
     corrects = Int(0)
     corrects_left = Int(0)
     corrects_right = Int(0)
-    percent_correct = Float(0, label="Total percent correct")
-    percent_left_correct = Float(0, label="Left percent correct")
-    percent_right_correct = Float(0, label="Right percent correct")
+    percent_correct = Float(0, label="Correct%")
+    percent_left_correct = Float(0, label="LeftCorrect%")
+    percent_right_correct = Float(0, label="RightCorrect%")
     left_side_odor_test = [0]*5
     right_side_odor_test = [0]*5
     side_preference_trials = 0
@@ -466,7 +466,7 @@ class Passive_odor_presentation(Protocol):
     session_group = Group(
                           HGroup(
                                  Item('stamp', style='readonly',
-                                      width=-200),
+                                      width=-195),
                                  Item('protocol_name', style='readonly'),
                                 ),
                           HGroup(
@@ -485,13 +485,13 @@ class Passive_odor_presentation(Protocol):
                           )
 
     result_group = Group(HGroup(
-                                 Item('rewards', style='readonly', width=-91),
-                                 Item('rewards_left', style='readonly', width=-90),
+                                 Item('rewards', style='readonly', width=-67),
+                                 Item('rewards_left', style='readonly', width=-66),
                                  Item('rewards_right', style='readonly'),
                                  ),
                           HGroup(
-                                 Item('percent_correct', style='readonly',width=-50),
-                                 Item('percent_left_correct', style='readonly',width=-50),
+                                 Item('percent_correct', style='readonly',width=-60),
+                                 Item('percent_left_correct', style='readonly',width=-60),
                                  Item('percent_right_correct', style='readonly'),
                                  ),
                           label='Result',
@@ -505,8 +505,8 @@ class Passive_odor_presentation(Protocol):
                                        Item('trial_type', style='readonly'),
                                        ),
                                 HGroup(
-                                       Item('odorant', style='readonly', width=-146),
-                                       Item('odor_valve', style='readonly'),
+                                       Item('odorant', style='readonly', width=-157),
+                                       Item('odorvalve', style='readonly'),
                                        ),
                                 HGroup(
                                        Item('nitrogen_flow', style='readonly', width=-116),
@@ -521,15 +521,15 @@ class Passive_odor_presentation(Protocol):
 
     next_trial_group = Group(
                              HGroup(
-                                    Item('next_trial_number', style='readonly', width=-65),
+                                    Item('next_trial_number', style='readonly', width=-100),
                                     Item('next_trial_type', style='readonly'),
                                     ),
                              HGroup(
-                                    Item('next_odorant', style="readonly", width=-100),
-                                    # Item('odor_valve', style='readonly'),
+                                    Item('next_odorant', style="readonly", width=-157),
+                                    Item('odorvalve', style='readonly'),
                                     ),
                              HGroup(
-                                    Item('nitrogen_flow', style='readonly', width=-77),
+                                    Item('nitrogen_flow', style='readonly', width=-116),
                                     Item('air_flow', style='readonly')
                              ),
                              label='Next Trial',
@@ -895,24 +895,21 @@ class Passive_odor_presentation(Protocol):
         self.no_stimuli = []
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Octanal', 1)['key']
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Acetophenone', 1)['key']
         odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
-        # odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
-        # odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Blank2', 1)['key']
         odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
-
 
         # randomly select the vial from the list for stimulation block. it may be same or different vials
         for i in range(len(odorvalves_left_stimulus)):
             right_stimulus = LaserTrainStimulus(
-                                    odorvalves = [choice(odorvalves_right_stimulus)],
+                                    odorvalves = odorvalves_right_stimulus,
                                     flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
                                     )
             left_stimulus = LaserTrainStimulus(
-                                    odorvalves = [choice(odorvalves_left_stimulus)],
+                                    odorvalves = odorvalves_left_stimulus,
                                     flows=[(900, 100)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
@@ -1500,7 +1497,7 @@ class Passive_odor_presentation(Protocol):
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
 
         if (response == 4):  # a right false alarm
-            if self.ree_water:
+            if self.free_water:
                 self.rewards += 1
                 self.rewards_right += 1
             self.total_available_rewards += 1
@@ -1534,11 +1531,11 @@ class Passive_odor_presentation(Protocol):
         
         # Use the current_stimulus parameters to calculate values that we'll record when we start the trial.
         self._setflows()
-        odorvalve = self.current_stimulus.odorvalves[0]
-        valveConc = self.olfas[0][odorvalve][1]
+        self.odorvalve = self.current_stimulus.odorvalves[0]
+        valveConc = self.olfas[0][self.odorvalve][1]
         self.nitrogen_flow = self.current_stimulus.flows[0][1]
         self.air_flow = self.current_stimulus.flows[0][0]
-        self.odorant = self.olfas[0][odorvalve][0]
+        self.odorant = self.olfas[0][self.odorvalve][0]
 
         # Calculate the performance to the odor discrimination
         self.percent_correct = round((float(self.corrects) / float(self.total_available_rewards)) * 100, 2)

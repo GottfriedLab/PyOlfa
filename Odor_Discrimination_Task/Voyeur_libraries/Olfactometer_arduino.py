@@ -140,7 +140,7 @@ class Valvegroup(QWidget, QObject):
             buttonlayout.addWidget(button)
         # Normally open vial button text.
         self.valves.button(background_vial).setText("Background")
-        self.valves.button(background_vial).setMinimumSize(100,35)
+        self.valves.button(background_vial).setMinimumSize(150,35)
         buttonlayout.addStretch(1)
         self.ON_valve = 0
         # Turn off any vials that may be open.
@@ -323,13 +323,13 @@ class Valvegroup(QWidget, QObject):
         """ Change the stylesheet of the button according to toggled state. """
         
         if is_toggled:
-            button.setStyleSheet("background-color: rgb(10,100,200);\
+            button.setStyleSheet("background-color: wheat;\
                                   border-radius: 5px; border-style: outset;\
-                                  border-width: 2px; border-color: cyan")
+                                  border-width: 2px; border-color: darkBlue")
         else:
-            button.setStyleSheet("background-color: rgb(10,200,250);\
+            button.setStyleSheet("background-color: rgb(255,255,255);\
                                   border-radius: 5px; border-style: outset;\
-                                  border-width: 2px; border-color: cyan")
+                                  border-width: 2px; border-color: darkBlue")
         
     
     def set_background_valve(self, valve_state=1):
@@ -804,7 +804,7 @@ class Olfactometers(ApplicationWindow):
             # add the layout container to the main window widget
             panel.setLayout(grid)
             palette = QtGui.QPalette(panel.palette())
-            palette.setColor(QtGui.QPalette.Window, QtGui.QColor('blue'))
+            palette.setColor(QtGui.QPalette.Window, QtGui.QColor('darkseagreen'))
             # set palette brushes here
             panel.setPalette(palette)
             panel.setAutoFillBackground(True)
