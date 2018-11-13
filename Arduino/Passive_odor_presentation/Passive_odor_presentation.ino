@@ -7,9 +7,9 @@
 
 // include the library code:
 #include <SPI.h>
-#include </Users/Gottfried_Lab/PycharmProjects/PyOlfa/Arduino/Voyeur_timer_lib.pde>
-#include </Users/Gottfried_Lab/PycharmProjects/PyOlfa/Arduino/IoFunctions_external_timers.pde>
-#include </Users/Gottfried_Lab/PycharmProjects/PyOlfa/Arduino/Voyeur_serial_stream_tools.pde>
+#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\Arduino\Voyeur_timer_lib.pde>
+#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\Arduino\IoFunctions_external_timers.pde>
+#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\Arduino\Voyeur_serial_stream_tools.pde>
 
 #define LED_PIN   13
 
@@ -68,7 +68,7 @@
 // Valves attached to the behaviour box and their solenoid channels.
 #define WATERVALVE1 SOLENOID6
 #define WATERVALVE2 SOLENOID7
-#define FINALVALVE SOLENOID4
+#define FINALVALVE SOLENOID5
 #define FV_T DIGITAL8
 #define FAKE_MRI DIGITAL6
 #define MRI_TRIGGER DIGITAL7
@@ -173,10 +173,10 @@ void setup() {
   pinMode(DIGITAL2, OUTPUT);
   pinMode(DIGITAL3, OUTPUT);
   pinMode(DIGITAL4, OUTPUT);
-  pinMode(DIGITAL5, OUTPUT);
+  pinMode(FV_T, OUTPUT);
   pinMode(FAKE_MRI, OUTPUT);
   pinMode(MRI_TRIGGER, INPUT);
-  pinMode(FV_T, OUTPUT);
+  pinMode(DIGITAL8, OUTPUT);
   pinMode(DIGITAL9, OUTPUT);
   pinMode(DIGITAL10, OUTPUT);
   pinMode(DIGITAL11, OUTPUT);
@@ -212,18 +212,18 @@ void setup() {
   digitalWrite(DIGITAL2, LOW);
   digitalWrite(DIGITAL3, LOW);
   digitalWrite(DIGITAL4, LOW);
-  digitalWrite(DIGITAL5,LOW);
-//	digitalWrite(DIGITAL6,LOW);
-//  digitalWrite(DIGITAL7,LOW);
-//  digitalWrite(DIGITAL8, LOW);
+  //	digitalWrite(DIGITAL5,LOW);
+  //	digitalWrite(DIGITAL6,LOW);
+  //  digitalWrite(DIGITAL7,LOW);
+  digitalWrite(DIGITAL8, LOW);
   digitalWrite(DIGITAL9, LOW);
   digitalWrite(DIGITAL10, LOW);
   digitalWrite(DIGITAL11, LOW);
   digitalWrite(DIGITAL12, LOW);
   digitalWrite(DIGITAL13, LOW);
   digitalWrite(DIGITAL14, LOW);
-//  digitalWrite(DIGITAL15,LOW);
-//  digitalWrite(DIGITAL16,LOW);
+  //  digitalWrite(DIGITAL15,LOW);
+  //  digitalWrite(DIGITAL16,LOW);
   digitalWrite(CUE1, LOW);
   digitalWrite(CUE2, LOW);
   digitalWrite(CUE3, LOW);
