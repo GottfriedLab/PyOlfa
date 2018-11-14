@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9f5944fa-06a0-4e7e-96cd-4e16631747d2" name="Default Changelist" comment="">
+    <list default="true" id="9f5944fa-06a0-4e7e-96cd-4e16631747d2" name="Default Changelist" comment="no mri trigger. commit for debug">
       <change beforePath="$PROJECT_DIR$/.idea/PyOlfa.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PyOlfa.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Arduino/IoFunctions_external_timers.pde" beforeDir="false" afterPath="$PROJECT_DIR$/Arduino/IoFunctions_external_timers.pde" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Arduino/Passive_odor_presentation/Passive_odor_presentation.ino" beforeDir="false" afterPath="$PROJECT_DIR$/Arduino/Passive_odor_presentation/Passive_odor_presentation.ino" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Odor_Discrimination_Task/Passive_odor_presentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Odor_Discrimination_Task/Passive_odor_presentation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Odor_Discrimination_Task/Voyeur_libraries/Olfactometer_arduino.py" beforeDir="false" afterPath="$PROJECT_DIR$/Odor_Discrimination_Task/Voyeur_libraries/Olfactometer_arduino.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -15,49 +17,50 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/PyOlfa$Passive_odor_presentation.coverage" NAME="Passive_odor_presentation Coverage Results" MODIFIED="1542125561203" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Odor_Discrimination_Task" />
+    <SUITE FILE_PATH="coverage/PyOlfa$Passive_odor_presentation.coverage" NAME="Passive_odor_presentation Coverage Results" MODIFIED="1542217903596" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Odor_Discrimination_Task" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-971835763">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="12" />
+          <entry key="project.closed" value="15" />
           <entry key="project.open.time.13" value="1" />
           <entry key="project.open.time.2" value="1" />
-          <entry key="project.open.time.3" value="6" />
+          <entry key="project.open.time.3" value="7" />
           <entry key="project.open.time.39" value="1" />
-          <entry key="project.open.time.4" value="2" />
+          <entry key="project.open.time.4" value="3" />
           <entry key="project.open.time.5" value="1" />
+          <entry key="project.open.time.6" value="1" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="13" />
+          <entry key="project.opened" value="16" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="conf" value="4" />
           <entry key="ino" value="2" />
-          <entry key="pde" value="16" />
-          <entry key="py" value="36" />
+          <entry key="pde" value="17" />
+          <entry key="py" value="39" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="PLAIN_TEXT" value="22" />
-          <entry key="Python" value="36" />
+          <entry key="PLAIN_TEXT" value="23" />
+          <entry key="Python" value="39" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="568" />
           <entry key="conf" value="214" />
-          <entry key="py" value="1364" />
-          <entry key="txt" value="374" />
+          <entry key="py" value="1456" />
+          <entry key="txt" value="424" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="588" />
-          <entry key="Python" value="1932" />
+          <entry key="PLAIN_TEXT" value="638" />
+          <entry key="Python" value="2024" />
         </counts>
       </usages-collector>
     </session>
@@ -67,8 +70,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Odor_Discrimination_Task/Passive_odor_presentation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="27" selection-start-line="10" selection-start-column="2" selection-end-line="10" selection-end-column="27" />
+            <state relative-caret-position="212">
+              <caret line="260" column="14" selection-start-line="260" selection-start-column="11" selection-end-line="260" selection-end-column="14" />
               <folding>
                 <element signature="e#365#433#0" expanded="true" />
               </folding>
@@ -76,20 +79,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Odor_Discrimination_Task/Voyeur_libraries/Olfactometer_arduino.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Arduino/IoFunctions_external_timers.pde">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="263">
-              <caret line="846" column="46" lean-forward="true" selection-start-line="846" selection-start-column="46" selection-end-line="846" selection-end-column="46" />
+            <state relative-caret-position="75">
+              <caret line="5" column="10" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="62" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/anaconda2/lib/python2.7/site-packages/pyface/ui/qt4/application_window.py">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Odor_Discrimination_Task/Voyeur_libraries/Olfactometer_arduino.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="915">
-              <caret line="72" selection-start-line="72" selection-end-line="72" />
+            <state relative-caret-position="195">
+              <caret line="815" column="36" selection-start-line="815" selection-start-column="36" selection-end-line="815" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -98,20 +101,9 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>time_elapsed</find>
-      <find>platform</find>
-      <find>gott</find>
-      <find>mfctextbo</find>
-      <find>mfctextbox.tex</find>
-      <find>mfctextbox</find>
-      <find>Style</find>
-      <find>color</find>
-      <find>set</find>
-      <find>odor valve</find>
       <find>button</find>
       <find>title</find>
       <find>lcd</find>
-      <find>QSlider</find>
       <find>900</find>
       <find>QtCore.Qt.Vertical</find>
       <find>qdial</find>
@@ -120,14 +112,25 @@
       <find>font</find>
       <find>create_contents</find>
       <find>menu_bar</find>
-      <find>_create_contents</find>
       <find>menu_bar_manager</find>
       <find>assive_odor_presentation</find>
       <find>Passive_odor_presentatio</find>
       <find>self.control</find>
-      <find>control</find>
       <find>Olfactometers</find>
+      <find>control</find>
       <find>Passive_odor_presentation</find>
+      <find>QSlider</find>
+      <find>QtGui</find>
+      <find>splitter</find>
+      <find>qtgui</find>
+      <find>deviceCount</find>
+      <find>addWidget</find>
+      <find>QWidget</find>
+      <find>_create_contents</find>
+      <find>_olfactometer_button_fired</find>
+      <find>olfactometer_button_fired</find>
+      <find>olfactometer_button</find>
+      <find>del</find>
     </findStrings>
     <replaceStrings>
       <replace>STIMULI_CATEGORIES</replace>
@@ -145,10 +148,10 @@
       <list>
         <option value="$USER_HOME$/anaconda2/lib/python2.7/site-packages/voyeur/arduino.py" />
         <option value="$PROJECT_DIR$/Odor_Discrimination_Task/Voyeur_libraries/Voyeur_utilities.py" />
-        <option value="$PROJECT_DIR$/Odor_Discrimination_Task/Passive_odor_presentation.py" />
         <option value="$PROJECT_DIR$/Odor_Discrimination_Task/Voyeur_libraries/Voyeur_rig_config.conf" />
-        <option value="$PROJECT_DIR$/Arduino/IoFunctions_external_timers.pde" />
         <option value="$PROJECT_DIR$/Arduino/Passive_odor_presentation/Passive_odor_presentation.ino" />
+        <option value="$PROJECT_DIR$/Arduino/IoFunctions_external_timers.pde" />
+        <option value="$PROJECT_DIR$/Odor_Discrimination_Task/Passive_odor_presentation.py" />
         <option value="$PROJECT_DIR$/Odor_Discrimination_Task/Voyeur_libraries/Olfactometer_arduino.py" />
       </list>
     </option>
@@ -160,7 +163,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="53" />
+    <option name="x" value="54" />
     <option name="y" value="23" />
     <option name="width" value="1995" />
     <option name="height" value="1129" />
@@ -191,6 +194,17 @@
               <item name="PyOlfa" type="462c0819:PsiDirectoryNode" />
               <item name="Arduino" type="462c0819:PsiDirectoryNode" />
               <item name="Passive_odor_presentation" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PyOlfa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PyOlfa" type="462c0819:PsiDirectoryNode" />
+              <item name="Odor_Discrimination_Task" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PyOlfa" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PyOlfa" type="462c0819:PsiDirectoryNode" />
+              <item name="Odor_Discrimination_Task" type="462c0819:PsiDirectoryNode" />
+              <item name="Voyeur_libraries" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -321,7 +335,14 @@
       <option name="project" value="LOCAL" />
       <updated>1541520497774</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="no mri trigger. commit for debug">
+      <created>1542125838932</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1542125838932</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TodoView">
@@ -337,12 +358,12 @@
     <frame x="54" y="23" width="1995" height="1129" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.28059396" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.28878647" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.40983605" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.31436837" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -351,7 +372,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.27000964" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Terminal" order="11" weight="0.19768563" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.25554484" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.43780136" />
       <window_info anchor="bottom" id="Messages" order="13" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -375,7 +396,8 @@
     <MESSAGE value="Fix the bug to pull info from MFC" />
     <MESSAGE value="move the arduino pde files to different folder" />
     <MESSAGE value="update voyeur package" />
-    <option name="LAST_COMMIT_MESSAGE" value="update voyeur package" />
+    <MESSAGE value="no mri trigger. commit for debug" />
+    <option name="LAST_COMMIT_MESSAGE" value="no mri trigger. commit for debug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -484,13 +506,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Arduino/IoFunctions_external_timers.pde">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="62" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Arduino/Passive_odor_presentation/Passive_odor_presentation.ino">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -505,17 +520,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Arduino/IoFunctions_external_timers.pde">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="10" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$USER_HOME$/anaconda2/lib/python2.7/site-packages/pyface/ui/qt4/application_window.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="915">
-          <caret line="72" selection-start-line="72" selection-end-line="72" />
+        <state relative-caret-position="585">
+          <caret line="120" selection-start-line="120" selection-end-line="120" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda2/lib/python2.7/site-packages/pyface/i_window.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="144" selection-start-line="144" selection-end-line="144" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Odor_Discrimination_Task/Passive_odor_presentation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="27" selection-start-line="10" selection-start-column="2" selection-end-line="10" selection-end-column="27" />
+        <state relative-caret-position="212">
+          <caret line="260" column="14" selection-start-line="260" selection-start-column="11" selection-end-line="260" selection-end-column="14" />
           <folding>
             <element signature="e#365#433#0" expanded="true" />
           </folding>
@@ -524,8 +553,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Odor_Discrimination_Task/Voyeur_libraries/Olfactometer_arduino.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="263">
-          <caret line="846" column="46" lean-forward="true" selection-start-line="846" selection-start-column="46" selection-end-line="846" selection-end-column="46" />
+        <state relative-caret-position="195">
+          <caret line="815" column="36" selection-start-line="815" selection-start-column="36" selection-end-line="815" selection-end-column="36" />
         </state>
       </provider>
     </entry>

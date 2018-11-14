@@ -1171,7 +1171,6 @@ class Passive_odor_presentation(Protocol):
     def _olfactometer_button_fired(self):
         if(self.olfactometer != None):
             self.olfactometer.open()
-            self.olfactometer._create_contents(self)
 
     def _final_valve_button_fired(self):
         if self.monitor.recording:
