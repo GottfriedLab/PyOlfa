@@ -103,6 +103,7 @@ unsigned long tr = 0;
 unsigned long reward_delay = 0;
 unsigned long licking_training = 0;
 boolean free_water = false;
+unsigned long initial_free_water_trials = 0;
 
 // Water reward durations in milliseconds. Not used in this particular paradigm.
 unsigned long water_duration1 = 0;
@@ -370,12 +371,18 @@ void loop() {
         trial = trial + 1;
         random_chance = random (0, 11);
         if (trial_type == LEFT) {
-          if (licking_training > random_chance &&  free_water == 1)  {
+          if (trial <= initial_free_water_trials &&  free_water == 1) {
+              valveOnTimer(WATERVALVE1, water_duration1);
+          }
+          else if (licking_training > random_chance &&  free_water == 1)  {
             valveOnTimer(WATERVALVE1, water_duration1);
           }
           state = 8;
         }
         else if (trial_type == RIGHT) {
+          if (trial <= initial_free_water_trials &&  free_water == 1) {
+              valveOnTimer(WATERVALVE2, water_duration2);
+          }
           if (licking_training > random_chance &&  free_water == 1)  {
             valveOnTimer(WATERVALVE2, water_duration2);
           }

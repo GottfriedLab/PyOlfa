@@ -305,6 +305,7 @@ void RunSerialCom(int code) {
       tr = readULongFromBytes();
       licking_training = readULongFromBytes();
       free_water = readULongFromBytes();
+      initial_free_water_trials = readULongFromBytes();
       water_duration1 = readULongFromBytes();
       water_duration2 = readULongFromBytes();
       

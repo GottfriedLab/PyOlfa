@@ -83,7 +83,8 @@ class Passive_odor_presentation(Protocol):
 
     # Flag to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
-    LICKING_TRAINING = 1
+    INITIAL_FREE_WATER_TRAILS = 20
+    LICKING_TRAINING = 0.5
     SIDE_PREFERENCE_TRIALS = 200
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 0
 
@@ -234,6 +235,7 @@ class Passive_odor_presentation(Protocol):
     right_side_odor_test = [0]*5
     side_preference_trials = 0
     free_water = Bool(False)
+    initial_free_water_trials = Int(0)
         
     #--------------------------------------------------------------------------
     # Variables for the event.
@@ -1171,7 +1173,7 @@ class Passive_odor_presentation(Protocol):
     def _olfactometer_button_fired(self):
         if(self.olfactometer != None):
             self.olfactometer.open()
-            self.olfactometer._create_contents(self)
+            # self.olfactometer._create_contents(self)
 
     def _final_valve_button_fired(self):
         if self.monitor.recording:
@@ -1245,6 +1247,7 @@ class Passive_odor_presentation(Protocol):
                         tr,
                         licking_training,
                         free_water,
+                        initial_free_water_trials,
                         water_duration1,
                         water_duration2,
                         **kwtraits):
@@ -1278,6 +1281,7 @@ class Passive_odor_presentation(Protocol):
         self.tr = self.TR
         self.licking_training = self.LICKING_TRAINING *10
         self.lick_grace_period = self.LICKING_GRACE_PERIOD
+        self.initial_free_water_trials = self.INITIAL_FREE_WATER_TRAILS
         self.stimuli_categories = self.STIMULI_CATEGORIES
         self.iti_bounds = self.ITI_BOUNDS_CORRECT
         self.iti_bounds_false_alarm = self.ITI_BOUNDS_FALSE_ALARM
@@ -1371,8 +1375,9 @@ class Passive_odor_presentation(Protocol):
                     "tr"                            : (8, db.Int, self.tr),
                     "licking_training"              : (9, db.Int, self.licking_training),
                     "free_water"                    : (10, db.Int, self.free_water),
-                    "water_duration1"               : (11, db.Int, self.water_duration1),
-                    "water_duration2"               : (12, db.Int, self.water_duration2),
+                    "initial_free_water_trials"     : (11, db.Int, self.initial_free_water_trials),
+                    "water_duration1"               : (12, db.Int, self.water_duration1),
+                    "water_duration2"               : (13, db.Int, self.water_duration2),
         }
    
         return TrialParameters(
@@ -1419,6 +1424,7 @@ class Passive_odor_presentation(Protocol):
             "tr"                            : db.Int,
             "licking_training"              : db.Int,
             "free_water"                    : db.Int,
+            "initial_free_water_trials"     : db.Int,
             "water_duration1"               : db.Int,
             "water_duration2"               : db.Int,
         }
@@ -2022,7 +2028,9 @@ class Passive_odor_presentation(Protocol):
         # Grab next stimulus.
         if self.enable_blocks:
             if self.LICKING_TRAINING > 0:
-                if self.side_preference_trials > 0:
+                if self.trial_number <= self.initial_free_water_trials:
+                    self.free_water = True
+                elif self.side_preference_trials > 0:
                     self.free_water = True
                     self.side_preference_trials -= 1
                 else:
@@ -2086,6 +2094,7 @@ if __name__ == '__main__':
     tr = 1000
     licking_training = 0
     free_water = 0
+    initial_free_water_trials = 20
     water_duration1 = 150
     water_duration2 = 150
     
@@ -2104,6 +2113,7 @@ if __name__ == '__main__':
                                          tr,
                                          licking_training,
                                          free_water,
+                                         initial_free_water_trials,
                                          water_duration1,
                                          water_duration2
                                          )
