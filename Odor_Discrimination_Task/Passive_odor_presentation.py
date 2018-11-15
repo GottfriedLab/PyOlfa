@@ -895,8 +895,8 @@ class Passive_odor_presentation(Protocol):
         self.no_stimuli = []
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Acetophenone', 1)['key'][0]
-        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key'][0]
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Acetophenone', 1)['key']
+        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
         odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
 
         # randomly select the vial from the list for stimulation block. it may be same or different vials
@@ -1852,7 +1852,7 @@ class Passive_odor_presentation(Protocol):
             return
         for i in range(self.olfactometer.deviceCount):
             olfa = self.olfas[i]
-            olfavalve = olfa[self.current_stimulus.odorvalves[i]]
+            olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
 
             if olfavalve != 0:
                 self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) # Set the vial
@@ -1875,7 +1875,7 @@ class Passive_odor_presentation(Protocol):
         if(self.olfactometer is not None):
             for i in range(self.olfactometer.deviceCount):
                 olfa = self.olfas[i]
-                olfavalve = olfa[self.current_stimulus.odorvalves[i]]
+                olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
                 if olfavalve != 0:
                     self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve, 0)
 
@@ -1948,11 +1948,11 @@ class Passive_odor_presentation(Protocol):
                     break
 
 
-        # print "\nGenerated new stimulus block:"
-        # for i in range(len(self.stimulus_block)):
-        #     trial = i + 1
-        #     print "\t", trial, "\t", self.stimulus_block[i]
-        # print "\n"
+        print "\nGenerated new stimulus block:"
+        for i in range(len(self.stimulus_block)):
+            trial = i + 1
+            print "\t", trial, "\t", self.stimulus_block[i]
+        print "\n"
     
     def calculate_current_trial_parameters(self):
         """ Calculate the parameters for the currently scheduled trial.
@@ -2038,9 +2038,10 @@ class Passive_odor_presentation(Protocol):
                 # Randomly choose a stimulus.
                 self.next_stimulus = choice([stimulus] for stimulus in
                                                  self.STIMULI.values())
-
+        
         self.next_trial_type = self.next_stimulus.trial_type
-        self.next_odorant = str(self.next_stimulus.odorvalves[0])
+        nextodorvalve = self.next_stimulus.odorvalves[0]
+        self.next_odorant = self.olfas[0][nextodorvalve][0]
         self.next_air_flow = self.next_stimulus.flows[0][0]
         self.next_nitrogen_flow = self.next_stimulus.flows[0][1]
 

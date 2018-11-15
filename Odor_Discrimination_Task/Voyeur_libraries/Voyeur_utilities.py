@@ -174,12 +174,12 @@ def parse_rig_config(configFilename=''):
 
     # get the olfactometer information and make the vials integers and the concentrations floats.
     if len(conf['olfactometers']) > 0 :
-        olfa1temp = conf['olfactometers']['olfa_1']['vial'].dict()
+        olfa1temp = conf['olfactometers']['olfa_1'].dict()
 
         olfa1 = {}
         for k, v in olfa1temp.iteritems():
             if k.isdigit():
-                olfa1[int(k)] = (v[0],float(v[1]))
+                olfa1[int(k)] = (v[0],float(v[1]),int(v[2]))
             else:
                 try:
                     olfa1[k] = int(v) #for serial numbers and clean date records.
@@ -187,11 +187,11 @@ def parse_rig_config(configFilename=''):
                     olfa1[k] = v
         
     if len(conf['olfactometers']) > 1 :
-        olfa2temp = conf['olfactometers']['olfa_2']['vial'].dict()
+        olfa2temp = conf['olfactometers']['olfa_2'].dict()
         olfa2 = {}
         for k, v in olfa2temp.iteritems():
             if k.isdigit():
-                olfa2[int(k)] = (v[0],float(v[1]))
+                olfa2[int(k)] = (v[0],float(v[1]),int(v[2]))
             else:
                 olfa2[k] = int(v) #for serial numbers and clean date records.
         olfas = (olfa1,olfa2)
@@ -227,19 +227,24 @@ def find_odor_vial(olfas,desiredOdorString,desiredOdorConc):
         desiredOdorString = desiredOdorString.lower() #make lower case for comparison.
     if desiredOdorConc != -1: # if this is true, the method will return all of the vials containing the odor, regardless of concentration.
         desiredOdorConc = float(desiredOdorConc)
-
+        
+    concTolerance = 1e-7
     matchKeys = [] 
     matchOlfas = []
     matchValves = []
     olfaIdx = 0
 
     for olfa in olfas: #go through each olfactometer passed.
-        matchKeys.append([k for k, v in olfa.iteritems() if v[0].lower() == desiredOdorString and float(v[1]) == desiredOdorConc]) #keep a list of the matching physical vials
-        matchOlfas.append(olfaIdx) # indices of the olfactometers that they are in.
-
+        for k,v in olfa.iteritems(): # go through each item in the olfactometer dictionary
+            if type(k) is int: #ignore the metadata keys, only look at the vials, which are denoted as integers.
+                if v[0].lower() == desiredOdorString: #see if the odor strings match (case insensitive)
+                    if abs(float(v[1]) - desiredOdorConc) < concTolerance or desiredOdorConc == -1: # see if the vial is the concentration that you asked for. If desiredOdorConc == 0, return all the vials with the odor
+                        matchKeys.append(k) #keep a list of the matching logical vials
+                        matchValves.append(v[2])  # keep a list of the matching physical vials
+                        matchOlfas.append(olfaIdx) # and the indices of the olfactometers that they are in.
         olfaIdx += 1 # keep track of which olfa you're on.
 
-    return {'key':matchKeys,'olfa':matchOlfas}
+    return {'key':matchKeys,'olfa':matchOlfas,'valve':matchValves}
     
 
 def get_git_hash(protocol):
