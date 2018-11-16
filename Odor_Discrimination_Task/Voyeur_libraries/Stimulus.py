@@ -62,7 +62,7 @@ class LaserStimulus(object):
     
     #An id number for the stimulus
     id = int()
-    
+
     #Stimulus description
     description = str()
     
@@ -100,8 +100,8 @@ class LaserStimulus(object):
 
     def __str__(self,indent = ''):
         return indent+ '\ttrial type: ' +str(self.trial_type) + \
-                "\todor valves: " + str(self.odorvalves) + \
-                "\tmfc flows: " + str(self.flows)
+                "\t\todor valves: " + str(self.odorvalves[0]) + \
+                "\t\tmfc flows: " + str(self.flows[0])
         
 class LaserTrainStimulus(LaserStimulus):
     

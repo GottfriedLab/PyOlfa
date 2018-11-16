@@ -124,13 +124,8 @@ class Passive_odor_presentation(Protocol):
     STIMULI_CATEGORIES = {
                           "Right": 0,
                           "Left" : 1,
+                          "None": 2,
                           }
-
-    # Dictionary of all stimuli defined (arranged by category), with each
-    # category having a list of stimuli
-    STIMULI = {
-               stim_category: [] for stim_category in STIMULI_CATEGORIES.keys()
-               }
     
     # Mapping of sniff phase name to code sent to Arduino.
     ODORANT_TRIGGER_PHASE = 2
@@ -206,7 +201,7 @@ class Passive_odor_presentation(Protocol):
     # Next trial odorant name.
     next_odorant = Str("Next odorant", label="Odor")
     next_trial_number = Int(0, label='Trial Number')
-    next_odor_valve= Int(label="Valve")
+    next_odorvalve = Int(label="Valve")
     # Reusing of the trait definition for trial_type.
     # The values will be independent but valiadation is done the same way.
     next_trial_type = trial_type
@@ -526,7 +521,7 @@ class Passive_odor_presentation(Protocol):
                                     ),
                              HGroup(
                                     Item('next_odorant', style="readonly", width=-157),
-                                    Item('odorvalve', style='readonly'),
+                                    Item('next_odorvalve', style='readonly'),
                                     ),
                              HGroup(
                                     Item('nitrogen_flow', style='readonly', width=-116),
@@ -890,13 +885,16 @@ class Passive_odor_presentation(Protocol):
 
     def _build_stimulus_set(self):
 
-        self.STIMULI["Right"] = []
-        self.STIMULI["Left"] = []
-        self.no_stimuli = []
+        # Dictionary of all stimuli defined (arranged by category), with each
+        # category having a list of stimuli
+        self.STIMULI = {
+            stim_category: [] for stim_category in self.STIMULI_CATEGORIES.keys()
+        }
+
 
         # find all of the vials with the odor. ASSUMES THAT ONLY ONE OLFACTOMETER IS PRESENT!
-        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Acetophenone', 1)['key']
-        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key']
+        odorvalves_left_stimulus = find_odor_vial(self.olfas, 'Acetophenone', 1)['key'][0]
+        odorvalves_right_stimulus = find_odor_vial(self.olfas, 'Benzaldehyde', 1)['key'][0]
         odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
 
         # randomly select the vial from the list for stimulation block. it may be same or different vials
@@ -925,7 +923,7 @@ class Passive_odor_presentation(Protocol):
 
             self.STIMULI['Left'].append(left_stimulus)
             self.STIMULI['Right'].append(right_stimulus)
-        self.no_stimuli.append(no_stimulus)
+            # self.STIMULI['None'].append(no_stimulus)
 
 
         print "---------- Stimuli changed ----------"
@@ -1277,7 +1275,6 @@ class Passive_odor_presentation(Protocol):
         self.tr = self.TR
         self.licking_training = self.LICKING_TRAINING *10
         self.lick_grace_period = self.LICKING_GRACE_PERIOD
-        self.stimuli_categories = self.STIMULI_CATEGORIES
         self.iti_bounds = self.ITI_BOUNDS_CORRECT
         self.iti_bounds_false_alarm = self.ITI_BOUNDS_FALSE_ALARM
         self.odorant_trigger_phase = self.ODORANT_TRIGGER_PHASE
@@ -1346,8 +1343,7 @@ class Passive_odor_presentation(Protocol):
                    "air_flow"                       : self.air_flow,
                    "nitrogen_flow"                  : self.nitrogen_flow,
                    "odorant"                        : self.odorant,
-                   "stimulus_id"                    : self.current_stimulus.id,
-                   "description"                    : self.current_stimulus.description,
+                   "odorvalve"                      : self.odorvalve,
                    "trial_category"                 : self.trial_type,
                    "odorant_trigger_phase"          : self.odorant_trigger_phase,
                    "rewards"                        : self.rewards,
@@ -1390,8 +1386,7 @@ class Passive_odor_presentation(Protocol):
             "air_flow"                      : db.Float,
             "nitrogen_flow"                 : db.Float,
             "odorant"                       : db.String32,
-            "stimulus_id"                   : db.Int,
-            "description"                   : db.String32,
+            "odorvalve"                     : db.Int,
             "trial_category"                : db.String32,
             "odorant_trigger_phase"         : db.String32,
             "rewards"                       : db.Int,
@@ -1523,18 +1518,12 @@ class Passive_odor_presentation(Protocol):
         
         # Update a couple last parameters from the next_stimulus object, then make it the current_stimulus..
         self.calculate_current_trial_parameters()
-        self.current_stimulus = deepcopy(self.next_stimulus) # set the parameters for the following trial from nextstim.
         # Calculate a new next stim.
         self.calculate_next_trial_parameters() # generate a new nextstim for the next next trial. 
         # If actual next trial is determined by the trial that just finished, calculate next trial parameters can set current_stimulus.
         
         # Use the current_stimulus parameters to calculate values that we'll record when we start the trial.
         self._setflows()
-        self.odorvalve = self.current_stimulus.odorvalves[0]
-        valveConc = self.olfas[0][self.odorvalve][1]
-        self.nitrogen_flow = self.current_stimulus.flows[0][1]
-        self.air_flow = self.current_stimulus.flows[0][0]
-        self.odorant = self.olfas[0][self.odorvalve][0]
 
         # Calculate the performance to the odor discrimination
         self.percent_correct = round((float(self.corrects) / float(self.total_available_rewards)) * 100, 2)
@@ -1852,7 +1841,7 @@ class Passive_odor_presentation(Protocol):
             return
         for i in range(self.olfactometer.deviceCount):
             olfa = self.olfas[i]
-            olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
+            olfavalve = olfa[self.current_stimulus.odorvalves[i]]
 
             if olfavalve != 0:
                 self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) # Set the vial
@@ -1875,7 +1864,7 @@ class Passive_odor_presentation(Protocol):
         if(self.olfactometer is not None):
             for i in range(self.olfactometer.deviceCount):
                 olfa = self.olfas[i]
-                olfavalve = olfa[self.current_stimulus.odorvalves[i]][2]
+                olfavalve = olfa[self.current_stimulus.odorvalves[i]]
                 if olfavalve != 0:
                     self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve, 0)
 
@@ -1968,6 +1957,7 @@ class Passive_odor_presentation(Protocol):
         self.current_stimulus = self.next_stimulus
         self.trial_type = self.next_trial_type
         self.odorant = self.next_odorant
+        self.odorvalve = self.next_odorvalve
         self.nitrogen_flow = self.next_nitrogen_flow
         self.air_flow = self.next_air_flow
         
@@ -2040,8 +2030,8 @@ class Passive_odor_presentation(Protocol):
                                                  self.STIMULI.values())
         
         self.next_trial_type = self.next_stimulus.trial_type
-        nextodorvalve = self.next_stimulus.odorvalves[0]
-        self.next_odorant = self.olfas[0][nextodorvalve][0]
+        self.next_odorvalve = self.next_stimulus.odorvalves[0]
+        self.next_odorant = self.olfas[0][self.next_stimulus.odorvalves[0]][0]
         self.next_air_flow = self.next_stimulus.flows[0][0]
         self.next_nitrogen_flow = self.next_stimulus.flows[0][1]
 
