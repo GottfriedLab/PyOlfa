@@ -21,9 +21,9 @@ etsconfig.ETSConfig.toolkit = 'qt4'
 # Pyside import modules for gui elements.
 from PySide import QtCore, QtGui
 from PySide.QtCore import QObject, QTimer, SIGNAL
-from PySide.QtGui import QPalette, QHBoxLayout, QIcon
+from PySide.QtGui import QHBoxLayout
 from PySide.QtGui import QPushButton, QWidget, QGridLayout, QGroupBox
-from PySide.QtGui import QSlider, QLineEdit, QLCDNumber, QButtonGroup, QFont, QDial
+from PySide.QtGui import QLineEdit, QLCDNumber, QButtonGroup, QFont, QDial
 # Imports from the traits and traitsui packages.
 from pyface.action.api import Action, MenuManager, MenuBarManager, Separator
 from pyface.api import ApplicationWindow, GUI, information, error
@@ -39,7 +39,7 @@ from configobj import ConfigObj
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
-OLFA = False
+OLFA = True
 
 # Imports for listing the communication ports available by the OS.
 if os.name == 'nt':
@@ -140,7 +140,7 @@ class Valvegroup(QWidget, QObject):
             buttonlayout.addWidget(button)
         # Normally open vial button text.
         self.valves.button(background_vial).setText("3-WAY VALVE")
-        self.valves.button(background_vial).setMinimumSize(120,30)
+        self.valves.button(background_vial).setMinimumSize(120, 30)
         buttonlayout.addStretch(1)
         self.ON_valve = 0
         # Turn off any vials that may be open.
@@ -347,7 +347,7 @@ class Valvegroup(QWidget, QObject):
                 # Untoggle valve button.
                 self.valves.button(self.background_vial).setChecked(False)
                 self._paint_button(self.valves.button(self.background_vial),
-                                   False)
+                                   True)
                 self.ON_valve = 0  # No button pressed
                 # Reset exlusive state for the button group.
                 self.valves.setExclusive(True)
@@ -363,7 +363,7 @@ class Valvegroup(QWidget, QObject):
                 self.ON_valve = self.background_vial
                 self.valves.button(self.background_vial).setChecked(True)
                 self._paint_button(self.valves.button(self.background_vial),
-                                   True)
+                                   False)
             else:
                 return
         else:

@@ -12,24 +12,17 @@ platform. This includes the protocol behaviour as well as visualization (GUI).
 
 #  Python library imports
 from numpy import append, arange, hstack, nan, isnan, copy, negative
-from copy import deepcopy
 import time, os
-from numpy.random import permutation  #numpy >= 1.7 for choice function
 from random import choice, randint, shuffle, seed, random
-from datetime import datetime
-from configobj import ConfigObj
 from itertools import chain, groupby
-from PyQt4.QtCore import QThread
 
 # Voyeur imports
 import voyeur.db as db
 from voyeur.monitor import Monitor
 from voyeur.protocol import Protocol, TrialParameters, time_stamp
-from voyeur.exceptions import SerialException, ProtocolException
 
 # Olfactometer module
 from Olfactometer_arduino import Olfactometers
-from Olfactometer_arduino import SerialMonitor as olfa_monitor
 
 # Utilities
 from Stimulus import LaserStimulus, LaserTrainStimulus  # OdorStimulus
@@ -48,17 +41,14 @@ from chaco.api import ArrayPlotData, Plot, VPlotContainer,\
                                 DataRange1D
 from enable.component_editor import ComponentEditor
 from enable.component import Component
-from traitsui.editors import ButtonEditor, DefaultOverride
-from pyface.timer.api import Timer, do_after
-from pyface.api import FileDialog, OK, warning, error
-from chaco.tools.api import PanTool
+from traitsui.editors import ButtonEditor
+from pyface.timer.api import Timer
+from pyface.api import FileDialog, OK
 from chaco.axis import PlotAxis
 from chaco.scales.api import TimeScale
 from chaco.scales_tick_generator import ScalesTickGenerator
-from chaco.scales.api import CalendarScaleSystem
 from traits.has_traits import on_trait_change
 
-import os
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -380,7 +370,7 @@ class Passive_odor_presentation(Protocol):
                                  editor=ButtonEditor(
                                             label_value='olfactometer_label'),
                                  show_label=False),
-                            label='Application Control',
+                            label='ApplicationApplication Control',
                             show_border=True
                             ),
                      VGroup(
@@ -765,7 +755,7 @@ class Passive_odor_presentation(Protocol):
 
         # Change plot properties.
         plot.fixed_preferred_size = (100, 5)
-        y_range = DataRange1D(low=0.99, high=1.01)
+        y_range = DataRange1D(low=-0.5, high=1.5)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
@@ -901,21 +891,24 @@ class Passive_odor_presentation(Protocol):
         for i in range(len(odorvalves_left_stimulus)):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = odorvalves_right_stimulus,
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(0,0)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
                                     )
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = odorvalves_left_stimulus,
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(0, 0)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
                                     trial_type = "Left"
                                     )
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    # flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(0, 0)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
                                     trial_type = "None"
@@ -1841,10 +1834,9 @@ class Passive_odor_presentation(Protocol):
             return
         for i in range(self.olfactometer.deviceCount):
             olfa = self.olfas[i]
-            olfavalve = olfa[self.current_stimulus.odorvalves[i]]
 
-            if olfavalve != 0:
-                self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve) # Set the vial
+            if self.odorvalve != 0:
+                self.olfactometer.olfas[i].valves.set_odor_valve(self.odorvalve) # Set the vial
     
     
     def _setflows(self):
@@ -1854,19 +1846,20 @@ class Passive_odor_presentation(Protocol):
             return
 
         for i in range(1, self.olfactometer.deviceCount + 1):
-            self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
-            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
-            self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
+            # self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
+            # self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
+            # self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
+            self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, 0)
+            self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, 0)
+            self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 0)
 
     def end_of_trial(self):
         # set new trial parameters
         # turn off odorant valve
         if(self.olfactometer is not None):
             for i in range(self.olfactometer.deviceCount):
-                olfa = self.olfas[i]
-                olfavalve = olfa[self.current_stimulus.odorvalves[i]]
-                if olfavalve != 0:
-                    self.olfactometer.olfas[i].valves.set_odor_valve(olfavalve, 0)
+                if self.odorvalve != 0:
+                    self.olfactometer.olfas[i].valves.set_odor_valve(self.odorvalve)
 
     
     def generate_next_stimulus_block(self):
