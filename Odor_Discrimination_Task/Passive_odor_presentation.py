@@ -83,9 +83,9 @@ class Passive_odor_presentation(Protocol):
 
     # Flag to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
-    INITIAL_FREE_WATER_TRAILS = 20
-    LICKING_TRAINING = 0.5
-    SIDE_PREFERENCE_TRIALS = 200
+    INITIAL_FREE_WATER_TRIALS = 200
+    LICKING_TRAINING = 1
+    SIDE_PREFERENCE_TRIALS = 0
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 0
 
     # Grace period after FV open where responses are recorded but not scored.
@@ -1281,7 +1281,7 @@ class Passive_odor_presentation(Protocol):
         self.tr = self.TR
         self.licking_training = self.LICKING_TRAINING *10
         self.lick_grace_period = self.LICKING_GRACE_PERIOD
-        self.initial_free_water_trials = self.INITIAL_FREE_WATER_TRAILS
+        self.initial_free_water_trials = self.INITIAL_FREE_WATER_TRIALS
         self.stimuli_categories = self.STIMULI_CATEGORIES
         self.iti_bounds = self.ITI_BOUNDS_CORRECT
         self.iti_bounds_false_alarm = self.ITI_BOUNDS_FALSE_ALARM
@@ -2020,8 +2020,8 @@ class Passive_odor_presentation(Protocol):
             self.right_side_preference_index = self.right_side_odor_test[-5:].count(4) + self.right_side_odor_test[-5:].count(6)
             # Check if side preference exists and if not in side preference trials already
             if not self.free_water:
-                if (self.left_side_preference_index > self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS \
-                        or self.right_side_preference_index > self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS):
+                if (self.left_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS \
+                        or self.right_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS):
                     self.side_preference_trials = self.SIDE_PREFERENCE_TRIALS
 
         

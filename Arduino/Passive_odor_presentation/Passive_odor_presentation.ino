@@ -374,9 +374,9 @@ void loop() {
           if (trial <= initial_free_water_trials &&  free_water == 1) {
               valveOnTimer(WATERVALVE1, water_duration1);
           }
-          else if (licking_training > random_chance &&  free_water == 1)  {
-            valveOnTimer(WATERVALVE1, water_duration1);
-          }
+//        if (licking_training > random_chance &&  free_water == 1)  {
+//            valveOnTimer(WATERVALVE1, water_duration1);
+//          }
           state = 8;
         }
         else if (trial_type == RIGHT) {
