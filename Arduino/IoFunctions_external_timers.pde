@@ -3,7 +3,7 @@
 // 2013_06_05 CW - made a CueLowOnTimer for LED mask
 
 // Functions that handle comm. with I/O devices
-#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\Arduino\ADfunctions.pde>
+#include </Users/Gottfried_Lab/PycharmProjects/PyOlfa/Arduino/ADfunctions.pde>
 
 #define MAXCUES 162
 #define TRIGGER1 4
