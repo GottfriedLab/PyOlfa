@@ -22,7 +22,8 @@ from traits.api import (
     Int,
     Float,
     File,
-    Event
+    Event,
+    on_trait_change
     )
 
 
@@ -62,7 +63,7 @@ class Monitor(HasTraits):
 
     # Client
     persistor = Instance(object, factory=Persistor)
-    serial1 = Instance(object)
+    serial1 = Instance(object) #, factory=SerialPort, args=(os.environ['VOYEUR_CONFIG'], 'board1', 'port1'))
     serial_queue1 = Instance(object)
     protocol = Instance(object)
     database_file = File(None)
@@ -185,6 +186,8 @@ class Monitor(HasTraits):
             self._eventlock = True
             self.serial_queue1.enqueue(self.serial1.end_trial)
             self._eventlock = False
+            #self.serial_queue1.enqueue(self.persistor.close_database)
+            #self.serial_queue1.enqueue(self.serial1.close)
         self.persistor.close_database()
 
     def pause_acquisition(self, graceful = False):
