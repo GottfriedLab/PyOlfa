@@ -100,8 +100,8 @@ class LaserStimulus(object):
 
     def __str__(self,indent = ''):
         return indent+ '\ttrial type: ' +str(self.trial_type) + \
-                "\t\todor valves: " + str(self.odorvalves[0]) + \
-                "\t\tmfc flows: " + str(self.flows[0])
+                "\todor valves: " + str(self.odorvalves) + \
+                "\tmfc flows: " + str(self.flows)
         
 class LaserTrainStimulus(LaserStimulus):
     
