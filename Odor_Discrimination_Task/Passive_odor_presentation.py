@@ -81,12 +81,15 @@ class Passive_odor_presentation(Protocol):
     OLFA = 1
     FMRI = 0
 
-    # Flag to indicate whether we are training mouse to lick or not.
+    # Flag "LICKING_TRAINING" to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
+    # During initial free water trials, free water is 100% given to mice
+    # Afterwards, free water is given based on the licking training chance and during side preference
+    # When mice have a few missed responses\ on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 200
     LICKING_TRAINING = 1
-    SIDE_PREFERENCE_TRIALS = 0
-    MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 0
+    SIDE_PREFERENCE_TRIALS = 5
+    MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 3
 
     # Grace period after FV open where responses are recorded but not scored.
     LICKING_GRACE_PERIOD = 0
@@ -234,7 +237,7 @@ class Passive_odor_presentation(Protocol):
     left_side_odor_test = [0]*5
     right_side_odor_test = [0]*5
     side_preference_trials = 0
-    free_water = Bool(False)
+    free_water = Bool(False, label='FreeWater')
     initial_free_water_trials = Int(0)
         
     #--------------------------------------------------------------------------
@@ -515,7 +518,8 @@ class Passive_odor_presentation(Protocol):
                                        Item('air_flow', style='readonly')
                                        ),
                                 HGroup(
-                                        Item('inter_trial_interval', style='readonly'),
+                                        Item('inter_trial_interval', style='readonly',  width=-171),
+                                        Item('free_water')
                                 ),
                                 label='Current Trial',
                                 show_border=True
@@ -2018,17 +2022,18 @@ class Passive_odor_presentation(Protocol):
             # Count the performance of last trials when choice to the odor is wrong or lack of response
             self.left_side_preference_index = self.left_side_odor_test[-5:].count(3) + self.left_side_odor_test[-5:].count(5)
             self.right_side_preference_index = self.right_side_odor_test[-5:].count(4) + self.right_side_odor_test[-5:].count(6)
-            # Check if side preference exists and if not in side preference trials already
-            if not self.free_water:
-                if (self.left_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS \
-                        or self.right_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS):
-                    self.side_preference_trials = self.SIDE_PREFERENCE_TRIALS
+            # Check if side preference exists
+            if (self.left_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS \
+                    or self.right_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS):
+                self.side_preference_trials = self.SIDE_PREFERENCE_TRIALS
 
         
         # Grab next stimulus.
         if self.enable_blocks:
             if self.LICKING_TRAINING > 0:
                 if self.trial_number <= self.initial_free_water_trials:
+                    self.free_water = True
+                elif self.LICKING_TRAINING*10 <= randint(1, 10):
                     self.free_water = True
                 elif self.side_preference_trials > 0:
                     self.free_water = True

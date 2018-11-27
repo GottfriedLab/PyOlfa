@@ -68,7 +68,7 @@
 // Valves attached to the behaviour box and their solenoid channels.
 #define WATERVALVE1 SOLENOID6
 #define WATERVALVE2 SOLENOID7
-#define FINALVALVE SOLENOID5
+#define FINALVALVE SOLENOID2
 #define FV_T DIGITAL8
 #define FAKE_MRI DIGITAL6
 #define MRI_TRIGGER DIGITAL7
@@ -174,10 +174,10 @@ void setup() {
   pinMode(DIGITAL2, OUTPUT);
   pinMode(DIGITAL3, OUTPUT);
   pinMode(DIGITAL4, OUTPUT);
-  pinMode(FV_T, OUTPUT);
+  pinMode(DIGITAL5, OUTPUT);
   pinMode(FAKE_MRI, OUTPUT);
   pinMode(MRI_TRIGGER, INPUT);
-  pinMode(DIGITAL8, OUTPUT);
+  pinMode(FV_T, OUTPUT);
   pinMode(DIGITAL9, OUTPUT);
   pinMode(DIGITAL10, OUTPUT);
   pinMode(DIGITAL11, OUTPUT);
@@ -213,18 +213,18 @@ void setup() {
   digitalWrite(DIGITAL2, LOW);
   digitalWrite(DIGITAL3, LOW);
   digitalWrite(DIGITAL4, LOW);
-  //	digitalWrite(DIGITAL5,LOW);
-  //	digitalWrite(DIGITAL6,LOW);
-  //  digitalWrite(DIGITAL7,LOW);
-  digitalWrite(DIGITAL8, LOW);
+	digitalWrite(DIGITAL5,LOW);
+//	digitalWrite(DIGITAL6,LOW);
+//  digitalWrite(DIGITAL7,LOW);
+//  digitalWrite(DIGITAL8, LOW);
   digitalWrite(DIGITAL9, LOW);
   digitalWrite(DIGITAL10, LOW);
   digitalWrite(DIGITAL11, LOW);
   digitalWrite(DIGITAL12, LOW);
   digitalWrite(DIGITAL13, LOW);
   digitalWrite(DIGITAL14, LOW);
-  //  digitalWrite(DIGITAL15,LOW);
-  //  digitalWrite(DIGITAL16,LOW);
+//  digitalWrite(DIGITAL15,LOW);
+//  digitalWrite(DIGITAL16,LOW);
   digitalWrite(CUE1, LOW);
   digitalWrite(CUE2, LOW);
   digitalWrite(CUE3, LOW);
@@ -369,22 +369,15 @@ void loop() {
     case 7: // Grace period.
       if (totalms >= (final_valve_onset + lick_grace_period)) {
         trial = trial + 1;
-        random_chance = random (0, 11);
         if (trial_type == LEFT) {
-          if (trial <= initial_free_water_trials &&  free_water == 1) {
+          if ((free_water)) {
               valveOnTimer(WATERVALVE1, water_duration1);
           }
-//        if (licking_training > random_chance &&  free_water == 1)  {
-//            valveOnTimer(WATERVALVE1, water_duration1);
-//          }
           state = 8;
         }
         else if (trial_type == RIGHT) {
-          if (trial <= initial_free_water_trials &&  free_water == 1) {
+          if ((free_water)) {
               valveOnTimer(WATERVALVE2, water_duration2);
-          }
-          if (licking_training > random_chance &&  free_water == 1)  {
-            valveOnTimer(WATERVALVE2, water_duration2);
           }
           state = 9;
         }
