@@ -23,7 +23,7 @@ from PySide import QtCore, QtGui
 from PySide.QtCore import QObject, QTimer, SIGNAL
 from PySide.QtGui import QPalette, QHBoxLayout, QIcon
 from PySide.QtGui import QPushButton, QWidget, QGridLayout, QGroupBox
-from PySide.QtGui import QSlider, QLineEdit, QLCDNumber, QButtonGroup, QFont
+from PySide.QtGui import QLineEdit, QLCDNumber, QButtonGroup, QFont, QDial
 # Imports from the traits and traitsui packages.
 from pyface.action.api import Action, MenuManager, MenuBarManager, Separator
 from pyface.api import ApplicationWindow, GUI, information, error
@@ -133,14 +133,14 @@ class Valvegroup(QWidget, QObject):
             # Make buttons checkable.
             button.setCheckable(True)
             self._paint_button(button, False)
-            button.setMinimumSize(35, 35)
-            button.setFont(QFont("Verdana", 10, QFont.DemiBold))
+            button.setMinimumSize(30, 30)
+            button.setFont(QFont("Montserrat", 12))
             # Add button to the groupbox layout and button group object.
             self.valves.addButton(button, valve_number)
             buttonlayout.addWidget(button)
         # Normally open vial button text.
-        self.valves.button(background_vial).setText("Background")
-        self.valves.button(background_vial).setMinimumSize(150,35)
+        self.valves.button(background_vial).setText("3-WAY VALVE")
+        self.valves.button(background_vial).setMinimumSize(120, 30)
         buttonlayout.addStretch(1)
         self.ON_valve = 0
         # Turn off any vials that may be open.
@@ -323,13 +323,11 @@ class Valvegroup(QWidget, QObject):
         """ Change the stylesheet of the button according to toggled state. """
         
         if is_toggled:
-            button.setStyleSheet("background-color: wheat;\
-                                  border-radius: 5px; border-style: outset;\
-                                  border-width: 2px; border-color: darkBlue")
+            button.setStyleSheet("background-color: rgb(186,188,190);\
+                                  border-radius: 5px; border-style: outset")
         else:
-            button.setStyleSheet("background-color: rgb(255,255,255);\
-                                  border-radius: 5px; border-style: outset;\
-                                  border-width: 2px; border-color: darkBlue")
+            button.setStyleSheet("background-color: rgb(0,91,168);\
+                                  border-radius: 5px; border-style: outset")
         
     
     def set_background_valve(self, valve_state=1):
@@ -349,10 +347,10 @@ class Valvegroup(QWidget, QObject):
                 # Untoggle valve button.
                 self.valves.button(self.background_vial).setChecked(False)
                 self._paint_button(self.valves.button(self.background_vial),
-                                   False)
+                                   True)
                 self.ON_valve = 0  # No button pressed
                 # Reset exlusive state for the button group.
-                self.valves.setExclusive(True)
+                self.valves.setExclusive(False)
             else:
                 return            
         # No button is currently pressed in the GUI. Normally open valve may
@@ -415,7 +413,7 @@ class MFC(QWidget):
     """
     
     mfcgroup = Instance(QGroupBox)
-    mfcslider = Instance(QSlider)
+    mfcslider = Instance(QDial)
     mfctextbox = Instance(QLineEdit)
     mfcvalue = float()  # value of mfc rate we want
     olfa_communication = Instance(Monitor)  # reference to the Voyeur Monitor or serial connection to Arduino
@@ -461,7 +459,7 @@ class MFC(QWidget):
         # MFC group layout
         mfclayout = QGridLayout()
         # MFC slider
-        self.mfcslider = QSlider(QtCore.Qt.Vertical)
+        self.mfcslider = QDial()
         self.mfcslider.setMaximum(int(self.mfccapacity))
         # MFC line edit
         self.mfctextbox = QLineEdit()
@@ -796,15 +794,15 @@ class Olfactometers(ApplicationWindow):
             panel.start_mfc_polling()
             # define the layout
             grid = QGridLayout(panel)
-            grid.setSpacing(15)
-            grid.addWidget(panel.mfc1.mfcgroup, 0, 0, 2, 1)
-            grid.addWidget(panel.mfc2.mfcgroup, 0, 1, 2, 1)
-            grid.addWidget(panel.mfc3.mfcgroup, 0, 2, 2, 1)
-            grid.addWidget(panel.valves.valve_group_box, 1, 3, 1, 1)
+            grid.setSpacing(20)
+            grid.addWidget(panel.mfc1.mfcgroup, 0, 0)
+            grid.addWidget(panel.mfc2.mfcgroup, 0, 1)
+            grid.addWidget(panel.mfc3.mfcgroup, 0, 2)
+            grid.addWidget(panel.valves.valve_group_box, 1, 0, 1, 3)
             # add the layout container to the main window widget
             panel.setLayout(grid)
             palette = QtGui.QPalette(panel.palette())
-            palette.setColor(QtGui.QPalette.Window, QtGui.QColor('darkseagreen'))
+            palette.setColor(QtGui.QPalette.Window, QtGui.QColor(255, 194, 14))
             # set palette brushes here
             panel.setPalette(palette)
             panel.setAutoFillBackground(True)
@@ -816,7 +814,6 @@ class Olfactometers(ApplicationWindow):
     # this draws the center widget
     def _create_contents(self, parent):
         splitter = QtGui.QSplitter(parent)
-        splitter.setOrientation(QtCore.Qt.Vertical)
         for i in range(self.deviceCount):
             splitter.addWidget(self.olfas[i])
         return splitter
