@@ -133,20 +133,20 @@ class Valvegroup(QWidget, QObject):
             # Make buttons checkable.
             button.setCheckable(True)
             self._paint_button(button, False)
-            button.setMinimumSize(30, 30)
-            button.setFont(QFont("Montserrat", 12))
+            button.setMinimumSize(40, 40)
+            button.setFont(QFont("Montserrat", 10))
             # Add button to the groupbox layout and button group object.
             self.valves.addButton(button, valve_number)
             buttonlayout.addWidget(button)
         # Normally open vial button text.
         self.valves.button(background_vial).setText("3-WAY VALVE")
-        self.valves.button(background_vial).setMinimumSize(120, 30)
+        self.valves.button(background_vial).setMinimumSize(140, 40)
+        button.setFont(QFont("Montserrat", 10))
         buttonlayout.addStretch(1)
         self.ON_valve = 0
         # Turn off any vials that may be open.
-        # if monitor is not None:
         self.all_OFF()
-        self.valves.button(self.background_vial).setChecked(True)
+
         # Button clicked signal.
         self.connect(self.valves, SIGNAL('buttonClicked (int)'),
                      self._button_clicked)
@@ -186,7 +186,7 @@ class Valvegroup(QWidget, QObject):
         #     self._paint_button(self.valves.button(self.ON_valve), True)
         
     def _clear_valve_lockout(self):
-        """ Clear the lockout and allow new odor channels to open. """ 
+        """ Clear the lockout and allow new odor channels to open. """
         self.safe_to_open = True
         
     
@@ -229,7 +229,7 @@ class Valvegroup(QWidget, QObject):
             return False
         
         # Normally ON valve/vial. Jump to the method that handles the background
-        # channel.
+        # vial channel.
         if valve_number == self.background_vial:
             return self.set_background_valve(valve_state)
      
@@ -259,13 +259,12 @@ class Valvegroup(QWidget, QObject):
                             str(valve_number)
                 if self._send_command(command):
                     self.safe_to_open = False
-                    # if self.ON_valve != 0:
-                    #     self._paint_button(self.valves.button(self.ON_valve),
-                    #                        False)
                     self.ON_valve = valve_number
-                    button = self.valves.button(valve_number)
+                    button = self.valves.button(self.background_vial)
                     button.setChecked(True)
                     self._paint_button(button, True)
+                    self._paint_button(self.valves.button(valve_number), True)
+
                 else:
                     return False
             # Turn OFF a vial that is not ON? Notify of this happenence. 
@@ -286,9 +285,10 @@ class Valvegroup(QWidget, QObject):
                                  self._clear_valve_lockout)
                 self.ON_valve = self.background_vial
                 button = self.valves.button(self.background_vial)
-                button.setChecked(True)
-                self._paint_button(button, True)
+                button.setChecked(False)
+                self._paint_button(button, False)
                 self._paint_button(self.valves.button(valve_number), False)
+
             else:
                 return False
         return True
@@ -323,20 +323,22 @@ class Valvegroup(QWidget, QObject):
         """ Change the stylesheet of the button according to toggled state. """
         
         if is_toggled:
-            button.setStyleSheet("background-color: rgb(186,188,190);\
-                                  border-radius: 5px; border-style: outset")
+            button.setStyleSheet("background-color: rgb(186,188,190);"
+                                 "border-style: outset;"                                 
+                                 "border-radius: 10px;"
+                                 "color: black;")
         else:
-            button.setStyleSheet("background-color: rgb(0,91,168);\
-                                  border-radius: 5px; border-style: outset")
-        
+            button.setStyleSheet("background-color: rgb(0,91,168);"
+                                 "border-style: inset;"                                 
+                                 "border-radius: 10px;"
+                                 "color: white;")
     
     def set_background_valve(self, valve_state=1):
         """ Sets the normally open valve/vial ON/OFF. """
         
         if not self._check_olfactometer_comm():
             return
-        
-        #TODO: Add error checks in comm.
+
         if(self.ON_valve == self.background_vial) and valve_state == 1:
             # Turn only normally ON solenoids ON (i.e. shutting the air flow).
             command = "vial " + str(self.olfactometer_address) + " " + \
@@ -350,20 +352,20 @@ class Valvegroup(QWidget, QObject):
                                    True)
                 self.ON_valve = 0  # No button pressed
                 # Reset exlusive state for the button group.
-                self.valves.setExclusive(False)
+                self.valves.setExclusive(True)
             else:
                 return            
         # No button is currently pressed in the GUI. Normally open valve may
         # be ON, i.e. the channel is closed. Set it OFF to make sure there is 
         # background air flowing through the olfactometer.
-        elif(self.valves.button(self.ON_valve) is None):
+        elif (self.valves.button(self.ON_valve) is None):
             command = "vial " + str(self.olfactometer_address) + " " \
                         + str(self.background_vial) + " off"
             if self._send_command(command):
                 self.ON_valve = self.background_vial
                 self.valves.button(self.background_vial).setChecked(True)
                 self._paint_button(self.valves.button(self.background_vial),
-                                   True)
+                                   False)
             else:
                 return
         else:

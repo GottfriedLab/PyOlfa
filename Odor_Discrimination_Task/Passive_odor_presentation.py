@@ -85,9 +85,9 @@ class Passive_odor_presentation(Protocol):
     # Set to 0 when not training, 0.5 when half time are given "free water"
     # During initial free water trials, free water is 100% given to mice
     # Afterwards, free water is given based on the licking training chance and during side preference
-    # When mice have a few missed responses\ on certain side, it will given free water to the bad side for 100%
-    INITIAL_FREE_WATER_TRIALS = 200
-    LICKING_TRAINING = 1
+    # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
+    INITIAL_FREE_WATER_TRIALS = 10
+    LICKING_TRAINING = .75
     SIDE_PREFERENCE_TRIALS = 5
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 3
 
@@ -904,7 +904,6 @@ class Passive_odor_presentation(Protocol):
         odorvalves_no_stimulus = find_odor_vial(self.olfas, 'Blank1', 1)['key']
 
         # randomly select the vial from the list for stimulation block. it may be same or different vials
-        print "odorvalves_left_stimulus", odorvalves_left_stimulus
         for i in range(len(odorvalves_left_stimulus)):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = odorvalves_right_stimulus,
@@ -1870,12 +1869,11 @@ class Passive_odor_presentation(Protocol):
 
     def end_of_trial(self):
         # set new trial parameters
-        # turn off odorant valve
-        if(self.olfactometer is not None):
+        # turn off odor valve
+        if (self.olfactometer is not None):
             for i in range(self.olfactometer.deviceCount):
                 if self.odorvalve != 0:
-                    self.olfactometer.olfas[i].valves.set_odor_valve(self.odorvalve)
-
+                    self.olfactometer.olfas[i].valves.set_odor_valve(self.odorvalve, 0)
     
     def generate_next_stimulus_block(self):
         """ Generate a block of randomly shuffled stimuli from the stimulus \
