@@ -531,13 +531,9 @@ class MFC(QWidget):
         # stop the timer as the user is updating the MFC value
         self.parent_olfactometer.stop_mfc_polling()
         return
-    # def _startpolling(self):
-    #     """ Start polling of the MFC measured output """
-    #     self.timer.start(self.pollingtime)
-    #     return
+
     def poll(self):
         """ Timer overflow SLOT. Updates the MFC flow representation"""
-        # print QtCore.QTime.currentTime() # debuging printout to see frequency of polling
         flow = self.getMFCrate(self)
         if flow is not None:
             self.mfcslider.setValue(flow * self.mfccapacity)
@@ -558,16 +554,13 @@ class Olfactometer(QWidget):
         # Base class constructor
         super(Olfactometer, self).__init__(parent)
         self.timer = QTimer()
-        self.mfcs=[]
-        self.polling_interval=0
+        self.mfcs = []
+        self.polling_interval = 0
         return
 
     def start_mfc_polling(self, polling_interval_ms=2000):
         self.polling_interval = polling_interval_ms
         self.mfcs = [self.mfc1, self.mfc2, self.mfc3]
-        self.last_mfc_checks = []
-        for mfc in self.mfcs:
-            self.last_mfc_checks.append(0.)
         self.connect(self.timer, SIGNAL('timeout()'), self.poll_mfcs)
         self.timer.start(polling_interval_ms)
         return
@@ -589,16 +582,14 @@ class Olfactometer(QWidget):
     def check_MFCs(self):
         flows_on = True
         for mfc in self.mfcs:
-            if hasattr(mfc,'last_poll_time'):
+            if hasattr(mfc, 'last_poll_time'):
                     time_elapsed = time.time() - mfc.last_poll_time
-            else :
+            else:
                 raise Exception('{0} MFC has no last poll time'.format(mfc.name))
 
             if time_elapsed > 2.1 * self.polling_interval:  #TODO: don't hardcode this, although this is ~2 timer ticks.
                 raise Exception('MFC polling is not ok.')
             if mfc.flow < 0.:
-                print '{0} MFC reporting no flow.'.format(mfc.name)
-                print 'mfc.flow:', mfc.flow
                 flows_on = False
         return flows_on
     
@@ -782,14 +773,17 @@ class Olfactometers(ApplicationWindow):
                 mfc1type =self.config_obj['olfas'][i]['MFC1_type']
             except:
                 mfc1type = 'analog'
+                print "mfc1type is %s" % mfc1type
             try:
                 mfc2type =self.config_obj['olfas'][i]['MFC2_type']
             except:
                 mfc2type = 'analog'
+                print "mfc2type is %s" % mfc2type
             try:
                 mfc3type = self.config_obj['olfas'][i]['MFC3_type']
             except:
                 mfc3type = 'auxilary_analog'
+                print "mfc3type is %s" % mfc3type
             panel.mfc1 = MFC(panel, self.monitor, 1, "Nitrogen", MFCtype=mfc1type, olfactometer_address=i + 1)
             panel.mfc2 = MFC(panel, self.monitor, 2, "Air", MFCtype=mfc2type, olfactometer_address=i + 1)
             panel.mfc3 = MFC(panel, self.monitor, 3, "Background", MFCtype=mfc3type, olfactometer_address=i + 1)
@@ -947,24 +941,19 @@ def getMFCrate_alicat(self, *args, **kwargs):
     # Try for 250 ms. If we fail, return None
     while (time.clock() - start_time < .25):
         confirmation = self.olfa_communication.send_command(command)
-    
         if confirmation.startswith("MFC set"):
             command = "DMFC {0:d} {1:d}".format(self.olfactometer_address, self.mfcindex)
             returnstring = self.olfa_communication.send_command(command)
             li = returnstring.split(' ')
-            if li[0] == "A" and (12 <= len(li) <= 14):
-                tries = 10
-                for x in range(tries):
-                    try:
-                        r_str = li[4]  # 5th column is mass flow, so index 4.
-                        flow = float(r_str)
-                        flow = flow / self.mfccapacity  # normalize as per analog api.
-                    except Exception as str_error:
-                        if x < (tries -1):
-                            continue
-                        else:
-                            warning_str = "MFC {0:d} not read.".format(self.mfcindex)
-                            raise Warning(warning_str)
+            if li[0] == "A":
+                try:
+                    r_str = li[4]  # 5th column is mass flow, so index 4.
+                    flow = float(r_str)
+                    flow = flow / self.mfccapacity  # normalize as per analog api.
+                except Exception as str_error:
+                        warning_str = "MFC {0:d} not read.".format(self.mfcindex)
+                        print li
+                        raise Warning(warning_str)
 
                 if (flow < 0):
                     print "Couldn't get MFC flow rate measure"
@@ -994,18 +983,13 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
     # Try for 250 ms. If we fail, return None
     while (time.clock() - start_time < 0.25):
         confirmation = self.olfa_communication.send_command(command)
-
-        tries = 10
-        for x in range(tries):
-            try:
-                rate = float(confirmation)
-            except Exception as str_error:
-                if x < tries -1:
-                    continue
-                else:
-                    warning_str = "Got a non-float value as a response when reading MFC {0:d}" \
-                                  " flow rate.".format(self.mfcindex)
-                    raise Warning(warning_str)
+        try:
+            rate = float(confirmation)
+        except Exception as str_error:
+            print "confirmation %s" % confirmation
+            warning_str = "Got a non-float value as a response when reading MFC {0:d}" \
+                          " flow rate.".format(self.mfcindex)
+            raise Warning(warning_str)
 
         self.flow = rate
         if (rate < 0):
