@@ -509,12 +509,16 @@ class MFC(QWidget):
         return
     def _textchanged(self):
         """ Text of the line edit has changed. Sets the new MFC value """
-        value = float(self.mfctextbox.text())
-        # if value is different from current rate, set the new rate
-        if abs(value - self.mfcvalue) > 0.0005:
-            self.setMFCrate(self, value)
-        self.parent_olfactometer.restart_mfc_polling()  # restart timer
+        try:
+            value = float(self.mfctextbox.text())
+            # if value is different from current rate, set the new rate
+            if abs(value - self.mfcvalue) > 0.0005:
+                self.setMFCrate(self, value)
+            self.parent_olfactometer.restart_mfc_polling()  # restart timer
+        except ValueError:
+            value = 0
         return
+
     def _sliderchanged(self):
         """ Slot when the slider has been changed and released """
         value = float(self.mfcslider.value())
