@@ -304,8 +304,8 @@ void RunSerialCom(int code) {
       lick_grace_period = readULongFromBytes();
       tr = readULongFromBytes();
       licking_training = readULongFromBytes();
-      free_water = readULongFromBytes();
-      initial_free_water_trials = readULongFromBytes();
+      left_free_water = readULongFromBytes();
+      right_free_water = readULongFromBytes();
       water_duration1 = readULongFromBytes();
       water_duration2 = readULongFromBytes();
       

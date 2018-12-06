@@ -36,6 +36,7 @@ from voyeur.monitor import Monitor
 
 from configobj import ConfigObj
 
+import re
 
 # Flag for operating in debug mode.
 TEST_OLFA = False
@@ -443,26 +444,25 @@ class MFC(QWidget):
         self.mfcindex = mfcindex  # index of MFC in the module
         self.olfactometer_address = olfactometer_address  # index of the slave in the system
         self.flow = 0
-        # TODO: Get MFC info if operating in digital mode
-        # self._getMFCtype()
         if name == "Air":
             self.mfccapacity = 1000
         elif name == "Nitrogen":
             self.mfccapacity = 100
-        elif name == "Background":
+        elif name == "Clear Air":
             self.mfccapacity = 1000
         self.name = name
         self.mfcunits = "sccm"
         # inter polling time interval
         self.pollingtime = pollingtime
         # MFC group box
-        name = name + " " + str(self.mfccapacity) + str(self.mfcunits)
+        name = name + " (" + str(self.mfccapacity) + str(self.mfcunits) + ")"
         self.mfcgroup = QGroupBox(name, parent)
         # MFC group layout
         mfclayout = QGridLayout()
         # MFC slider
         self.mfcslider = QDial()
         self.mfcslider.setMaximum(int(self.mfccapacity))
+        self.mfcslider.setFont(QFont("Montserrat", 10))
         # MFC line edit
         self.mfctextbox = QLineEdit()
         self.mfctextbox.setPlaceholderText("Set value")
@@ -495,9 +495,6 @@ class MFC(QWidget):
         mfclayout.addWidget(lcd, 1, 1, 1, 2)
         # add the layout to the group box
         self.mfcgroup.setLayout(mfclayout)
-        if(self.mfcunits == None):
-            self.mfcgroup.setEnabled(False)
-        return
     
     
     def _textchange(self, value):
@@ -721,18 +718,11 @@ class Olfactometers(ApplicationWindow):
         # Serial Ports Menu
         self.serialPorts = MenuManager(name='Serial Port:')
         # Get the names from the OS
-        # TODO: Try to talk to the serials to see which one is Arduino
         portnames = enumerate_serial_ports()
         for portname in portnames:
             portchoice = SerialSelectionAction(name=portname, controller=self, style='radio')
             self.serialPorts.append(portchoice)
             self.serialList.append(portname)
-
-        # # TODO: extend the Behaviour Box option to the connection list
-        # if monitor is not None:
-        #     portchoice = SerialSelectionAction(name="Behaviour Box", controller=self, style='radio')
-        #     self.serialPorts.append(portchoice)
-        #     self.serialList.append("Behaviour Box")
 
 
         self.testing_mode = Action(style='toggle', name="Test Mode",
@@ -786,7 +776,7 @@ class Olfactometers(ApplicationWindow):
                 print "mfc3type is %s" % mfc3type
             panel.mfc1 = MFC(panel, self.monitor, 1, "Nitrogen", MFCtype=mfc1type, olfactometer_address=i + 1)
             panel.mfc2 = MFC(panel, self.monitor, 2, "Air", MFCtype=mfc2type, olfactometer_address=i + 1)
-            panel.mfc3 = MFC(panel, self.monitor, 3, "Background", MFCtype=mfc3type, olfactometer_address=i + 1)
+            panel.mfc3 = MFC(panel, self.monitor, 3, "Clear Air", MFCtype=mfc3type, olfactometer_address=i + 1)
             panel.start_mfc_polling()
             # define the layout
             grid = QGridLayout(panel)
@@ -803,9 +793,6 @@ class Olfactometers(ApplicationWindow):
             panel.setPalette(palette)
             panel.setAutoFillBackground(True)
             self.olfas.append(panel)
-            # TODO: Turn everything off as we startup
-            # if ret != 0:
-            #    print "couldn't turn valves off"
         return
     # this draws the center widget
     def _create_contents(self, parent):
@@ -944,11 +931,17 @@ def getMFCrate_alicat(self, *args, **kwargs):
         if confirmation.startswith("MFC set"):
             command = "DMFC {0:d} {1:d}".format(self.olfactometer_address, self.mfcindex)
             returnstring = self.olfa_communication.send_command(command)
-            li = returnstring.split(' ')
+            li = re.split(r' ',returnstring)
+
             if li[0] == "A":
                 try:
                     r_str = li[4]  # 5th column is mass flow, so index 4.
-                    flow = float(r_str)
+                    if "A" in r_str:
+                        r_str_split = r_str.split('A')
+                        str = r_str_split[0]
+                    else:
+                        str = r_str
+                    flow = float(str)
                     flow = flow / self.mfccapacity  # normalize as per analog api.
                 except Exception as str_error:
                         warning_str = "MFC {0:d} not read.".format(self.mfcindex)
@@ -979,7 +972,6 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
         return
     command = "analogRead {0:d} {1:d}".format(self.olfactometer_address,
                                               self.auxilary_analog_read_pin)
-    
     # Try for 250 ms. If we fail, return None
     while (time.clock() - start_time < 0.25):
         confirmation = self.olfa_communication.send_command(command)
@@ -1016,8 +1008,10 @@ def set_MFC_rate_auxilary_analog(self, flow_rate, *args, **kwargs):
     """
     
     if self.olfa_communication is None:
+        print "self.olfa_communication is None"
         return
     if flow_rate > self.mfccapacity or flow_rate < 0:
+        print "flow_rate > self.mfccapacity or flow_rate < 0", flow_rate, self.mfccapacity
         return
     if abs(flow_rate-self.mfcvalue) < 0.0005:
         return

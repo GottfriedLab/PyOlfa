@@ -86,8 +86,8 @@ class Passive_odor_presentation(Protocol):
     # During initial free water trials, free water is 100% given to mice
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
-    INITIAL_FREE_WATER_TRIALS = 100
-    LICKING_TRAINING = .87
+    INITIAL_FREE_WATER_TRIALS = 16
+    LICKING_TRAINING = 0.87
     SIDE_PREFERENCE_TRIALS = 5
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 3
 
@@ -231,8 +231,11 @@ class Passive_odor_presentation(Protocol):
     percent_right_correct = Float(0, label="RightCorrect%")
     left_side_odor_test = [0]*5
     right_side_odor_test = [0]*5
-    side_preference_trials = 0
+    left_side_preference_trials = Int(0)
+    right_side_preference_trials = Int(0)
     free_water = Bool(False, label='FreeWater')
+    left_free_water = Bool(False, label='LeftFreeWater')
+    right_free_water = Bool(False, label='RightFreeWater')
     initial_free_water_trials = Int(0)
         
     #--------------------------------------------------------------------------
@@ -509,10 +512,6 @@ class Passive_odor_presentation(Protocol):
                                        Item('odorvalve', style='readonly'),
                                        ),
                                 HGroup(
-                                       Item('nitrogen_flow', style='readonly', width=-116),
-                                       Item('air_flow', style='readonly')
-                                       ),
-                                HGroup(
                                         Item('inter_trial_interval', style='readonly',  width=-171),
                                         Item('free_water')
                                 ),
@@ -529,10 +528,6 @@ class Passive_odor_presentation(Protocol):
                                     Item('next_odorant', style="readonly", width=-157),
                                     Item('next_odorvalve', style='readonly'),
                                     ),
-                             HGroup(
-                                    Item('nitrogen_flow', style='readonly', width=-116),
-                                    Item('air_flow', style='readonly')
-                             ),
                              label='Next Trial',
                              show_border=True
                              )
@@ -1247,8 +1242,9 @@ class Passive_odor_presentation(Protocol):
                         lick_grace_period,
                         tr,
                         licking_training,
-                        free_water,
                         initial_free_water_trials,
+                        left_free_water,
+                        right_free_water,
                         water_duration1,
                         water_duration2,
                         **kwtraits):
@@ -1261,6 +1257,7 @@ class Passive_odor_presentation(Protocol):
                     + '_' + self.stamp     
         self.mouse = str(mouse)
         self.session = session
+        self.initial_free_water_trials = initial_free_water_trials
         
         self.protocol_name = self.PROTOCOL_NAME
         
@@ -1355,6 +1352,7 @@ class Passive_odor_presentation(Protocol):
                    "odorvalve"                      : self.odorvalve,
                    "trial_category"                 : self.trial_type,
                    "odorant_trigger_phase"          : self.odorant_trigger_phase,
+                   "initial_free_water_trials"      : self.initial_free_water_trials,
                    "rewards"                        : self.rewards,
                    "rewards_left"                   : self.rewards_left,
                    "rewards_right"                  : self.rewards_right,
@@ -1374,8 +1372,8 @@ class Passive_odor_presentation(Protocol):
                     "lick_grace_period"             : (7, db.Int, self.lick_grace_period),
                     "tr"                            : (8, db.Int, self.tr),
                     "licking_training"              : (9, db.Int, self.licking_training),
-                    "free_water"                    : (10, db.Int, self.free_water),
-                    "initial_free_water_trials"     : (11, db.Int, self.initial_free_water_trials),
+                    "left_free_water"               : (10, db.Int, self.left_free_water),
+                    "right_free_water"              : (11, db.Int, self.right_free_water),
                     "water_duration1"               : (12, db.Int, self.water_duration1),
                     "water_duration2"               : (13, db.Int, self.water_duration2),
         }
@@ -1399,6 +1397,7 @@ class Passive_odor_presentation(Protocol):
             "odorvalve"                     : db.Int,
             "trial_category"                : db.String32,
             "odorant_trigger_phase"         : db.String32,
+            "initial_free_water_trials"     : db.Int,
             "rewards"                       : db.Int,
             "rewards_left"                  : db.Int,
             "rewards_right"                 : db.Int,
@@ -1422,8 +1421,8 @@ class Passive_odor_presentation(Protocol):
             "lick_grace_period"             : db.Int,
             "tr"                            : db.Int,
             "licking_training"              : db.Int,
-            "free_water"                    : db.Int,
-            "initial_free_water_trials"     : db.Int,
+            "left_free_water"               : db.Int,
+            "right_free_water"              : db.Int,
             "water_duration1"               : db.Int,
             "water_duration2"               : db.Int,
         }
@@ -1468,7 +1467,7 @@ class Passive_odor_presentation(Protocol):
         if (response == 1) : # a left hit.
             self.rewards += 1
             self.rewards_left += 1
-            if self.free_water:
+            if self.left_free_water:
                 self.rewards += 1
                 self.rewards_left += 1
             self.corrects += 1
@@ -1482,7 +1481,7 @@ class Passive_odor_presentation(Protocol):
         if (response == 2) : # a right hit.
             self.rewards += 1
             self.rewards_right += 1
-            if self.free_water:
+            if self.right_free_water:
                 self.rewards += 1
                 self.rewards_right += 1
             self.corrects += 1
@@ -1494,7 +1493,7 @@ class Passive_odor_presentation(Protocol):
             self.inter_trial_interval = randint(self.iti_bounds[0], self.iti_bounds[1])
 
         if (response == 3) : # a left false alarm
-            if self.free_water:
+            if self.left_free_water:
                 self.rewards += 1
                 self.rewards_left += 1
             self.total_available_rewards += 1
@@ -1502,7 +1501,7 @@ class Passive_odor_presentation(Protocol):
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0],self.iti_bounds_false_alarm[1])
 
         if (response == 4):  # a right false alarm
-            if self.free_water:
+            if self.right_free_water:
                 self.rewards += 1
                 self.rewards_right += 1
             self.total_available_rewards += 1
@@ -1510,7 +1509,7 @@ class Passive_odor_presentation(Protocol):
             self.inter_trial_interval = randint(self.iti_bounds_false_alarm[0], self.iti_bounds_false_alarm[1])
 
         if (response == 5) : # no response
-            if self.free_water:
+            if self.left_free_water:
                 self.rewards += 1
                 self.rewards_left += 1
             self.total_available_rewards += 1
@@ -1518,7 +1517,7 @@ class Passive_odor_presentation(Protocol):
             self.inter_trial_interval = randint(self.iti_bounds[0],self.iti_bounds[1])
 
         if (response == 6) : # no response
-            if self.free_water:
+            if self.right_free_water:
                 self.rewards += 1
                 self.rewards_right += 1
             self.total_available_rewards += 1
@@ -2008,21 +2007,34 @@ class Passive_odor_presentation(Protocol):
             self.left_side_preference_index = self.left_side_odor_test[-5:].count(3) + self.left_side_odor_test[-5:].count(5)
             self.right_side_preference_index = self.right_side_odor_test[-5:].count(4) + self.right_side_odor_test[-5:].count(6)
             # Check if side preference exists
-            if (self.left_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS \
-                    or self.right_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS):
-                self.side_preference_trials = self.SIDE_PREFERENCE_TRIALS
+            if (self.left_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS):
+                self.left_side_preference_trials = self.SIDE_PREFERENCE_TRIALS
+            if (self.right_side_preference_index >= self.MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS):
+                self.right_side_preference_trials = self.SIDE_PREFERENCE_TRIALS
 
         
         # Grab next stimulus.
         if self.enable_blocks:
             if self.LICKING_TRAINING > 0:
+                self.random_free_water_index = randint(1, 10)
                 if self.trial_number <= self.initial_free_water_trials:
+                    self.left_free_water = True
+                    self.right_free_water = True
+                elif self.LICKING_TRAINING *10 >= self.random_free_water_index:
+                    self.left_free_water = True
+                    self.right_free_water = True
+                elif self.right_side_preference_trials > 0:
+                    self.right_free_water = True
+                    self.right_side_preference_trials -= 1
+                elif self.left_side_preference_trials > 0:
+                    self.left_free_water = True
+                    self.left_side_preference_trials -= 1
+                else:
+                    self.left_free_water = False
+                    self.right_free_water = False
+
+                if self.left_free_water or self.right_free_water:
                     self.free_water = True
-                elif self.LICKING_TRAINING*10 <= randint(1, 10):
-                    self.free_water = True
-                elif self.side_preference_trials > 0:
-                    self.free_water = True
-                    self.side_preference_trials -= 1
                 else:
                     self.free_water = False
 
@@ -2083,11 +2095,12 @@ if __name__ == '__main__':
     stamp = time_stamp()
     tr = 1000
     licking_training = 0
-    free_water = 0
-    initial_free_water_trials = 20
+    initial_free_water_trials = 0
+    left_free_water = 0
+    right_free_water = 0
     water_duration1 = 150
     water_duration2 = 150
-    
+
     # protocol
     protocol = Passive_odor_presentation(trial_number,
                                          mouse,
@@ -2102,8 +2115,9 @@ if __name__ == '__main__':
                                          lick_grace_period,
                                          tr,
                                          licking_training,
-                                         free_water,
                                          initial_free_water_trials,
+                                         left_free_water,
+                                         right_free_water,
                                          water_duration1,
                                          water_duration2
                                          )
