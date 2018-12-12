@@ -87,7 +87,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 16
-    LICKING_TRAINING = 0.87
+    LICKING_TRAINING = 0.125
     SIDE_PREFERENCE_TRIALS = 5
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 3
 
@@ -116,10 +116,10 @@ class Passive_odor_presentation(Protocol):
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [15000, 17000]
+    ITI_BOUNDS_CORRECT = [10000, 15000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [20000, 22000]
+    ITI_BOUNDS_FALSE_ALARM = [15000, 17000]
 
     # MRI sampleing rate
     TR = 1000
@@ -614,7 +614,7 @@ class Passive_odor_presentation(Protocol):
         if self.FMRI:
             y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
         else:
-            y_range = DataRange1D(low=-40, high=40)  # for training non-mri sniff sensor
+            y_range = DataRange1D(low=-15, high=15)  # for training non-mri sniff sensor
         plot.fixed_preferred_size = (100, 25)
         plot.value_range = y_range
         plot.y_axis.visible = True
