@@ -949,7 +949,7 @@ def getMFCrate_alicat(self, *args, **kwargs):
                     flow = flow / self.mfccapacity  # normalize as per analog api.
                 except Exception as str_error:
                         warning_str = "MFC {0:d} not read.".format(self.mfcindex)
-                        print li
+                        print "returnstring %s" % returnstring
                         raise Warning(warning_str)
 
                 if (flow < 0):
@@ -979,21 +979,20 @@ def get_MFC_rate_auxilary_analog(self, *args, **kwargs):
     # Try for 250 ms. If we fail, return None
     while (time.clock() - start_time < 0.25):
         confirmation = self.olfa_communication.send_command(command)
-        try:
-            rate = float(confirmation)
-        except Exception as str_error:
-            print "confirmation %s" % confirmation
-            warning_str = "Got a non-float value as a response when reading MFC {0:d}" \
-                          " flow rate.".format(self.mfcindex)
-            raise Warning(warning_str)
+        if isinstance(float(confirmation), float):
+            try:
+                rate = float(confirmation)
+            except Exception as str_error:
+                warning_str = "MFC {0:d} not read.".format(self.mfcindex)
+                raise Warning(warning_str)
 
-        self.flow = rate
-        if (rate < 0):
-            print "Couldn't get MFC flow rate measure"
-            print "MFC index: " + str(self.mfcindex), "error code: ", self.flow
-            return None
+            self.flow = rate
+            if (rate < 0):
+                print "Couldn't get MFC flow rate measure"
+                print "MFC index: " + str(self.mfcindex), "error code: ", self.flow
+                return None
 
-        return rate
+            return rate
     return None
 
 def set_MFC_rate_auxilary_analog(self, flow_rate, *args, **kwargs):

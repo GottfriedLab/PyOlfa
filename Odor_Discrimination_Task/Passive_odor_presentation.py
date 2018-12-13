@@ -145,7 +145,7 @@ class Passive_odor_presentation(Protocol):
     # (Arduino). These may change from trial to trial. They are stored in
     # the database file for each trial.
     #--------------------------------------------------------------------------
-    mouse = Str(0, label='Mouse')   # mouse name
+    mouse = Str(0, label='Subject')   # mouse name
     rig = Str("", label='Rig')   # rig ID.
     session = Int(0, label='Session')   # session number.
     block_size = Int(BLOCK_SIZE, label="Block size")
