@@ -86,10 +86,10 @@ class Passive_odor_presentation(Protocol):
     # During initial free water trials, free water is 100% given to mice
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
-    INITIAL_FREE_WATER_TRIALS = 16
-    LICKING_TRAINING = 0.125
+    INITIAL_FREE_WATER_TRIALS = 4
+    LICKING_TRAINING = 0.1
     SIDE_PREFERENCE_TRIALS = 5
-    MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 3
+    MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
     # Grace period after FV open where responses are recorded but not scored.
     LICKING_GRACE_PERIOD = 0
@@ -116,10 +116,10 @@ class Passive_odor_presentation(Protocol):
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [10000, 15000]
+    ITI_BOUNDS_CORRECT = [5000, 5000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [15000, 17000]
+    ITI_BOUNDS_FALSE_ALARM = [7000, 7000]
 
     # MRI sampleing rate
     TR = 1000
@@ -234,8 +234,9 @@ class Passive_odor_presentation(Protocol):
     left_side_preference_trials = Int(0)
     right_side_preference_trials = Int(0)
     free_water = Bool(False, label='FreeWater')
-    left_free_water = Bool(False, label='LeftFreeWater')
-    right_free_water = Bool(False, label='RightFreeWater')
+    next_free_water = Bool(False, label='NextFreeWater')
+    next_left_free_water = Bool(False, label='LeftFreeWater')
+    next_right_free_water = Bool(False, label='RightFreeWater')
     initial_free_water_trials = Int(0)
         
     #--------------------------------------------------------------------------
@@ -255,8 +256,8 @@ class Passive_odor_presentation(Protocol):
     
     
     # Current stimulus object.
-    current_stimulus = Instance(LaserTrainStimulus)
-    next_stimulus = Instance(LaserTrainStimulus)
+    # current_stimulus = Instance(LaserTrainStimulus)
+    # next_stimulus = Instance(LaserTrainStimulus)
     # Current block of stimuli. Used when stimuli is arranged in blocks.
     stimulus_block = []
     
@@ -1965,6 +1966,9 @@ class Passive_odor_presentation(Protocol):
         self.odorvalve = self.next_odorvalve
         self.nitrogen_flow = self.next_nitrogen_flow
         self.air_flow = self.next_air_flow
+        self.free_water = self.next_free_water
+        self.left_free_water = self.next_left_free_water
+        self.right_free_water = self.next_right_free_water
         
         # For the first trial recalculate the next trial parameters again
         # so that the second trial is also prepared and ready.
@@ -2017,26 +2021,12 @@ class Passive_odor_presentation(Protocol):
         if self.enable_blocks:
             if self.LICKING_TRAINING > 0:
                 self.random_free_water_index = randint(1, 10)
-                if self.trial_number <= self.initial_free_water_trials:
-                    self.left_free_water = True
-                    self.right_free_water = True
+                if self.next_trial_number <= self.initial_free_water_trials:
+                    self.next_free_water = True
                 elif self.LICKING_TRAINING *10 >= self.random_free_water_index:
-                    self.left_free_water = True
-                    self.right_free_water = True
-                elif self.right_side_preference_trials > 0:
-                    self.right_free_water = True
-                    self.right_side_preference_trials -= 1
-                elif self.left_side_preference_trials > 0:
-                    self.left_free_water = True
-                    self.left_side_preference_trials -= 1
+                    self.next_free_water = True
                 else:
-                    self.left_free_water = False
-                    self.right_free_water = False
-
-                if self.left_free_water or self.right_free_water:
-                    self.free_water = True
-                else:
-                    self.free_water = False
+                    self.next_free_water = False
 
             if not len(self.stimulus_block):
                 self.generate_next_stimulus_block()
@@ -2049,12 +2039,34 @@ class Passive_odor_presentation(Protocol):
                 # Randomly choose a stimulus.
                 self.next_stimulus = choice([stimulus] for stimulus in
                                                  self.STIMULI.values())
-        
+
         self.next_trial_type = self.next_stimulus.trial_type
         self.next_odorvalve = self.next_stimulus.odorvalves[0]
         self.next_odorant = self.olfas[0][self.next_stimulus.odorvalves[0]][0]
         self.next_air_flow = self.next_stimulus.flows[0][0]
         self.next_nitrogen_flow = self.next_stimulus.flows[0][1]
+
+        if self.next_trial_type == "Left":
+            self.next_right_free_water = False
+            if self.next_free_water:
+                self.next_left_free_water = True
+            elif self.left_side_preference_trials > 0:
+                self.next_left_free_water = True
+                self.left_side_preference_trials -= 1
+                self.next_free_water = True
+            else:
+                self.next_left_free_water = False
+
+        if self.next_trial_type == "Right":
+            self.next_left_free_water = False
+            if self.next_free_water:
+                self.next_right_free_water = True
+            elif self.right_side_preference_trials > 0:
+                self.next_right_free_water = True
+                self.right_side_preference_trials -= 1
+                self.next_free_water = True
+            else:
+                self.next_right_free_water = False
 
     def trial_iti_milliseconds(self):
         if self.next_trial_start:
