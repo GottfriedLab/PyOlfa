@@ -44,8 +44,8 @@ from traits.trait_types import Button
 from traits.api import Int, Str, Array, Float, Enum, Bool, Range,\
                                 Instance, HasTraits, Trait, Dict, DelegatesTo
 from traitsui.api import View, Group, HGroup, VGroup, Item, spring, Label
-from chaco.api import ArrayPlotData, Plot, VPlotContainer,\
-                                DataRange1D
+from chaco.api import ArrayPlotData, Plot, VPlotContainer, \
+            OverlayPlotContainer, DataRange1D
 from enable.component_editor import ComponentEditor
 from enable.component import Component
 from traitsui.editors import ButtonEditor, DefaultOverride
@@ -86,9 +86,9 @@ class Passive_odor_presentation(Protocol):
     # During initial free water trials, free water is 100% given to mice
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
-    INITIAL_FREE_WATER_TRIALS = 4
-    LICKING_TRAINING = 0.1
-    SIDE_PREFERENCE_TRIALS = 5
+    INITIAL_FREE_WATER_TRIALS = 16
+    LICKING_TRAINING = 0.125
+    SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
     # Grace period after FV open where responses are recorded but not scored.
@@ -116,10 +116,10 @@ class Passive_odor_presentation(Protocol):
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [5000, 5000]
+    ITI_BOUNDS_CORRECT = [10000, 15000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [7000, 7000]
+    ITI_BOUNDS_FALSE_ALARM = [15000, 17000]
 
     # MRI sampleing rate
     TR = 1000
