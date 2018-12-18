@@ -45,7 +45,7 @@ from traits.api import Int, Str, Array, Float, Enum, Bool, Range,\
                                 Instance, HasTraits, Trait, Dict, DelegatesTo
 from traitsui.api import View, Group, HGroup, VGroup, Item, spring, Label
 from chaco.api import ArrayPlotData, Plot, VPlotContainer, \
-            OverlayPlotContainer, DataRange1D
+            OverlayPlotContainer, SelectableOverlayPlotContainer, DataRange1D
 from enable.component_editor import ComponentEditor
 from enable.component import Component
 from traitsui.editors import ButtonEditor, DefaultOverride
@@ -53,6 +53,7 @@ from pyface.timer.api import Timer, do_after
 from pyface.api import FileDialog, OK, warning, error
 from chaco.tools.api import PanTool
 from chaco.axis import PlotAxis
+from chaco.api import Legend
 from chaco.scales.api import TimeScale
 from chaco.scales_tick_generator import ScalesTickGenerator
 from chaco.scales.api import CalendarScaleSystem
@@ -87,7 +88,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 16
-    LICKING_TRAINING = 0.125
+    LICKING_TRAINING = 0.10
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -119,7 +120,7 @@ class Passive_odor_presentation(Protocol):
     ITI_BOUNDS_CORRECT = [10000, 15000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [15000, 17000]
+    ITI_BOUNDS_FALSE_ALARM = [15000, 20000]
 
     # MRI sampleing rate
     TR = 1000
@@ -575,12 +576,7 @@ class Passive_odor_presentation(Protocol):
         """ Build and return the container for the streaming plots."""
         
         # Two plots will be overlaid with no separation.
-        container = VPlotContainer(bgcolor="transparent",
-                                   fill_padding=False,
-                                   padding=0)
-
-
-        # TODO: Make the plot interactive (zoom, pan, re-scale)
+        container = SelectableOverlayPlotContainer(bgcolor="transparent")
 
         # Add the plots and their data to each container.
         
@@ -594,8 +590,7 @@ class Passive_odor_presentation(Protocol):
                                               sniff=self.sniff)
 
         # Create the Plot object for the streaming data.
-        plot = Plot(self.stream_plot_data, padding=20,
-                    padding_top=5, padding_bottom=18, padding_left=80, border_visible=False)
+        plot = Plot(self.stream_plot_data, border_visible=False)
 
         # Initialize the data arrays and re-assign the values to the
         # ArrayPlotData collection.
@@ -620,8 +615,6 @@ class Passive_odor_presentation(Protocol):
         plot.value_range = y_range
         plot.y_axis.visible = True
         plot.x_axis.visible = False
-        plot.title = "Sniff"
-        plot.title_position = "left"
 
         # Make a custom abscissa axis object.
         bottom_axis = PlotAxis(plot,
@@ -631,7 +624,7 @@ class Passive_odor_presentation(Protocol):
 
         # Add the lines to the Plot object using the data arrays that it
         # already knows about.
-        plot.plot(('iteration', 'sniff'), type='line', color='blue', name="Sniff", line_width=0.5)
+        plot.plot(('iteration', 'sniff'), type='line',color='black', name="Sniff", line_width=0.5)
 
         # Keep a reference to the streaming plot so that we can update it in
         # other methods.
@@ -659,138 +652,55 @@ class Passive_odor_presentation(Protocol):
         # It shares the same timescale as the streaming plot.
         
         # Lick left
-        self.stream_lick1_data = ArrayPlotData(iteration=self.iteration,
-                                              lick1=self.lick1)
+        self.stream_events_data = ArrayPlotData(iteration=self.iteration,
+                                              lick1=self.lick1, lick2=self.lick2, mri=self.mri)
 
         # Plot object created with the data definition above.
-        plot = Plot(self.stream_lick1_data,
-                    padding=20,
-                    padding_top=0,
-                    padding_bottom=4,
-                    padding_left=80,
-                    border_visible=False,
-                    index_mapper=self.stream_plot.index_mapper)
+        plot = Plot(self.stream_events_data, border_visible=False)
 
-        # Data array for the signal.
-        # The last value is not nan so that the first incoming streaming value
-        # can be set to nan. Implementation detail on how we start streaming.
+        # # Data array for the signal.
+        # # The last value is not nan so that the first incoming streaming value
+        # # can be set to nan. Implementation detail on how we start streaming.
         self.lick1 = [nan] * len(self.iteration)
         self.lick1[-1] = 0
-        self.stream_lick1_data.set_data("iteration", self.iteration)
-        self.stream_lick1_data.set_data("lick1", self.lick1)
+        self.lick2 = [nan] * len(self.iteration)
+        self.lick2[-1] = 0
+        self.mri = [-2] * len(self.iteration)
+        self.mri[-1] = 0
+
+        self.stream_events_data.set_data("iteration", self.iteration)
+        self.stream_events_data.set_data("lick1", self.lick1)
+        self.stream_events_data.set_data("lick2", self.lick2)
+        self.stream_events_data.set_data("mri", self.mri)
 
         # Change plot properties.
         plot.fixed_preferred_size = (100, 5)
-        y_range = DataRange1D(low=0.99, high=1.01)
+        y_range = DataRange1D(low=-25, high=2)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
-        plot.title = "Lick_L"
-        plot.title_position = "left"
         plot.y_grid = None
 
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "lick1"),
                                name="Lick",
-                               color="red",
-                               line_width=20,
-                               render_style="hold")[0]
+                               color="blue",
+                               line_width=10)[0]
 
-        # Add the trials overlay to the streaming events plot too.
-        event_plot.overlays.append(rangeselector)
-
-        self.stream_lick1_plot = plot
-
-        #### Lick right
-        self.stream_lick2_data = ArrayPlotData(iteration=self.iteration,
-                                              lick2=self.lick2)
-        # Plot object created with the data definition above.
-        plot = Plot(self.stream_lick2_data,
-                    padding=20,
-                    padding_top=0,
-                    padding_bottom=4,
-                    padding_left=80,
-                    border_visible=False,
-                    index_mapper=self.stream_plot.index_mapper)
-
-        # Data array for the signal.
-        # The last value is not nan so that the first incoming streaming value
-        # can be set to nan. Implementation detail on how we start streaming.
-        self.lick2 = [nan] * len(self.iteration)
-        self.lick2[-1] = 0
-        self.stream_lick2_data.set_data("iteration", self.iteration)
-        self.stream_lick2_data.set_data("lick2", self.lick2)
-
-        # Change plot properties.
-        plot.fixed_preferred_size = (100, 5)
-        y_range = DataRange1D(low=0.99, high=1.01)
-        plot.value_range = y_range
-        plot.y_axis.visible = False
-        plot.x_axis.visible = False
-        plot.title = "Lick_R"
-        plot.title_position = "left"
-        plot.y_grid = None
-
-        # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "lick2"),
                                name="Lick",
                                color="red",
-                               line_width=20,
+                               line_width=10)[0]
+        event_plot = plot.plot(("iteration", "mri"),
+                               name="Lick",
+                               color="black",
+                               line_width=5,
                                render_style="hold")[0]
 
-        # Add the trials overlay to the streaming events plot too.
-        event_plot.overlays.append(rangeselector)
+        self.stream_events_plot = plot
 
-        self.stream_lick2_plot = plot
-        
-        
-        # MRI trigger signal plot.
-        self.stream_mri_data = ArrayPlotData(iteration=self.iteration,
-                                                mri=self.mri)
-
-        # Plot object created with the data definition above.
-        plot = Plot(self.stream_mri_data,
-                    padding=20,
-                    padding_top=0,
-                    padding_bottom=4,
-                    padding_left=80,
-                    border_visible=False,
-                    index_mapper=self.stream_plot.index_mapper,)
-
-        # Data array for the signal.
-        # The last value is not nan so that the first incoming streaming value
-        # can be set to nan. Implementation detail on how we start streaming.
-        self.mri = [nan] * len(self.iteration)
-        self.mri[-1] = 0
-        self.stream_mri_data.set_data("iteration", self.iteration)
-        self.stream_mri_data.set_data("mri", self.mri)
-
-        # Change plot properties.
-        plot.fixed_preferred_size = (100, 5)
-        y_range = DataRange1D(low=0.99, high=1.01)
-        plot.value_range = y_range
-        plot.y_axis.visible = False
-        plot.x_axis.visible = False
-        plot.title = "MRI"
-        plot.title_position = "left"
-        plot.y_grid = None
-
-        # Add the lines to the plot and grab one of the plot references.
-        event_plot = plot.plot(("iteration", "mri"),
-                               name="MRI",
-                               color="green",
-                               line_width=20)[0]
-
-        # Add the trials overlay to the streaming events plot too.
-        event_plot.overlays.append(rangeselector)
-
-        self.stream_mri_plot = plot
-
-
-        
         # Finally add both plot containers to the vertical plot container.
-        container.add(self.stream_plot, self.stream_lick1_plot, self.stream_lick2_plot, self.stream_mri_plot)
-
+        container.add(self.stream_plot, self.stream_events_plot)
 
         return container
 
@@ -1672,7 +1582,7 @@ class Passive_odor_presentation(Protocol):
                     elif lastshift > 0 and len(lick1array) > 0:
                         lick1array = hstack((lick1array[-self.STREAM_SIZE + lastshift:], [lick1array[-1]] * lastshift))
                 if len(lick1array) > 0:
-                    self.stream_lick1_data.set_data(lick1signal, lick1array)
+                    self.stream_events_data.set_data(lick1signal, lick1array)
                     lick1arrays[i] = lick1array
 
         return lick1arrays
@@ -1743,7 +1653,7 @@ class Passive_odor_presentation(Protocol):
                     elif lastshift > 0 and len(lick2array) > 0:
                         lick2array = hstack((lick2array[-self.STREAM_SIZE + lastshift:], [lick2array[-1]] * lastshift))
                 if len(lick2array) > 0:
-                    self.stream_lick2_data.set_data(lick2signal, lick2array)
+                    self.stream_events_data.set_data(lick2signal, lick2array)
                     lick2arrays[i] = lick2array
 
         return lick2arrays
@@ -1752,7 +1662,6 @@ class Passive_odor_presentation(Protocol):
 
         packet_sent_time = stream['packet_sent_time']
 
-        # TODO: find max shift first, apply it to all
         maxtimestamp = int(packet_sent_time)
         for i in range(len(mriarrays)):
             mrisignal = mrisignals[i]
@@ -1770,7 +1679,6 @@ class Passive_odor_presentation(Protocol):
             maxshift = self.STREAM_SIZE - 1
 
         for i in range(len(mriarrays)):
-
             mrisignal = mrisignals[i]
             mriarray = mriarrays[i]
 
@@ -1783,27 +1691,16 @@ class Passive_odor_presentation(Protocol):
                     for mri in stream[mrisignal]:
                         shift = int(mri - last_mri_tick)
                         if shift <= 0:
-                            if shift < self.STREAM_SIZE * -1:
-                                shift = -self.STREAM_SIZE + 1
-                            if isnan(last_state):
-                                mriarray[shift - 1:] = [i + 1] * (-shift + 1)
-                            else:
-                                mriarray[shift - 1:] = [nan] * (-shift + 1)
-                        elif mri > packet_sent_time:
-                            if isnan(last_state):
-                                mriarray[-1] = i + 1
-                            else:
-                                mriarray[-1] = nan
+                            return
                         else:
                             if shift > self.STREAM_SIZE:
                                 shift = self.STREAM_SIZE - 1
                             mriarray = hstack((mriarray[-self.STREAM_SIZE + shift:], [mriarray[-1]] * shift))
-                            if isnan(last_state):
+                            if (last_state==-2):
                                 mriarray = hstack((mriarray[-self.STREAM_SIZE + 1:], [i + 1]))
                             else:
-                                mriarray = hstack((mriarray[-self.STREAM_SIZE + 1:], [nan]))
+                                mriarray = hstack((mriarray[-self.STREAM_SIZE + 1:], [-2]))
                             last_mri_tick = mri
-                        last_state = mriarray[-1]
                         # last timestamp of lick signal change
                         self._last_mri_index = mri
                     lastshift = int(packet_sent_time - last_mri_tick)
@@ -1813,7 +1710,7 @@ class Passive_odor_presentation(Protocol):
                     elif lastshift > 0 and len(mriarray) > 0:
                         mriarray = hstack((mriarray[-self.STREAM_SIZE + lastshift:], [mriarray[-1]] * lastshift))
                 if len(mriarray) > 0:
-                    self.stream_mri_data.set_data(mrisignal, mriarray)
+                    self.stream_events_data.set_data(mrisignal, mriarray)
                     mriarrays[i] = mriarray
 
         return mriarrays
