@@ -88,7 +88,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 16
-    LICKING_TRAINING = 0.10
+    LICKING_TRAINING = 0.50
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -117,10 +117,10 @@ class Passive_odor_presentation(Protocol):
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [10000, 15000]
+    ITI_BOUNDS_CORRECT = [15000, 17000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [15000, 20000]
+    ITI_BOUNDS_FALSE_ALARM = [20000, 22000]
 
     # MRI sampleing rate
     TR = 1000
@@ -574,12 +574,8 @@ class Passive_odor_presentation(Protocol):
     
     def _stream_plots_default(self):
         """ Build and return the container for the streaming plots."""
-        
-        # Two plots will be overlaid with no separation.
-        container = SelectableOverlayPlotContainer(bgcolor="transparent")
 
-        # Add the plots and their data to each container.
-        
+
         # ---------------------------------------------------------------------
         # Streaming signals container plot.
         #----------------------------------------------------------------------
@@ -590,7 +586,7 @@ class Passive_odor_presentation(Protocol):
                                               sniff=self.sniff)
 
         # Create the Plot object for the streaming data.
-        plot = Plot(self.stream_plot_data, border_visible=False)
+        plot = Plot(self.stream_plot_data, padding=20, padding_left=80, padding_top=0, padding_bottom=25, border_visible=False)
 
         # Initialize the data arrays and re-assign the values to the
         # ArrayPlotData collection.
@@ -610,21 +606,42 @@ class Passive_odor_presentation(Protocol):
         if self.FMRI:
             y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
         else:
-            y_range = DataRange1D(low=-15, high=15)  # for training non-mri sniff sensor
-        plot.fixed_preferred_size = (100, 25)
+            y_range = DataRange1D(low=-20, high=20)  # for training non-mri sniff sensor
         plot.value_range = y_range
+        plot.fixed_preferred_size = (100, 20)
         plot.y_axis.visible = True
         plot.x_axis.visible = False
+        plot.legend.visible = True
+        plot.legend.bgcolor = "white"
+        plot.legend.align = "ul"
+        plot.legend.border_visible = False
+        plot.legend.font = "Arial 14"
+
 
         # Make a custom abscissa axis object.
-        bottom_axis = PlotAxis(plot,
-                               orientation="bottom",
-                               tick_generator=ScalesTickGenerator(scale=TimeScale(seconds=1)))
-        plot.x_axis = bottom_axis
+        AXIS_DEFAULTS = {
+            'axis_line_weight': 1,
+            'tick_weight': 1,
+            'tick_label_font': 'Arial 14',
+        }
+
+        x_axis = PlotAxis(orientation='bottom',
+                          mapper=plot.x_mapper,
+                          component=plot,
+                          tick_generator=ScalesTickGenerator(scale=TimeScale(seconds=1)),
+                          **AXIS_DEFAULTS)
+        y_axis = PlotAxis(orientation='left',
+                          mapper=plot.y_mapper,
+                          tick_interval=10,
+                          component=plot,
+                          **AXIS_DEFAULTS)
+
+        plot.x_axis = x_axis
+        plot.y_axis = y_axis
 
         # Add the lines to the Plot object using the data arrays that it
         # already knows about.
-        plot.plot(('iteration', 'sniff'), type='line',color='black', name="Sniff", line_width=0.5)
+        plot.plot(('iteration', 'sniff'), type='line', color='black', name="Breathing", line_width=1)
 
         # Keep a reference to the streaming plot so that we can update it in
         # other methods.
@@ -656,7 +673,8 @@ class Passive_odor_presentation(Protocol):
                                               lick1=self.lick1, lick2=self.lick2, mri=self.mri)
 
         # Plot object created with the data definition above.
-        plot = Plot(self.stream_events_data, border_visible=False)
+        plot = Plot(self.stream_events_data, padding=20, padding_left=80, padding_top=0,
+                    padding_bottom=0, border_visible=False)
 
         # # Data array for the signal.
         # # The last value is not nan so that the first incoming streaming value
@@ -673,33 +691,44 @@ class Passive_odor_presentation(Protocol):
         self.stream_events_data.set_data("lick2", self.lick2)
         self.stream_events_data.set_data("mri", self.mri)
 
-        # Change plot properties.
+        # Change plot properties.)
         plot.fixed_preferred_size = (100, 5)
-        y_range = DataRange1D(low=-25, high=2)
+        y_range = DataRange1D(low=0, high=2)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
         plot.y_grid = None
+        plot.x_grid = None
+        plot.legend.visible = True
+        plot.legend.bgcolor = "white"
+        plot.legend.align = "ul"
+        plot.legend.line_spacing = 6
+        plot.legend.font = "Arial 14"
+        plot.legend.border_visible = False
+
 
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "lick1"),
-                               name="Lick",
+                               name="Choice (R)",
                                color="blue",
-                               line_width=10)[0]
+                               line_width=5)[0]
 
         event_plot = plot.plot(("iteration", "lick2"),
-                               name="Lick",
+                               name="Choice (L)",
                                color="red",
-                               line_width=10)[0]
+                               line_width=5)[0]
         event_plot = plot.plot(("iteration", "mri"),
-                               name="Lick",
-                               color="black",
-                               line_width=5,
-                               render_style="hold")[0]
+                               name="Trigger",
+                               color="green",
+                               line_width=5)[0]
+
 
         self.stream_events_plot = plot
 
-        # Finally add both plot containers to the vertical plot container.
+        # Two plots will be overlaid with no separation.
+        container = VPlotContainer(bgcolor="transparent")
+
+        # Add the plots and their data to each container.
         container.add(self.stream_plot, self.stream_events_plot)
 
         return container
@@ -1206,22 +1235,43 @@ class Passive_odor_presentation(Protocol):
         self.max_rewards = max_rewards
         
         # Setup the performance plots
-        self.event_plot_data = ArrayPlotData(trial_number_tick = self.trial_number_tick,
-                                             _left_trials_line = self._left_trials_line,
-                                             _right_trials_line = self._right_trials_line)
-        plot = Plot(self.event_plot_data, padding=20, padding_top=10, padding_bottom=30, padding_left=80, border_visible=False)
+        self.event_plot_data = ArrayPlotData(trial_number_tick=self.trial_number_tick,
+                                             _left_trials_line=self._left_trials_line,
+                                             _right_trials_line=self._right_trials_line)
+        plot = Plot(self.event_plot_data, padding=20, padding_left=80, padding_bottom=40, border_visible=False)
         self.event_plot = plot
-        plot.plot(('trial_number_tick', '_left_trials_line'), type = 'scatter', color = 'blue',
-                   name = "Left Trials")
-        plot.plot(('trial_number_tick', '_right_trials_line'), type = 'scatter', color = 'red',
-                   name = "Right Trials")
+        plot.plot(('trial_number_tick', '_left_trials_line'), type='scatter', marker='circle', marker_size=5,
+                  color='blue', outline_color='transparent', name = "Left Trials")
+        plot.plot(('trial_number_tick', '_right_trials_line'), type = 'scatter', marker='circle', marker_size=5,
+                  color='red', outline_color='transparent', name = "Right Trials")
         plot.legend.visible = True
-        plot.legend.bgcolor = "transparent"
+        plot.legend.bgcolor = "white"
         plot.legend.align = "ul"
         plot.legend.border_visible = False
+        plot.legend.line_spacing = 6
+        plot.legend.font = "Arial 14"
         plot.y_axis.title = "% Correct"
         y_range = DataRange1D(low=0, high=100)
         plot.value_range = y_range
+        plot.x_grid = None
+
+        AXIS_DEFAULTS = {
+            'axis_line_weight': 1,
+            'tick_weight': 1,
+            'tick_label_font': 'Arial 14',
+        }
+
+        x_axis = PlotAxis(orientation='bottom',
+                          component=plot,
+                          **AXIS_DEFAULTS)
+        y_axis = PlotAxis(orientation='left',
+                          mapper=plot.y_mapper,
+                          tick_interval=20,
+                          component=plot,
+                          **AXIS_DEFAULTS)
+        plot.x_axis = x_axis
+        plot.y_axis = y_axis
+
         self.trial_number_tick = [0]
         self.responses = [0]
         
@@ -1660,6 +1710,7 @@ class Passive_odor_presentation(Protocol):
 
     def _process_mris(self, stream, mrisignals, mriarrays):
 
+
         packet_sent_time = stream['packet_sent_time']
 
         maxtimestamp = int(packet_sent_time)
@@ -1710,7 +1761,7 @@ class Passive_odor_presentation(Protocol):
                     elif lastshift > 0 and len(mriarray) > 0:
                         mriarray = hstack((mriarray[-self.STREAM_SIZE + lastshift:], [mriarray[-1]] * lastshift))
                 if len(mriarray) > 0:
-                    self.stream_events_data.set_data(mrisignal, mriarray)
+                    self.stream_events_data.set_data(mrisignal, mriarray*10)
                     mriarrays[i] = mriarray
 
         return mriarrays
@@ -1734,7 +1785,7 @@ class Passive_odor_presentation(Protocol):
         streamdef = self.stream_definition()
         if 'mri' in streamdef.keys():
             self.mri = hstack((self.mri[-self.STREAM_SIZE + shift:], self.mri[-1] * shift))
-            self.stream_mri_data.set_data('mri', self.mri)
+            self.stream_mri_data2.set_data('mri', self.mri)
         return
 
     def start_of_trial(self):
