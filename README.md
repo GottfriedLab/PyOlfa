@@ -1,5 +1,5 @@
 # PyOlfa
-PyOlfa is a GUI for automated olfactory behavioral assessment. Here is a few examples of what PyOlfa can do:
+PyOlfa is a experimental tool for automated olfactory behavioral assessment. Here is a few examples of what PyOlfa can do:
 
 *	Experimental control: Operate olfactometers and devices (sensors, valves, etc) connected to Arduino board.
 *	Data acquisition: Stream subject’s responses and physiological measurements while the experiment is running
