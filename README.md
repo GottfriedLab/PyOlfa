@@ -12,7 +12,6 @@ The easiest installation method is via Anaconda Python distribution. PyOlfa is w
 *	Chaco
 *	Kiwisolver
 * NumPy
-* SciPy
 *	Traits
 *	Traitsui
 *	Pyserial
