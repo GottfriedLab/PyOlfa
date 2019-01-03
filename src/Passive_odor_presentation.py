@@ -11,9 +11,9 @@ platform. This includes the protocol behaviour as well as visualization (GUI).
 # Passive_odor_presentation.py
 
 #  Python library imports
+import time, os
 from numpy import append, arange, hstack, nan, isnan, copy, negative
 from copy import deepcopy
-import time, os
 from numpy.random import permutation  #numpy >= 1.7 for choice function
 from random import choice, randint, shuffle, seed, random
 from datetime import datetime
