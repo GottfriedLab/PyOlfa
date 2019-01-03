@@ -21,9 +21,9 @@ etsconfig.ETSConfig.toolkit = 'qt4'
 # Pyside import modules for gui elements.
 from PySide import QtCore, QtGui
 from PySide.QtCore import QObject, QTimer, SIGNAL
-from PySide.QtGui import QPalette, QHBoxLayout, QIcon
-from PySide.QtGui import QPushButton, QWidget, QGridLayout, QGroupBox
-from PySide.QtGui import QLineEdit, QLCDNumber, QButtonGroup, QFont, QDial
+from PySide.QtGui import QPalette, QHBoxLayout, QIcon, \
+    QPushButton, QWidget, QGridLayout, QGroupBox, \
+    QLineEdit, QLCDNumber, QButtonGroup, QFont, QDial
 # Imports from the traits and traitsui packages.
 from pyface.action.api import Action, MenuManager, MenuBarManager, Separator
 from pyface.api import ApplicationWindow, GUI, information, error
@@ -31,7 +31,7 @@ from pyface.timer.api import Timer
 from traits.api import Instance, Int, Str, Float, List
 
 # Utilities written for the voyeur package.
-from Voyeur_utilities import parse_rig_config
+from voyeur_utilities import parse_rig_config
 from voyeur.monitor import Monitor
 
 from configobj import ConfigObj
@@ -51,7 +51,7 @@ else:
 # Get a configuration object with the default settings.
 voyeur_rig_config = os.path.join(
     '/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/',
-    'Voyeur_rig_config.conf')
+    'voyeur_rig_config.conf')
 conf = ConfigObj(voyeur_rig_config)
 
 class Valvegroup(QWidget, QObject):
@@ -1048,9 +1048,9 @@ if __name__ == '__main__':
     # Create the GUI (this does NOT start the GUI event loop).
     gui = GUI()
     # Create and open the main window.
-    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/Voyeur_libraries/','Voyeur_rig_config.conf')
+    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/','voyeur_rig_config.conf')
     config = parse_rig_config(voyeur_rig_config)
-    window = Olfactometers(config_obj=config_obj)
+    window = Olfactometers(config_obj=config)
     window.open()
     # Start the GUI event loop!
     gui.start_event_loop()

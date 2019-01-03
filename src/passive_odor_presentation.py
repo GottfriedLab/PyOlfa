@@ -8,48 +8,39 @@ platform. This includes the protocol behaviour as well as visualization (GUI).
 
 
 #!/usr/bin/env python2.7
-# Passive_odor_presentation.py
+# passive_odor_presentation.py
 
 #  Python library imports
-import time
+import time, os
 from numpy import append, arange, hstack, nan, isnan, negative
 from random import choice, randint, shuffle, seed, random
 from itertools import chain, groupby
 
 # Voyeur imports
 import voyeur.db as db
-from voyeur.monitor import Monitor
-from voyeur.protocol import Protocol, TrialParameters, time_stamp
+from voyeur import Monitor, Protocol, TrialParameters, time_stamp
 
 # Olfactometer module
-from src.Olfactometer_arduino import Olfactometers
-
-# Utilities
-from src.Stimulus import LaserTrainStimulus  # OdorStimulus
-from src.Range_selections_overlay import RangeSelectionsOverlay
-from src.Voyeur_utilities import parse_rig_config, find_odor_vial
+from src import Olfactometers, LaserTrainStimulus,\
+    RangeSelectionsOverlay, parse_rig_config, find_odor_vial
 
 # Enthought's traits imports (For GUI) - Place these imports under
 # voyeur imports since voyeur will select the GUI toolkit to be QT
 # By default traits will pick wx as the GUI toolkit. By importing voyeur
 # first, QT is set and used subsequently for all gui related things
-from traits.trait_types import Button
-from traits.api import Int, Str, Array, Float, Enum, Bool, Range,\
-                                Instance, Trait
-from traitsui.api import View, Group, HGroup, VGroup, Item, spring
-from chaco.api import ArrayPlotData, Plot, VPlotContainer, \
-    DataRange1D
-from enable.component_editor import ComponentEditor
-from enable.component import Component
-from traitsui.editors import ButtonEditor
-from pyface.timer.api import Timer
-from pyface.api import FileDialog, OK
+from chaco.api import ArrayPlotData, Plot, VPlotContainer, DataRange1D
 from chaco.axis import PlotAxis
 from chaco.scales.api import TimeScale
 from chaco.scales_tick_generator import ScalesTickGenerator
+from enable.component import Component
+from enable.component_editor import ComponentEditor
+from pyface.timer.api import Timer
+from pyface.api import FileDialog, OK
+from traits.api import Int, Str, Array, Float, Enum, Bool, Range,Instance, Trait
 from traits.has_traits import on_trait_change
-
-import os
+from traits.trait_types import Button
+from traitsui.api import View, Group, HGroup, VGroup, Item, spring
+from traitsui.editors import ButtonEditor
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -1192,7 +1183,7 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.PROTOCOL_NAME
         
         # Get a configuration object with the default settings.
-        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/Voyeur_rig_config.conf')
+        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/voyeur_rig_config.conf')
         self.config = parse_rig_config(voyeur_rig_config)
         self.rig = self.config['rigName']
         self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
