@@ -10,12 +10,13 @@ PyOlfa is a experimental tool for automated olfactory behavioral assessment. Her
 The easiest installation method is via Anaconda Python distribution. PyOlfa is written in Python 2.7. If you are using Anaconda, please make sure you install the correct version. In addition, the following software packages are required or PyOlfa will not work at all. 
 
 *	Chaco
+* Enable
 *	Kiwisolver
-* NumPy
 *	Traits
 *	Traitsui
+* Pyface
 *	Pyserial
-*	Pytables
+*	Pyside
 *	Pyqt4
 
 # Example Useage
