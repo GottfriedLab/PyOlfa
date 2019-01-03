@@ -66,9 +66,9 @@ class IProtocol(IPlugin):
         Returns a python dictionary defining the controller sent by this protocol.
 
         The controller parameters definition dictionary describes the type and index of each
-        parameter sent to the Arduino controller at the start of each trial. The index defines
+        parameter sent to the arduino_controller controller at the start of each trial. The index defines
          the order in the serial stream of the parameter. The index defined here, *not the order of
-         definition within the dictionary* define the order parameters are sent to the Arduino controller.
+         definition within the dictionary* define the order parameters are sent to the arduino_controller controller.
         Types must be one of the types defined in :mod:`voyeur.db`.
 
         Example::

@@ -50,7 +50,7 @@ else:
 
 # Get a configuration object with the default settings.
 voyeur_rig_config = os.path.join(
-    '/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/Voyeur_libraries/',
+    '/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/',
     'Voyeur_rig_config.conf')
 conf = ConfigObj(voyeur_rig_config)
 
@@ -68,9 +68,9 @@ class Valvegroup(QWidget, QObject):
     valves = Instance(QButtonGroup)
     # The currently checked(pressed) button, representing the currently ON vial.
     ON_valve = 0
-    # Reference to the Voyeur Monitor or serial connection to Arduino.
+    # Reference to the Voyeur Monitor or serial connection to arduino_controller.
     # This object should have a send_command method for sending a string to
-    # the Arduino controller.
+    # the arduino_controller controller.
     olfa_communication = Instance(Monitor)
     # Address of the olfactometer module in the system. This is the I2C address.
     olfactometer_address = Int(1)
@@ -110,7 +110,7 @@ class Valvegroup(QWidget, QObject):
         print "Initializing olfactometer_arduino..."
         super(Valvegroup, self).__init__(parent)
         # Reference to the object that has the communication link to the 
-        # olfactometer's Arduino controller.
+        # olfactometer's arduino_controller controller.
         self.olfa_communication = monitor
         # The widget that is the parent, i.e the Olfactometer widget.
         self.parent_olfa = parent
@@ -217,13 +217,13 @@ class Valvegroup(QWidget, QObject):
         if line.split()[0] != 'Error':
             return True
         else:
-            # print "Error reported from Arduino: ", line
+            # print "Error reported from arduino_controller: ", line
             return False
     
     def set_odor_valve(self, valve_number, valve_state=1):
         """ Sets a given odor vial ON/OFF . 
         
-        This method sends the vialOff or vialOn command to the Arduino. """
+        This method sends the vialOff or vialOn command to the arduino_controller. """
         
         if not self._check_olfactometer_comm() or \
                 not self._check_olfactometer_MFCs():
@@ -419,7 +419,7 @@ class MFC(QWidget):
     mfcslider = Instance(QDial)
     mfctextbox = Instance(QLineEdit)
     mfcvalue = float()  # value of mfc rate we want
-    olfa_communication = Instance(Monitor)  # reference to the Voyeur Monitor or serial connection to Arduino
+    olfa_communication = Instance(Monitor)  # reference to the Voyeur Monitor or serial connection to arduino_controller
     mfcindex = Int()  # index of MFC in the module
     olfactometer_address = Int()  # index of the module in the system connected
     # MFC capacity determined by the MFC hardware
@@ -662,7 +662,7 @@ class SerialSelectionAction(Action):
 
 
 class SerialMonitor(Serial):
-    """ Serial Connection Class that handles communication with Arduino """
+    """ Serial Connection Class that handles communication with arduino_controller """
     TIMEOUT = 1
     BAUDRATE = conf['serial']['baudrate']
     def send_command(self, command, tries=10):
@@ -758,7 +758,7 @@ class Olfactometers(ApplicationWindow):
         self.config_obj = config_obj
         # check monitor serial connection
         if (self.monitor is None):#or not self.monitor.serial1.serial._isOpen):  # error dialog box here later
-            print "Arduino Serial comm failed: Port not open"
+            print "arduino_controller Serial comm failed: Port not open"
 
         for i in range(self.deviceCount):
             panel = Olfactometer(self.control)

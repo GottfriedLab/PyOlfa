@@ -19,4 +19,4 @@ The easiest installation method is via Anaconda Python distribution. PyOlfa is w
 *	Pyqt4
 
 # Example Useage
-![Alt text](Olfactometry.PNG)
+![Alt text](docs/Olfactometry.PNG)

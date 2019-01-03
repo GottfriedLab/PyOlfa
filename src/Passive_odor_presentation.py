@@ -2,7 +2,7 @@
 Created on 2015_08_04 @author: Admir Resulaj
 Modified on 2016_06_24 @author: Pei-Ching Chang
 
-This protocol implements a passive odor and two alternative choice paradigm for the Voyeur/Arduino
+This protocol implements a passive odor and two alternative choice paradigm for the Voyeur/arduino_controller
 platform. This includes the protocol behaviour as well as visualization (GUI).
 '''
 
@@ -11,30 +11,23 @@ platform. This includes the protocol behaviour as well as visualization (GUI).
 # Passive_odor_presentation.py
 
 #  Python library imports
-import time, os
-from numpy import append, arange, hstack, nan, isnan, copy, negative
-from copy import deepcopy
-from numpy.random import permutation  #numpy >= 1.7 for choice function
+import time
+from numpy import append, arange, hstack, nan, isnan, negative
 from random import choice, randint, shuffle, seed, random
-from datetime import datetime
-from configobj import ConfigObj
 from itertools import chain, groupby
-from PyQt4.QtCore import QThread
 
 # Voyeur imports
 import voyeur.db as db
 from voyeur.monitor import Monitor
 from voyeur.protocol import Protocol, TrialParameters, time_stamp
-from voyeur.exceptions import SerialException, ProtocolException
 
 # Olfactometer module
-from Olfactometer_arduino import Olfactometers
-from Olfactometer_arduino import SerialMonitor as olfa_monitor
+from src.Olfactometer_arduino import Olfactometers
 
 # Utilities
-from Stimulus import LaserStimulus, LaserTrainStimulus  # OdorStimulus
-from Range_selections_overlay import RangeSelectionsOverlay
-from Voyeur_utilities import save_data_file, parse_rig_config, find_odor_vial
+from src.Stimulus import LaserTrainStimulus  # OdorStimulus
+from src.Range_selections_overlay import RangeSelectionsOverlay
+from src.Voyeur_utilities import parse_rig_config, find_odor_vial
 
 # Enthought's traits imports (For GUI) - Place these imports under
 # voyeur imports since voyeur will select the GUI toolkit to be QT
@@ -42,21 +35,18 @@ from Voyeur_utilities import save_data_file, parse_rig_config, find_odor_vial
 # first, QT is set and used subsequently for all gui related things
 from traits.trait_types import Button
 from traits.api import Int, Str, Array, Float, Enum, Bool, Range,\
-                                Instance, HasTraits, Trait, Dict, DelegatesTo
-from traitsui.api import View, Group, HGroup, VGroup, Item, spring, Label
+                                Instance, Trait
+from traitsui.api import View, Group, HGroup, VGroup, Item, spring
 from chaco.api import ArrayPlotData, Plot, VPlotContainer, \
-            OverlayPlotContainer, SelectableOverlayPlotContainer, DataRange1D
+    DataRange1D
 from enable.component_editor import ComponentEditor
 from enable.component import Component
-from traitsui.editors import ButtonEditor, DefaultOverride
-from pyface.timer.api import Timer, do_after
-from pyface.api import FileDialog, OK, warning, error
-from chaco.tools.api import PanTool
+from traitsui.editors import ButtonEditor
+from pyface.timer.api import Timer
+from pyface.api import FileDialog, OK
 from chaco.axis import PlotAxis
-from chaco.api import Legend
 from chaco.scales.api import TimeScale
 from chaco.scales_tick_generator import ScalesTickGenerator
-from chaco.scales.api import CalendarScaleSystem
 from traits.has_traits import on_trait_change
 
 import os
@@ -76,7 +66,7 @@ class Passive_odor_presentation(Protocol):
     # Number of trials in a block.
     BLOCK_SIZE = 20
 
-    # Flag to indicate whether we have an Arduino, Olfactometer, Scanner connected. Set to 0 for
+    # Flag to indicate whether we have an arduino_controller, Olfactometer, Scanner connected. Set to 0 for
     # debugging.
     ARDUINO = 1
     OLFA = 1
@@ -125,14 +115,14 @@ class Passive_odor_presentation(Protocol):
     # MRI sampleing rate
     TR = 1000
     
-    # Mapping of stimuli categories to code sent to Arduino.
+    # Mapping of stimuli categories to code sent to arduino_controller.
     STIMULI_CATEGORIES = {
                           "Right": 0,
                           "Left" : 1,
                           "None": 2,
                           }
 
-    # Mapping of sniff phase name to code sent to Arduino.
+    # Mapping of sniff phase name to code sent to arduino_controller.
     ODORANT_TRIGGER_PHASE = 2
     SNIFF_PHASES = {
                     0: "Inhalation",
@@ -143,7 +133,7 @@ class Passive_odor_presentation(Protocol):
     #--------------------------------------------------------------------------
     # Protocol parameters.
     # These are session parameters that are not sent to the controller
-    # (Arduino). These may change from trial to trial. They are stored in
+    # (arduino_controller). These may change from trial to trial. They are stored in
     # the database file for each trial.
     #--------------------------------------------------------------------------
     mouse = Str(0, label='Subject')   # mouse name
@@ -174,11 +164,11 @@ class Passive_odor_presentation(Protocol):
     
     #-------------------------------------------------------------------------- 
     # Controller parameters.
-    # These are trial parameters sent to Arduino. By default trial_number is
-    # not sent to Arduino(???), but it is still logged in the database file.
+    # These are trial parameters sent to arduino_controller. By default trial_number is
+    # not sent to arduino_controller(???), but it is still logged in the database file.
     #--------------------------------------------------------------------------
     trial_number = Int(0, label='Trial Number')
-    # Mapped trait. trial type keyword: code sent to Arduino.
+    # Mapped trait. trial type keyword: code sent to arduino_controller.
     trial_type = Trait(STIMULI_CATEGORIES.keys()[0],
                        STIMULI_CATEGORIES,
                        label="Trial type")
@@ -211,7 +201,7 @@ class Passive_odor_presentation(Protocol):
     # The values will be independent but valiadation is done the same way.
     next_trial_type = trial_type
     # Used to notify the backend of voyeur when to send
-    # the next trial parameters to Arduino. Recomputed every trial depending on
+    # the next trial parameters to arduino_controller. Recomputed every trial depending on
     # the result and iti choice.
     next_trial_start = 0
     # [Upper, lower] bounds in milliseconds when choosing an 
@@ -242,17 +232,17 @@ class Passive_odor_presentation(Protocol):
         
     #--------------------------------------------------------------------------
     # Variables for the event.
-    # These are the trial results sent from Arduino.
+    # These are the trial results sent from arduino_controller.
     # They are stored in the database file.
     #--------------------------------------------------------------------------    
     trial_start = Int(0, label="Start of trial time stamp")
     trial_end = Int(0, label="End of trial time stamp")
     first_lick = Int(0, label="Time of first lick")
-    # Time when Arduino received the parameters for the trial (in Arduino
+    # Time when arduino_controller received the parameters for the trial (in arduino_controller
     # elapsed time).
     parameters_received_time = Int(0,
                                    label="Time parameters were received \
-                                   by Arduino")
+                                   by arduino_controller")
     final_valve_onset = Int(0, label="Time of final valve open")
     
     
@@ -303,7 +293,7 @@ class Passive_odor_presentation(Protocol):
     # Values of Right trials for the current sliding window period.
     _sliding_window_right_array = []
     
-    # Time stamp of when voyeur requested the parameters to send to Arduino.
+    # Time stamp of when voyeur requested the parameters to send to arduino_controller.
     _parameters_sent_time = float()
     # Time stamp of when voyeur sent the results for processing.
     _results_time = float()
@@ -312,7 +302,7 @@ class Passive_odor_presentation(Protocol):
     _unsynced_packets = 0
     
     # This is the voyeur backend monitor. It handles data acquisition, storage,
-    # and trial to trial communications with the controller (Arduino).
+    # and trial to trial communications with the controller (arduino_controller).
     monitor = Instance(Monitor)
     # used as an alias for trial_number. Included because the monitor wants to
     # access the trialNumber member not trial_number. monitor will be updated
@@ -464,7 +454,7 @@ class Passive_odor_presentation(Protocol):
                                        Item('water_duration2'),
                                         ),
                                   ),
-                           label="Arduino Control",
+                           label="arduino_controller Control",
                            show_border=True
                            )
     
@@ -1147,7 +1137,7 @@ class Passive_odor_presentation(Protocol):
 
 
     def _pulse_generator1_button_fired(self):
-        """ Send a laser trigger command to the Arduino, for pulse channel 1.
+        """ Send a laser trigger command to the arduino_controller, for pulse channel 1.
         """
         
         if self.monitor.recording:
@@ -1157,7 +1147,7 @@ class Passive_odor_presentation(Protocol):
         self.monitor.send_command(command)
 
     def _pulse_generator2_button_fired(self):
-        """ Send a laser trigger command to the Arduino, for pulse channel 2.
+        """ Send a laser trigger command to the arduino_controller, for pulse channel 2.
         """
         
         if self.monitor.recording:
@@ -1202,7 +1192,7 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.PROTOCOL_NAME
         
         # Get a configuration object with the default settings.
-        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/Voyeur_libraries/','Voyeur_rig_config.conf')
+        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/Voyeur_rig_config.conf')
         self.config = parse_rig_config(voyeur_rig_config)
         self.rig = self.config['rigName']
         self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
@@ -1322,7 +1312,7 @@ class Passive_odor_presentation(Protocol):
                    "percent_right_correct"          : self.percent_right_correct,
                    }
         
-        # Parameters sent to the controller (Arduino)
+        # Parameters sent to the controller (arduino_controller)
         controller_dict = {
                     "trialNumber"                   : (1, db.Int, self.trial_number),
                     "final_valve_duration"          : (2, db.Int, self.final_valve_duration),
@@ -1370,7 +1360,7 @@ class Passive_odor_presentation(Protocol):
         return params_def
 
     def controller_parameters_definition(self):
-        """Returns a dictionary of {name => db.type} defining controller (Arduino) parameters"""
+        """Returns a dictionary of {name => db.type} defining controller (arduino_controller) parameters"""
 
         params_def = {
             "trialNumber"                   : db.Int,

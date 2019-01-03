@@ -1,8 +1,6 @@
 import os
 import time
 import struct
-import binascii
-import glob
 import db
 import platform
 import socket
@@ -52,13 +50,13 @@ class SerialCallThread(QThread):
 
 class SerialPort(object):
 
-    # Make it equal to the buffer size of Arduino. Used to detect buffer overflows and packets missing
+    # Make it equal to the buffer size of arduino_controller. Used to detect buffer overflows and packets missing
     NOLOSSTRANSMISSIONRATE = 0.7
     # Absolute time in seconds (from start of python program) of the last received streaming data
     lastStreamTime = 0
-    # Keep the maximum time in seconds between streaming data transmissions from Arduino
+    # Keep the maximum time in seconds between streaming data transmissions from arduino_controller
     maxRate = 0
-    # Keep a counter of packets that arrive later than NOLOSSTRANSMISSIONRATE, indicating buffer overflown in Arduino
+    # Keep a counter of packets that arrive later than NOLOSSTRANSMISSIONRATE, indicating buffer overflown in arduino_controller
     overflownpackets = 0
 
     def __init__(self, configFile, board = 'board1', port='port1', send_trial_number = False):
@@ -66,8 +64,8 @@ class SerialPort(object):
         (e.g. "/dev/tty.usbserial","COM1") and a baud rate (bps) and
         connects to that port at that speed.
         """
-        # Flag for denoting wether to send trial number to Arduino. This depends on protocol and if the trial number is used
-        # or further forwarded from Arduino to an acquisition device
+        # Flag for denoting wether to send trial number to arduino_controller. This depends on protocol and if the trial number is used
+        # or further forwarded from arduino_controller to an acquisition device
         self.send_trial_number = send_trial_number
         self.config = ConfigObj(configFile)
         serial = self.config['serial']
@@ -151,8 +149,8 @@ class SerialPort(object):
     def start_trial(self, parameters, tries=10):
         """Sends start command"""
         params = convert_format(parameters)
-         # trial number is needed for some protocols which send the trial parameter to Arduino
-         # Arduino can make use of this or send it via serial to an acquisition device.
+         # trial number is needed for some protocols which send the trial parameter to arduino_controller
+         # arduino_controller can make use of this or send it via serial to an acquisition device.
         if not self.send_trial_number:
             params.pop("trialNumber")
         values = params.values()
