@@ -50,7 +50,7 @@ else:
 
 # Get a configuration object with the default settings.
 voyeur_rig_config = os.path.join(
-    '/Users/Gottfried_Lab/PycharmProjects/PyOlfa/Odor_Discrimination_Task/Voyeur_libraries/',
+    '/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/Voyeur_libraries/',
     'Voyeur_rig_config.conf')
 conf = ConfigObj(voyeur_rig_config)
 
@@ -1048,7 +1048,7 @@ if __name__ == '__main__':
     # Create the GUI (this does NOT start the GUI event loop).
     gui = GUI()
     # Create and open the main window.
-    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/Odor_Discrimination_Task/Voyeur_libraries/','Voyeur_rig_config.conf')
+    voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/Voyeur_libraries/','Voyeur_rig_config.conf')
     config = parse_rig_config(voyeur_rig_config)
     window = Olfactometers(config_obj=config_obj)
     window.open()
