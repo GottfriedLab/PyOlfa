@@ -1,0 +1,14 @@
+
+.idea/workspace.xml
+src/__init__.pyc
+src/Olfactometer_arduino.pyc
+src/Range_selections_overlay.pyc
+src/Stimulus.pyc
+src/voyeur/__init__.pyc
+src/voyeur/arduino.pyc
+src/voyeur/db.pyc
+src/voyeur/exceptions.pyc
+src/voyeur/monitor.pyc
+src/voyeur/plugins.pyc
+src/voyeur/protocol.pyc
+src/Voyeur_utilities.pyc
