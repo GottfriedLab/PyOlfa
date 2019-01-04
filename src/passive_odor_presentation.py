@@ -11,7 +11,7 @@ platform. This includes the protocol behaviour as well as visualization (GUI).
 # passive_odor_presentation.py
 
 #  Python library imports
-import time, os
+import os, time
 from numpy import append, arange, hstack, nan, isnan, negative
 from random import choice, randint, shuffle, seed, random
 from itertools import chain, groupby
@@ -1001,7 +1001,6 @@ class Passive_odor_presentation(Protocol):
                 self._final_valve_button_fired()
             self.monitor.stop_acquisition()
             print "Unsynced trials: ", self._unsynced_packets
-            #save_data_file(self.monitor.database_file,self.config['serverPaths']['mountPoint']+self.config['serverPaths']['chrisw'])
         else:
             self.start_label = 'Stop'
             self._restart()

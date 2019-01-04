@@ -63,7 +63,7 @@ class Monitor(HasTraits):
 
     # Client
     persistor = Instance(object, factory=Persistor)
-    serial1 = Instance(object) #, factory=SerialPort, args=(os.environ['VOYEUR_CONFIG'], 'board1', 'port1'))
+    serial1 = Instance(object)
     serial_queue1 = Instance(object)
     protocol = Instance(object)
     database_file = File(None)
@@ -110,7 +110,8 @@ class Monitor(HasTraits):
         self.persistor = Persistor()
 
         # config
-        self.configFile = os.environ.get("Voyeur_config")
+        # self.configFile = os.environ.get("voyeur_config")
+        self.configFile = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/voyeur_rig_config.conf')
 
         # serial
         self.serial_queue1 = SerialCallThread(monitor=self, max_queue_size=1)        
