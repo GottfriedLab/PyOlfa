@@ -691,12 +691,12 @@ class Passive_odor_presentation(Protocol):
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "lick1"),
                                name="Choice (R)",
-                               color="blue",
+                               color="red",
                                line_width=5)[0]
 
         event_plot = plot.plot(("iteration", "lick2"),
                                name="Choice (L)",
-                               color="red",
+                               color="blue",
                                line_width=5)[0]
         event_plot = plot.plot(("iteration", "mri"),
                                name="Trigger",
@@ -1222,9 +1222,9 @@ class Passive_odor_presentation(Protocol):
         plot = Plot(self.event_plot_data, padding=20, padding_left=80, padding_bottom=40, border_visible=False)
         self.event_plot = plot
         plot.plot(('trial_number_tick', '_left_trials_line'), type='scatter', marker='circle', marker_size=5,
-                  color='blue', outline_color='transparent', name = "Left Trials")
+                  color='blue', outline_color='transparent', name = "Trial (Left)")
         plot.plot(('trial_number_tick', '_right_trials_line'), type = 'scatter', marker='circle', marker_size=5,
-                  color='red', outline_color='transparent', name = "Right Trials")
+                  color='red', outline_color='transparent', name = "Trial (Right)")
         plot.legend.visible = True
         plot.legend.bgcolor = "white"
         plot.legend.align = "ul"
