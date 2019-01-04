@@ -1182,7 +1182,7 @@ class Passive_odor_presentation(Protocol):
         self.protocol_name = self.PROTOCOL_NAME
         
         # Get a configuration object with the default settings.
-        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/voyeur_rig_config.conf')
+        voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/', 'voyeur_rig_config.conf')
         self.config = parse_rig_config(voyeur_rig_config)
         self.rig = self.config['rigName']
         self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
