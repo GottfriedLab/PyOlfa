@@ -69,7 +69,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 16
-    LICKING_TRAINING = 0.50
+    LICKING_TRAINING = 0.05
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -690,13 +690,13 @@ class Passive_odor_presentation(Protocol):
 
         # Add the lines to the plot and grab one of the plot references.
         event_plot = plot.plot(("iteration", "lick1"),
-                               name="Choice (R)",
-                               color="red",
+                               name="Choice (L)",
+                               color="blue",
                                line_width=5)[0]
 
         event_plot = plot.plot(("iteration", "lick2"),
-                               name="Choice (L)",
-                               color="blue",
+                               name="Choice (R)",
+                               color="red",
                                line_width=5)[0]
         event_plot = plot.plot(("iteration", "mri"),
                                name="Trigger",
@@ -1221,9 +1221,9 @@ class Passive_odor_presentation(Protocol):
         plot = Plot(self.event_plot_data, padding=20, padding_left=80, padding_bottom=40, border_visible=False)
         self.event_plot = plot
         plot.plot(('trial_number_tick', '_left_trials_line'), type='scatter', marker='circle', marker_size=5,
-                  color='blue', outline_color='transparent', name = "Trial (Left)")
+                  color='blue', outline_color='transparent', name = "Trial (L)")
         plot.plot(('trial_number_tick', '_right_trials_line'), type = 'scatter', marker='circle', marker_size=5,
-                  color='red', outline_color='transparent', name = "Trial (Right)")
+                  color='red', outline_color='transparent', name = "Trial (R)")
         plot.legend.visible = True
         plot.legend.bgcolor = "white"
         plot.legend.align = "ul"
