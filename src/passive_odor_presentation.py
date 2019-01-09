@@ -613,9 +613,10 @@ class Passive_odor_presentation(Protocol):
                           **AXIS_DEFAULTS)
         y_axis = PlotAxis(orientation='left',
                           mapper=plot.y_mapper,
-                          tick_interval=10,
+                          tick_interval=20,
                           component=plot,
                           **AXIS_DEFAULTS)
+
 
         plot.x_axis = x_axis
         plot.y_axis = y_axis
@@ -1220,10 +1221,10 @@ class Passive_odor_presentation(Protocol):
                                              _right_trials_line=self._right_trials_line)
         plot = Plot(self.event_plot_data, padding=20, padding_left=80, padding_bottom=40, border_visible=False)
         self.event_plot = plot
-        plot.plot(('trial_number_tick', '_left_trials_line'), type='scatter', marker='circle', marker_size=5,
-                  color='blue', outline_color='transparent', name = "Trial (L)")
-        plot.plot(('trial_number_tick', '_right_trials_line'), type = 'scatter', marker='circle', marker_size=5,
-                  color='red', outline_color='transparent', name = "Trial (R)")
+        plot.plot(('trial_number_tick', '_left_trials_line'), type='scatter', marker='circle', marker_size=6,
+                  color='blue', outline_color='transparent', name="Trial (L)")
+        plot.plot(('trial_number_tick', '_right_trials_line'), type='scatter', marker='circle', marker_size=6,
+                  color='red', outline_color='transparent', name="Trial (R)")
         plot.legend.visible = True
         plot.legend.bgcolor = "white"
         plot.legend.align = "ul"
@@ -1239,16 +1240,18 @@ class Passive_odor_presentation(Protocol):
             'axis_line_weight': 1,
             'tick_weight': 1,
             'tick_label_font': 'Arial 14',
+            'tick_interval': 1
         }
 
         x_axis = PlotAxis(orientation='bottom',
+                          mapper=plot.x_mapper,
                           component=plot,
                           **AXIS_DEFAULTS)
         y_axis = PlotAxis(orientation='left',
                           mapper=plot.y_mapper,
                           tick_interval=20,
-                          component=plot,
-                          **AXIS_DEFAULTS)
+                          component=plot)
+
         plot.x_axis = x_axis
         plot.y_axis = y_axis
 
