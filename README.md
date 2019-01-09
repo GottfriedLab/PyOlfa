@@ -7,7 +7,7 @@ PyOlfa is a experimental tool for automated olfactory behavioral assessment. Her
 *	Data storage: Store the data and parameters used in the experiments to a HDF5 file
 
 # Dependencies
-We recommend that you install a scientific Python distribution like Anaconda. Since it meets all the requirements of nilearn, it will save you time and trouble. PyOlfa is written in Python 2.7. If you are using Anaconda, please make sure you install the correct version. In addition, the following software packages are required or PyOlfa will not work at all. 
+We recommend that you install a scientific Python distribution like Anaconda. Since it meets all the requirements of nilearn, it will save you time and trouble. PyOlfa is written in Python 2.7. Please make sure you install the correct version. In addition, the following software packages are required or PyOlfa will not work at all. 
 
 *	Chaco
 * Enable
