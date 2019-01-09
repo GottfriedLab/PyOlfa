@@ -68,8 +68,8 @@ class Passive_odor_presentation(Protocol):
     # During initial free water trials, free water is 100% given to mice
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
-    INITIAL_FREE_WATER_TRIALS = 16
-    LICKING_TRAINING = 0.05
+    INITIAL_FREE_WATER_TRIALS = 4
+    LICKING_TRAINING = 0
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -215,8 +215,8 @@ class Passive_odor_presentation(Protocol):
     right_side_odor_test = [0]*5
     left_side_preference_trials = Int(0)
     right_side_preference_trials = Int(0)
-    free_water = Bool(False, label='FreeWater')
-    next_free_water = Bool(False, label='NextFreeWater')
+    free_water = Bool(True, label='FreeWater')
+    next_free_water = Bool(True, label='NextFreeWater')
     next_left_free_water = Bool(False, label='LeftFreeWater')
     next_right_free_water = Bool(False, label='RightFreeWater')
     initial_free_water_trials = Int(0)
@@ -1197,7 +1197,7 @@ class Passive_odor_presentation(Protocol):
         self.final_valve_duration = final_valve_duration
         self.response_window = self.LICKING_GRACE_PERIOD + self.RESPONSE_DURATION
         self.tr = self.TR
-        self.licking_training = self.LICKING_TRAINING *10
+        self.licking_training = self.LICKING_TRAINING * 10
         self.lick_grace_period = self.LICKING_GRACE_PERIOD
         self.initial_free_water_trials = self.INITIAL_FREE_WATER_TRIALS
         self.stimuli_categories = self.STIMULI_CATEGORIES
@@ -1947,14 +1947,13 @@ class Passive_odor_presentation(Protocol):
         
         # Grab next stimulus.
         if self.enable_blocks:
-            if self.LICKING_TRAINING > 0:
-                self.random_free_water_index = randint(1, 10)
-                if self.next_trial_number <= self.initial_free_water_trials:
-                    self.next_free_water = True
-                elif self.LICKING_TRAINING *10 >= self.random_free_water_index:
-                    self.next_free_water = True
-                else:
-                    self.next_free_water = False
+            self.random_free_water_index = randint(1, 10)
+            if self.next_trial_number <= self.initial_free_water_trials:
+                self.next_free_water = True
+            elif self.LICKING_TRAINING *10 >= self.random_free_water_index:
+                self.next_free_water = True
+            else:
+                self.next_free_water = False
 
             if not len(self.stimulus_block):
                 self.generate_next_stimulus_block()
@@ -2034,10 +2033,10 @@ if __name__ == '__main__':
     session = 18
     stamp = time_stamp()
     tr = 1000
-    licking_training = 0
-    initial_free_water_trials = 0
-    left_free_water = 0
-    right_free_water = 0
+    licking_training = 1
+    initial_free_water_trials = 1
+    left_free_water = 1
+    right_free_water = 1
     water_duration1 = 150
     water_duration2 = 150
 
