@@ -68,8 +68,8 @@ class Passive_odor_presentation(Protocol):
     # During initial free water trials, free water is 100% given to mice
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
-    INITIAL_FREE_WATER_TRIALS = 16
-    LICKING_TRAINING = 0.05
+    INITIAL_FREE_WATER_TRIALS = 15
+    LICKING_TRAINING = 0.20
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 

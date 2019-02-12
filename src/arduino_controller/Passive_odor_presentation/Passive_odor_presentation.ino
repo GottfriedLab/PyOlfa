@@ -7,9 +7,9 @@
 
 // include the library code:
 #include <SPI.h>
-#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\Arduino\Voyeur_timer_lib.pde>
-#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\Arduino\IoFunctions_external_timers.pde>
-#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\Arduino\Voyeur_serial_stream_tools.pde>
+#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\src\arduino_controller\voyeur_timer_lib.pde>
+#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\src\arduino_controller\IoFunctions_external_timers.pde>
+#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\src\arduino_controller\Voyeur_serial_stream_tools.pde>
 
 #define LED_PIN   13
 

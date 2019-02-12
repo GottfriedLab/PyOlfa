@@ -3,7 +3,7 @@
 // 2013_06_05 CW - made a CueLowOnTimer for LED mask
 
 // Functions that handle comm. with I/O devices
-#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\Arduino\ADfunctions.pde>
+#include <C:\Users\Gottfried_Lab\PycharmProjects\PyOlfa\src\arduino_controller\adfunctions.pde>
 
 #define MAXCUES 162
 #define TRIGGER1 4
@@ -23,7 +23,7 @@ boolean recordsniff = false, clockflag = false, recordsniffttl = false, trig_mov
 const PROGMEM int blocksize = {100}; //block size to send
 const PROGMEM int fmri_sniff_t_inh = {-50};// threshold crossing value for inhalation in ADC units. (-5000:5000)
 const PROGMEM int fmri_sniff_t_exh = {50}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.
-const PROGMEM int sniff_sensor_offset = {-110};
+const PROGMEM int sniff_sensor_offset = {-120};
 const PROGMEM int fmri_offset = {500};
 const PROGMEM int training_sniff_t_inh = {-10};// threshold crossing value for inhalation in ADC units. (-5000:5000)
 const PROGMEM int training_sniff_t_exh = {10}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.

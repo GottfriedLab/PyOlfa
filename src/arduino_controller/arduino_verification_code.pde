@@ -156,7 +156,7 @@ void teensyWriteMany(char *buff, int length) {
 }
 
 // read how many bytes are available to read from teensy
-// this will take two SPI transactions
+// this will takepa two SPI transactions
 uint8_t teensyAvailable() {
   teensySPI(0x00); // 0x00 -> teensy will send bytes available at next SPI transaction
   return (teensySPI(0x00)); // get the return value
