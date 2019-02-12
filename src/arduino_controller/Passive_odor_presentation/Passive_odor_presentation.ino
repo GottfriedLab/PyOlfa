@@ -131,7 +131,7 @@ boolean mri_trigger_state = false;
 // For generating a period pulse
 unsigned long last_pulse = 0;   // time of last pulse change
 boolean pulse_on = true;  // change this to true to test with fake signal
-int pulse_state = false;  // 
+int pulse_state = true;
 
 // State of the state machine.
 int state = 0;
@@ -317,23 +317,19 @@ void loop() {
       break;
 
     case 1:
-      // Wait for MRI trigger to start the experiment
-      mri_trigger_state = (digitalRead(MRI_TRIGGER));
-      if ((digitalRead(MRI_TRIGGER) != mri_trigger_state)) {
-        
-        // Python has uploaded the trial parameters to start a trial.
-        // Wait for ITI to be over
-        if ((totalms - trial_end) > (inter_trial_interval)) {
-          trial_start = totalms;
-          if (odorant_trigger_phase == PHASE_INDEPENDENT) { // Final valve trigger state
-            state = 6;
-          }
-          else if (odorant_trigger_phase == EXHALATION) {
-            state = 2;
-          }
-          else if (odorant_trigger_phase == INHALATION) {
-            state = 4;
-          }
+      // Python has uploaded the trial parameters to start a trial.
+      // Wait for ITI to be over and wait for trigger before starting the trial.
+      if ((totalms - trial_end) > (inter_trial_interval)) {
+        mri_trigger_state = (digitalRead(MRI_TRIGGER));
+        trial_start = totalms;
+        if (odorant_trigger_phase == PHASE_INDEPENDENT) { // Final valve trigger state
+          state = 6;
+        }
+        else if (odorant_trigger_phase == EXHALATION) {
+          state = 2;
+        }
+        else if (odorant_trigger_phase == INHALATION) {
+          state = 4;
         }
       }
       break;
