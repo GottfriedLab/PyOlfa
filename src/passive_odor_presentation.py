@@ -114,7 +114,7 @@ class Passive_odor_presentation(Protocol):
                           }
 
     # Mapping of sniff phase name to code sent to arduino_controller.
-    ODORANT_TRIGGER_PHASE = 2
+    ODORANT_TRIGGER_PHASE = 0
     SNIFF_PHASES = {
                     0: "Inhalation",
                     1: "Exhalation",

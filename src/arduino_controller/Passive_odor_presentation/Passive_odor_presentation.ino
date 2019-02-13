@@ -322,14 +322,15 @@ void loop() {
       if ((totalms - trial_end) > (inter_trial_interval)) {
         mri_trigger_state = (digitalRead(MRI_TRIGGER));
         trial_start = totalms;
-        if (odorant_trigger_phase == PHASE_INDEPENDENT) { // Final valve trigger state
-          state = 6;
-        }
-        else if (odorant_trigger_phase == EXHALATION) {
+        // Final valve trigger state
+        if (odorant_trigger_phase == EXHALATION) {
           state = 2;
         }
         else if (odorant_trigger_phase == INHALATION) {
           state = 4;
+        }
+        else if (odorant_trigger_phase == PHASE_INDEPENDENT) { 
+          state = 6;
         }
       }
       break;
@@ -342,7 +343,7 @@ void loop() {
 
     case 3: // Find exhalation state so that the stimulus can be triggered.
       if ((sniff_trigger)) {
-        state = 6;
+        state = 7;
       }
       break;
 
@@ -354,37 +355,43 @@ void loop() {
 
     case 5: // Find inhalation state so that the stimulus can be triggered.
       if ((!sniff_trigger)) {
-        state = 6;
+        state = 7;
       }
       break;
 
-    case 6: // Trigger stimulus state.
+    case 6: // Wait for TR to be over regardless of inhaleation/exhaleatio state
+      if ((digitalRead(MRI_TRIGGER) != mri_trigger_state)) {
+        state = 7;
+      }
+      break;
+      
+    case 7: // Trigger stimulus state.
       // open final valve
       final_valve_onset = totalms;
       valveOnTimer(FINALVALVE, final_valve_duration);
       valveOnTimer(FV_T, final_valve_duration);
-      state = 7;
+      state = 8;
       break;
 
-    case 7: // Grace period.
+    case 8: // Grace period.
       if (totalms >= (final_valve_onset + lick_grace_period)) {
         trial = trial + 1;
         if (trial_type == LEFT) {
           if ((left_free_water)) {
               valveOnTimer(WATERVALVE1, water_duration1);
           }
-          state = 8;
+          state = 9;
         }
         else if (trial_type == RIGHT) {
           if ((right_free_water)) {
               valveOnTimer(WATERVALVE2, water_duration2);
           }
-          state = 9;
+          state = 10;
         }
       }
       break;
 
-    case 8:  // LEFT Trial
+    case 9:  // LEFT Trial
       trial_now = totalms;
       if (hasDigitaled(1) || hasDigitaled(2)) { // lick has occured
         first_lick = totalms;
@@ -395,21 +402,21 @@ void loop() {
               valveOnTimer(WATERVALVE1, water_duration1);
             }
           }
-          state = 10;
+          state = 11;
         }
         else if (hasDigitaled(2)) {
           response = 3; // A LEFT MISS
-          state = 10;
+          state = 11;
         }
       }
       else if ((trial_now - final_valve_onset) > response_window) {
         response = 5; // A Left no response
-        state = 10;
+        state = 11;
       }
 
       break;
 
-    case 9:  //RIGHT Trial
+    case 10:  //RIGHT Trial
       trial_now = totalms;
       if (hasDigitaled(1) || hasDigitaled(2)) { // lick has occured
         first_lick = totalms;
@@ -420,21 +427,21 @@ void loop() {
               valveOnTimer(WATERVALVE2, water_duration2);
             }
           }
-          state = 10;
+          state = 11;
         }
         else if (hasDigitaled(1)) {
           response = 4; // A RIGHT MISS
-          state = 10;
+          state = 11;
         }
       }
       else if ((trial_now - final_valve_onset) > response_window) {
         response = 6; // A right no response
-        state = 10;
+        state = 11;
       }
 
       break;
 
-    case 10: // shut everything down.
+    case 11: // shut everything down.
       trial_end = totalms;
       trial_done_flag = true;
       state = 0;
