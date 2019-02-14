@@ -130,7 +130,7 @@ boolean mri_trigger_state = false;
 
 // For generating a period pulse
 unsigned long last_pulse = 0;   // time of last pulse change
-boolean pulse_on = true;  // change this to true to test with fake signal
+boolean pulse_on = false;  // change this to true to test with fake signal
 int pulse_state = true;
 
 // State of the state machine.

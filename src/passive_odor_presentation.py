@@ -69,7 +69,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 15
-    LICKING_TRAINING = 0.20
+    LICKING_TRAINING = 1
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -114,7 +114,7 @@ class Passive_odor_presentation(Protocol):
                           }
 
     # Mapping of sniff phase name to code sent to arduino_controller.
-    ODORANT_TRIGGER_PHASE = 0
+    ODORANT_TRIGGER_PHASE = 2
     SNIFF_PHASES = {
                     0: "Inhalation",
                     1: "Exhalation",
@@ -332,6 +332,8 @@ class Passive_odor_presentation(Protocol):
     olfactometer_label = Str('Olfactometer')
     final_valve_button = Button()
     final_valve_label = Str("Final Valve (OFF)")
+    mockmri_button = Button()
+    mockmri_label = Str("Mock MRI")
     left_water_calibrate_button = Button()
     left_water_calibrate_label = Str("Calibrate Left Water Valve")
     right_water_calibrate_button = Button()
@@ -360,6 +362,9 @@ class Passive_odor_presentation(Protocol):
                             Item('start_button',
                                  editor=ButtonEditor(label_value='start_label'),
                                  show_label=False),
+                            Item('mockmri_button',
+                                 editor=ButtonEditor(label_value='mockmri_label'),
+                                 show_label=False),
                             Item('pause_button',
                                  editor=ButtonEditor(label_value='pause_label'),
                                  show_label=False,
@@ -368,8 +373,7 @@ class Passive_odor_presentation(Protocol):
                                  show_label=False,
                                  enabled_when='not monitor.running'),
                             Item('olfactometer_button',
-                                 editor=ButtonEditor(
-                                            label_value='olfactometer_label'),
+                                 editor=ButtonEditor(label_value='olfactometer_label'),
                                  show_label=False),
                             label='Application Control',
                             show_border=True
@@ -418,32 +422,36 @@ class Passive_odor_presentation(Protocol):
     arduino_group = VGroup(
                            HGroup(
                                   Item('final_valve_button',
-                                       editor=ButtonEditor(
+                                            editor=ButtonEditor(
                                             style="button",
                                             label_value='final_valve_label'),
-                                       show_label=False),
+                                            show_label=False),
                                   VGroup(
                                        Item('left_water_button',
                                             editor=ButtonEditor(
-                                                style="button"),
+                                            style="button",
+                                            label_value='left_water_label'),
                                             show_label=False),
                                        Item('left_water_calibrate_button',
                                             editor=ButtonEditor(
-                                                style="button"),
+                                            style="button",
+                                            label_value='left_water_calibrate_label'),
                                             show_label=False),
                                        Item('water_duration1'),
-                                        ),
+                                       ),
                                   VGroup(
                                        Item('right_water_button',
                                             editor=ButtonEditor(
-                                                style="button"),
+                                            style="button",
+                                            label_value='right_water_label'),
                                             show_label=False),
                                        Item('right_water_calibrate_button',
                                             editor=ButtonEditor(
-                                                style="button"),
+                                            style="button",
+                                            label_value='right_water_calibrate_label'),
                                             show_label=False),
-                                       Item('water_duration2'),
-                                        ),
+                                       Item('water_duration1'),
+                                       ),
                                   ),
                            label="arduino_controller Control",
                            show_border=True
@@ -1086,6 +1094,10 @@ class Passive_odor_presentation(Protocol):
         if dialog.return_code == OK:
             self.db = os.path.join(dialog.directory, dialog.filename)
         return
+
+    def _mockmri_button_fired(self):
+        command = "mockmri"
+        self.monitor.send_command(command)
 
     # Open olfactometer object here
     def _olfactometer_button_fired(self):

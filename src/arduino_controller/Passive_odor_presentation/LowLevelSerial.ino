@@ -42,6 +42,12 @@ void RunSerialCom(int code) {
                 digitalWrite(FV_T,LOW);
               }
           }
+          // mock scan
+          else if(strcmp(argument_words[0], "mockmri") == 0) {
+            Serial1.write(0x94);
+            Serial1.print(F("pulse on"));
+            pulse_on = true;
+          }
           // water valve
           else if(strcmp(argument_words[0], "wv") == 0) {
             int water_valve = atoi(argument_words[1]);
