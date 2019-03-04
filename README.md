@@ -20,5 +20,5 @@ We recommend that you install a scientific Python distribution like Anaconda. Si
 *	Pyqt4
 
 # Example Useage
+![Alt text](docs/Olfactometry.png)
 ![Output sample](docs/gif.gif)
-![Alt text](docs/Olfactometry.PNG)
