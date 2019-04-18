@@ -68,8 +68,8 @@ class Passive_odor_presentation(Protocol):
     # During initial free water trials, free water is 100% given to mice
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
-    INITIAL_FREE_WATER_TRIALS = 15
-    LICKING_TRAINING = 1
+    INITIAL_FREE_WATER_TRIALS = 20
+    LICKING_TRAINING = .65
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -93,15 +93,15 @@ class Passive_odor_presentation(Protocol):
     # Number of initial trials to help motivating the subject to start
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
     # half of initial trials will be right and the rest is left
-    INITIAL_TRIALS_TYPE = 0 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 0
+    INITIAL_TRIALS_TYPE = 2 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS = 40
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [15000, 17000]
+    ITI_BOUNDS_CORRECT = [7000, 9000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [20000, 22000]
+    ITI_BOUNDS_FALSE_ALARM = [12000, 14000]
 
     # MRI sampleing rate
     TR = 1000
@@ -613,7 +613,10 @@ class Passive_odor_presentation(Protocol):
             'tick_weight': 1,
             'tick_label_font': 'Arial 14',
         }
-
+        if self.FMRI:
+            ytick = 100
+        else:
+            ytick = 10
         x_axis = PlotAxis(orientation='bottom',
                           mapper=plot.x_mapper,
                           component=plot,
@@ -621,7 +624,7 @@ class Passive_odor_presentation(Protocol):
                           **AXIS_DEFAULTS)
         y_axis = PlotAxis(orientation='left',
                           mapper=plot.y_mapper,
-                          tick_interval=20,
+                          tick_interval=ytick,
                           component=plot,
                           **AXIS_DEFAULTS)
 

@@ -21,10 +21,10 @@ volatile bool sniff_trigger = true;
 boolean recordsniff = false, clockflag = false, recordsniffttl = false, trig_move = false;//flags signaling analog acquisition
 
 const PROGMEM int blocksize = {100}; //block size to send
-const PROGMEM int fmri_sniff_t_inh = {-50};// threshold crossing value for inhalation in ADC units. (-5000:5000)
-const PROGMEM int fmri_sniff_t_exh = {50}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.
+const PROGMEM int fmri_sniff_t_inh = {-100};// threshold crossing value for inhalation in ADC units. (-5000:5000)
+const PROGMEM int fmri_sniff_t_exh = {100}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.
+const PROGMEM int fmri_offset = {570};
 const PROGMEM int sniff_sensor_offset = {-120};
-const PROGMEM int fmri_offset = {500};
 const PROGMEM int training_sniff_t_inh = {-10};// threshold crossing value for inhalation in ADC units. (-5000:5000)
 const PROGMEM int training_sniff_t_exh = {10}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.
 
