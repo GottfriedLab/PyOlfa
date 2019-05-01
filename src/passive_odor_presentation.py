@@ -69,13 +69,13 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 20
-    LICKING_TRAINING = .65
+    LICKING_TRAINING = .35
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
     # Grace period after FV open where responses are recorded but not scored.
     LICKING_GRACE_PERIOD = 0
-    RESPONSE_DURATION = 2000
+    RESPONSE_DURATION = 5000
 
     # Number of trials in one sliding window used for continuous
     # visualizing of session performance.
@@ -94,7 +94,7 @@ class Passive_odor_presentation(Protocol):
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
     # half of initial trials will be right and the rest is left
     INITIAL_TRIALS_TYPE = 2 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 40
+    INITIAL_TRIALS = 20
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
@@ -595,7 +595,7 @@ class Passive_odor_presentation(Protocol):
         if self.FMRI:
             y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
         else:
-            y_range = DataRange1D(low=-20, high=20)  # for training non-mri sniff sensor
+            y_range = DataRange1D(low=-3000, high=100)  # for training non-mri sniff sensor
         plot.value_range = y_range
         plot.fixed_preferred_size = (100, 20)
         plot.y_axis.visible = True
@@ -661,7 +661,7 @@ class Passive_odor_presentation(Protocol):
         # This second plot is for the event signals (e.g. the lick signal).
         # It shares the same timescale as the streaming plot.
         
-        # Lick left
+        # Lick and mri trigger
         self.stream_events_data = ArrayPlotData(iteration=self.iteration,
                                               lick1=self.lick1, lick2=self.lick2, mri=self.mri)
 
@@ -676,7 +676,7 @@ class Passive_odor_presentation(Protocol):
         self.lick1[-1] = 0
         self.lick2 = [nan] * len(self.iteration)
         self.lick2[-1] = 0
-        self.mri = [-2] * len(self.iteration)
+        self.mri = [1] * len(self.iteration)
         self.mri[-1] = 0
 
         self.stream_events_data.set_data("iteration", self.iteration)
@@ -685,8 +685,8 @@ class Passive_odor_presentation(Protocol):
         self.stream_events_data.set_data("mri", self.mri)
 
         # Change plot properties.)
-        plot.fixed_preferred_size = (100, 5)
-        y_range = DataRange1D(low=0, high=2)
+        plot.fixed_preferred_size = (100, 20)
+        y_range = DataRange1D(low=-100, high=100)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
@@ -1783,7 +1783,7 @@ class Passive_odor_presentation(Protocol):
         streamdef = self.stream_definition()
         if 'mri' in streamdef.keys():
             self.mri = hstack((self.mri[-self.STREAM_SIZE + shift:], self.mri[-1] * shift))
-            self.stream_mri_data2.set_data('mri', self.mri)
+            self.stream_mri_data.set_data('mri', self.mri)
         return
 
     def start_of_trial(self):

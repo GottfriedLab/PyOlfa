@@ -126,12 +126,12 @@ unsigned long first_lick = 0;
 short received_parameters = 0;
 // Flags used for internal states.
 boolean trial_done_flag = false, send_last_packet = false;
-boolean mri_trigger_state = false;
+unsigned long mri_trigger_state = false;
 
 // For generating a period pulse
 unsigned long last_pulse = 0;   // time of last pulse change
 boolean pulse_on = false;  // change this to true to test with fake signal
-int pulse_state = true;
+int pulse_state = false;
 
 // State of the state machine.
 int state = 0;
@@ -301,13 +301,14 @@ void loop() {
   //==========================================================================
   //                       State machine goes here
   //==========================================================================
-  // check sniffing for lost sniff
-  //copy this to register from volatile.
-
-  if (pulse_on && (totalms - last_pulse > tr)) {
-    digitalWrite(FAKE_MRI, pulse_state);
-    if (pulse_state = !pulse_state); {
-      last_pulse = totalms;
+  
+  digitalWrite(FAKE_MRI, HIGH);
+  if (pulse_on) {
+    digitalWrite(FAKE_MRI, HIGH);
+    if (totalms - last_pulse > tr) {
+      digitalWrite(FAKE_MRI, LOW);
+      last_pulse = totalms ;
+      delay(1);
     }
   }
 

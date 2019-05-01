@@ -44,8 +44,6 @@ void RunSerialCom(int code) {
           }
           // mock scan
           else if(strcmp(argument_words[0], "mockmri") == 0) {
-            Serial1.write(0x94);
-            Serial1.print(F("pulse on"));
             pulse_on = true;
           }
           // water valve
@@ -94,19 +92,6 @@ void RunSerialCom(int code) {
             else if(water_valve == 2)
               water_duration2 = atoi(argument_words[2]);     
           }
-          else if(strcmp(argument_words[0], "Laser") == 0) {
-            if(strcmp(argument_words[2], "trigger") == 0) {
-              unsigned long laser_dur;
-              uint16_t laser_amp;
-              uint8_t laser_chan;
-              char **endptr;
-              laser_chan = (uint8_t)atoi(argument_words[1]);
-              laser_amp = atoi(argument_words[3]);
-              laser_dur = strtoul(argument_words[4],endptr,0)*1000;
-              setPulse(laser_chan,laser_dur,laser_amp);
-              trigPulse(laser_chan);
-            }
-          }
           user_command_buffer_index = 0;
         }
         else if (((c == '\b') || (c == 0x7f)) && (user_command_buffer_index > 0))
@@ -151,7 +136,7 @@ void RunSerialCom(int code) {
         currenttime = totalms;
         current_sniff_data_index = currentvalue;
       }
-      // calculate number of bytes to send for sniff, lick1 and mri_trigger.
+      // calculate number of bytes to send for sniff
       int sniff_sample_number; // number of sniff samples
       int sniff_bytes;
       sniff_sample_number = (current_sniff_data_index+BUFFERS-last_sent_sniff_data_index)%BUFFERS;
