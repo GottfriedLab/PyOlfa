@@ -242,6 +242,7 @@ void DigitalOff(uint8_t beam) {
         beam3status = false;  // our initial status for next block or recordings
 
         mrihead = (mrihead+1)%MRIBUFF;
+
     }
   }
 }
@@ -322,8 +323,8 @@ boolean hasDigitaldata(uint8_t pin) {
     return (mrihead != mritail);
 }
 
-// check to see if there were any lick1s/mri trigger
-// use if lick1s are not being streamed, i.e. buffered and transmitted at end of trial
+// check to see if there were any lick/mri trigger
+// use if signals are not being streamed, i.e. buffered and transmitted at end of trial
 boolean hasDigitaled(uint8_t pin) {
   if(pin == 1) {
         // there is only one value in the buffer

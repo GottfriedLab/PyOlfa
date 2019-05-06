@@ -272,8 +272,8 @@ void setup() {
   setupVoyeurTimer();
 
   // setup buffer sizes
-  //(unsigned unsigned int sniffbuff, int mribuff, unsigned int lickbuff, unsigned int trigbuff)
-  setupBuffers(256, 4, 4, 4);
+  //(unsigned unsigned int sniffbuff, unsigned int mribuff, unsigned int lickbuff)
+  setupBuffers(128, 32, 4, 4);
 
   // Recording of sniff
   // The first two arguments define the two analog pins that we are recording from: ex. 0 = AIN1, 1=AIN2
@@ -287,8 +287,8 @@ void setup() {
   startDigital(LICK1_SENSOR, LICK2_SENSOR, MRI_TRIGGER);
 
   // first argument is how many digital channels to look for licking. 1 = only first channel. 2 = only second channel, 3 = both.
-  // function is found at ioFunctions.pde . Second argument is the inter sample interval 0 = every ms
-  digitalOn(3, 40);
+  // function is found at ioFunctions.pde . Second argument is the inter sample interval 1 = every ms
+  digitalOn(3, 1);
   recordsniffttl = true;
 
   // Init done
@@ -312,6 +312,8 @@ void loop() {
     }
   }
 
+  
+
   switch (state) {
 
     case 0: //waiting for initialization of trial
@@ -321,7 +323,6 @@ void loop() {
       // Python has uploaded the trial parameters to start a trial.
       // Wait for ITI to be over and wait for trigger before starting the trial.
       if ((totalms - trial_end) > (inter_trial_interval)) {
-        mri_trigger_state = (digitalRead(MRI_TRIGGER));
         trial_start = totalms;
         // Final valve trigger state
         if (odorant_trigger_phase == EXHALATION) {
@@ -336,32 +337,33 @@ void loop() {
       }
       break;
 
-    case 2: // Wait for TR to be over and exhalation state.
-      if ((digitalRead(MRI_TRIGGER) != mri_trigger_state)) {
+    case 2: // Wait for TR to be over and then exhalation state.
+      if (pulse_on && hasDigitaled(3)) {
         state = 3;
       }
+      
       break;
 
     case 3: // Find exhalation state so that the stimulus can be triggered.
-      if ((sniff_trigger)) {
+      if (sniff_trigger) {
         state = 7;
       }
       break;
 
-    case 4: // Wait for TR to be over and inhalation state.
-      if ((digitalRead(MRI_TRIGGER) != mri_trigger_state)) {
+    case 4: // Wait for TR to be over and then inhalation state.
+      if (pulse_on && hasDigitaled(3)) {
         state = 5;
       }
       break;
 
     case 5: // Find inhalation state so that the stimulus can be triggered.
-      if ((!sniff_trigger)) {
+      if (!sniff_trigger) {
         state = 7;
       }
       break;
 
     case 6: // Wait for TR to be over regardless of inhaleation/exhaleatio state
-      if ((digitalRead(MRI_TRIGGER) != mri_trigger_state)) {
+      if (pulse_on && hasDigitaled(3)) {
         state = 7;
       }
       break;

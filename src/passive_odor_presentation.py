@@ -595,7 +595,7 @@ class Passive_odor_presentation(Protocol):
         if self.FMRI:
             y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
         else:
-            y_range = DataRange1D(low=-3000, high=100)  # for training non-mri sniff sensor
+            y_range = DataRange1D(low=-20, high=20)  # for training non-mri sniff sensor
         plot.value_range = y_range
         plot.fixed_preferred_size = (100, 20)
         plot.y_axis.visible = True
@@ -685,8 +685,8 @@ class Passive_odor_presentation(Protocol):
         self.stream_events_data.set_data("mri", self.mri)
 
         # Change plot properties.)
-        plot.fixed_preferred_size = (100, 20)
-        y_range = DataRange1D(low=-100, high=100)
+        plot.fixed_preferred_size = (100, 5)
+        y_range = DataRange1D(low=0, high=2)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False
@@ -1409,7 +1409,7 @@ class Passive_odor_presentation(Protocol):
             "sniff"                    : (3, 'int', db.FloatArray),
             "lick1"                    : (4, 'unsigned long', db.IntArray),
             "lick2"                    : (5, 'unsigned long', db.IntArray),
-            "mri"                      : (6, 'unsigned long', db.IntArray)
+            "mri"                      : (6, 'unsigned long', db.FloatArray)
         }
 
     def process_event_request(self, event):
