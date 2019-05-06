@@ -676,7 +676,7 @@ class Passive_odor_presentation(Protocol):
         self.lick1[-1] = 0
         self.lick2 = [nan] * len(self.iteration)
         self.lick2[-1] = 0
-        self.mri = [1] * len(self.iteration)
+        self.mri = [nan] * len(self.iteration)
         self.mri[-1] = 0
 
         self.stream_events_data.set_data("iteration", self.iteration)
@@ -686,7 +686,7 @@ class Passive_odor_presentation(Protocol):
 
         # Change plot properties.)
         plot.fixed_preferred_size = (100, 5)
-        y_range = DataRange1D(low=0, high=2)
+        y_range = DataRange1D(low=0.99, high=1.005)
         plot.value_range = y_range
         plot.y_axis.visible = False
         plot.x_axis.visible = False

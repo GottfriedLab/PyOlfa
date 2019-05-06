@@ -28,7 +28,7 @@ const PROGMEM int sniff_sensor_offset = {-120};
 const PROGMEM int training_sniff_t_inh = {-10};// threshold crossing value for inhalation in ADC units. (-5000:5000)
 const PROGMEM int training_sniff_t_exh = {10}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.
 
-volatile unsigned long lastsnifftime = 0;  // last time the sniff signal crossed threshold 
+volatile unsigned long lastsnifftime = 0;  // last time the sniff signal crossed threshold
 
 // digital buffer (e.g. lick buffer) is a ring buffer with head, tail and it stores timestamps of state changes in the beam
 volatile bool beam1status = false, beam2status = false, beam3status = false;
@@ -248,7 +248,7 @@ void DigitalOff(uint8_t beam) {
 }
 
 // start recording the digital signal
-void digitalOn(uint8_t beams, uint8_t freq) {
+void digitalOn(uint8_t beams,  uint8_t freq) {
   /* arguments: beams = which beam break pins to turn on (1,2 or both (3))
                 freq = frequency of the timer in ms */
   if (beams == 1)
