@@ -1,13 +1,13 @@
 # PyOlfa
-PyOlfa is a experimental tool for automated olfactory behavioral assessment. Here is a few examples of what PyOlfa can do:
+PyOlfa is a tool for automated olfactory behavioral assessment. Here are a few examples of what PyOlfa can do:
 
-*	Experimental control: Operate olfactometers and devices (sensors, valves, etc) connected to Arduino board.
+*	Experimental control: Operate olfactometers and devices (optic sensors, valves, etc) that are connected to Arduino board.
 *	Data acquisition: Stream subject’s responses and physiological measurements while the experiment is running
-*	Real-time data visualization: Analyze the signals and display the behavioral results in real time 
+*	Data visualization: Analyze the signals and display the behavioral results in real time 
 *	Data storage: Store the data and parameters used in the experiments to a HDF5 file
 
 # Dependencies
-We recommend that you install a scientific Python distribution like Anaconda. Since it meets all the requirements of nilearn, it will save you time and trouble. PyOlfa is written in Python 2.7. Please make sure you install the correct version. In addition, the following software packages are required or PyOlfa will not work at all. 
+We recommend that you install a scientific Python distribution like Anaconda. Since it meets all the requirements of PyOlfa, it will save you time and trouble. PyOlfa is written in Python 2.7. Please make sure you install the correct version. The following software packages are required. 
 
 *	Chaco
 * Enable
@@ -20,4 +20,8 @@ We recommend that you install a scientific Python distribution like Anaconda. Si
 *	Pyqt4
 
 # Example Useage
-![Alt text](docs/Olfactometry.PNG)
+![Output sample](docs/gif.gif)
+
+# Example olfactometry
+![Alt text](docs/Olfactometry.png)
+
