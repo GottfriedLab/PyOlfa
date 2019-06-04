@@ -155,8 +155,12 @@ unsigned long inter_water_interval = 2000;
 // The chance of free water is given to mice during licking training
 unsigned long random_chance = 0;
 
-int trial = 0;
+// Wait for 5 TR to start the experiment
+int TR_counts = 0;
+boolean on_hold = true;
+boolean TR_status = false;
 
+int trial = 0;
 
 void setup() {
   pinMode(LED_PIN, OUTPUT); // Green LED on the front
@@ -259,9 +263,9 @@ void setup() {
   Serial1.begin(19200);
   Serial1.write(0x0c); // clear the display
   delay(10);
-  Serial1.write(0x11); // Back-light on
-  Serial1.write(0x80); // col 0, row 0
-  Serial1.print(F("Passive exposure"));
+//  Serial1.write(0x11); // Back-light on
+//  Serial1.write(0x80); // col 0, row 0
+//  Serial1.print(F("Passive exposure"));
 
   //=======================
 
@@ -311,18 +315,23 @@ void loop() {
       delay(1);
     }
   }
-
-  
-
+ 
+  if (on_hold) {
+     TR_status = hasDigitaled(3);
+     if (TR_status = !hasDigitaled(3)) {
+      on_hold = false;
+     }
+  }
+ 
   switch (state) {
 
     case 0: //waiting for initialization of trial
-      break;
+        break;
 
     case 1:
       // Python has uploaded the trial parameters to start a trial.
       // Wait for ITI to be over and wait for trigger before starting the trial.
-      if ((totalms - trial_end) > (inter_trial_interval)) {
+      if (((totalms - trial_end) > (inter_trial_interval)) && (!on_hold)) {
         trial_start = totalms;
         // Final valve trigger state
         if (odorant_trigger_phase == EXHALATION) {
@@ -338,7 +347,7 @@ void loop() {
       break;
 
     case 2: // Wait for TR to be over and then exhalation state.
-      if (pulse_on && hasDigitaled(3)) {
+      if (hasDigitaled(3)) {
         state = 3;
       }
       
@@ -351,7 +360,7 @@ void loop() {
       break;
 
     case 4: // Wait for TR to be over and then inhalation state.
-      if (pulse_on && hasDigitaled(3)) {
+      if (hasDigitaled(3)) {
         state = 5;
       }
       break;
@@ -363,7 +372,7 @@ void loop() {
       break;
 
     case 6: // Wait for TR to be over regardless of inhaleation/exhaleatio state
-      if (pulse_on && hasDigitaled(3)) {
+      if (hasDigitaled(3)) {
         state = 7;
       }
       break;

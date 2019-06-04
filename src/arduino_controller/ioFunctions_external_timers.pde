@@ -16,7 +16,7 @@ int *sniff;
 unsigned long *lick1, *lick2, *mri, *trig;  //lick1 and mri are ring buffer
 int sniff_t_inh, sniff_t_exh;
 
-volatile bool FMRI = false;
+volatile bool FMRI = true;
 volatile bool sniff_trigger = true;
 boolean recordsniff = false, clockflag = false, recordsniffttl = false, trig_move = false;//flags signaling analog acquisition
 
@@ -351,7 +351,7 @@ boolean hasDigitaled(uint8_t pin) {
           return !beam3status;
         // one value in the buffer and head index is wrapped to zero
         else if((mrihead == 0) && (mritail == MRIBUFF-1))
-          return beam3status;
+          return !beam3status;
         else
           return mrihead != mritail;
   }

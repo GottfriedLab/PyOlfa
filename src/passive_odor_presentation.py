@@ -61,7 +61,7 @@ class Passive_odor_presentation(Protocol):
     # debugging.
     ARDUINO = 1
     OLFA = 1
-    FMRI = 0
+    FMRI = 1
 
     # Flag "LICKING_TRAINING" to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
@@ -69,7 +69,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 20
-    LICKING_TRAINING = .35
+    LICKING_TRAINING = 1
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -93,15 +93,15 @@ class Passive_odor_presentation(Protocol):
     # Number of initial trials to help motivating the subject to start
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
     # half of initial trials will be right and the rest is left
-    INITIAL_TRIALS_TYPE = 2 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 20
+    INITIAL_TRIALS_TYPE = 3 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS = 200
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [7000, 9000]
+    ITI_BOUNDS_CORRECT = [3000, 5000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [12000, 14000]
+    ITI_BOUNDS_FALSE_ALARM = [3000, 5000]
 
     # MRI sampleing rate
     TR = 1000
