@@ -263,9 +263,9 @@ void setup() {
   Serial1.begin(19200);
   Serial1.write(0x0c); // clear the display
   delay(10);
-//  Serial1.write(0x11); // Back-light on
-//  Serial1.write(0x80); // col 0, row 0
-//  Serial1.print(F("Passive exposure"));
+  Serial1.write(0x11); // Back-light on
+  Serial1.write(0x80); // col 0, row 0
+  Serial1.print(F("Passive exposure"));
 
   //=======================
 

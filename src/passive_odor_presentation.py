@@ -98,10 +98,10 @@ class Passive_odor_presentation(Protocol):
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [3000, 5000]
+    ITI_BOUNDS_CORRECT = [5000, 5000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [3000, 5000]
+    ITI_BOUNDS_FALSE_ALARM = [5000, 5000]
 
     # MRI sampleing rate
     TR = 1000
@@ -450,7 +450,7 @@ class Passive_odor_presentation(Protocol):
                                             style="button",
                                             label_value='right_water_calibrate_label'),
                                             show_label=False),
-                                       Item('water_duration1'),
+                                       Item('water_duration2'),
                                        ),
                                   ),
                            label="arduino_controller Control",
@@ -1812,6 +1812,11 @@ class Passive_odor_presentation(Protocol):
             self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
             self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
             self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
+            # self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, 0)
+            # self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, 0)
+            # self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 0)
+
+
 
     def end_of_trial(self):
         # set new trial parameters
