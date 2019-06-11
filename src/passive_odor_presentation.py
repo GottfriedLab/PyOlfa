@@ -61,7 +61,7 @@ class Passive_odor_presentation(Protocol):
     # debugging.
     ARDUINO = 1
     OLFA = 1
-    FMRI = 1
+    FMRI = 0
 
     # Flag "LICKING_TRAINING" to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
@@ -69,7 +69,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 20
-    LICKING_TRAINING = 1
+    LICKING_TRAINING = 0.75
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -94,14 +94,14 @@ class Passive_odor_presentation(Protocol):
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
     # half of initial trials will be right and the rest is left
     INITIAL_TRIALS_TYPE = 3 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 200
+    INITIAL_TRIALS = 20
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [5000, 5000]
+    ITI_BOUNDS_CORRECT = [10000, 12000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [5000, 5000]
+    ITI_BOUNDS_FALSE_ALARM = [15000, 17000]
 
     # MRI sampleing rate
     TR = 1000
@@ -1201,8 +1201,8 @@ class Passive_odor_presentation(Protocol):
         voyeur_rig_config = os.path.join('/Users/Gottfried_Lab/PycharmProjects/PyOlfa/src/', 'voyeur_rig_config.conf')
         self.config = parse_rig_config(voyeur_rig_config)
         self.rig = self.config['rigName']
-        self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.25ul']
-        self.water_duration2 = self.config['waterValveDurations']['valve_2_right']['0.25ul']
+        self.water_duration1 = self.config['waterValveDurations']['valve_1_left']['0.5ul']
+        self.water_duration2 = self.config['waterValveDurations']['valve_2_right']['0.5ul']
         self.olfas = self.config['olfas']
 
         self._build_stimulus_set()
@@ -1812,11 +1812,9 @@ class Passive_odor_presentation(Protocol):
             self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, self.current_stimulus.flows[i - 1][1])
             self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, self.current_stimulus.flows[i - 1][0])
             self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 1000)
-            # self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1, 0)
-            # self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2, 0)
-            # self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3, 0)
-
-
+            # self.olfactometer.olfas[i - 1].mfc1.setMFCrate(self.olfactometer.olfas[i - 1].mfc1,0)
+            # self.olfactometer.olfas[i - 1].mfc2.setMFCrate(self.olfactometer.olfas[i - 1].mfc2,0)
+            # self.olfactometer.olfas[i - 1].mfc3.setMFCrate(self.olfactometer.olfas[i - 1].mfc3,0)
 
     def end_of_trial(self):
         # set new trial parameters
