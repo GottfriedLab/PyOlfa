@@ -61,7 +61,7 @@ class Passive_odor_presentation(Protocol):
     # debugging.
     ARDUINO = 1
     OLFA = 1
-    FMRI = 0
+    FMRI = 1
 
     # Flag "LICKING_TRAINING" to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
@@ -69,7 +69,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 20
-    LICKING_TRAINING = 0.75
+    LICKING_TRAINING = 0.5
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
 
@@ -93,7 +93,7 @@ class Passive_odor_presentation(Protocol):
     # Number of initial trials to help motivating the subject to start
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
     # half of initial trials will be right and the rest is left
-    INITIAL_TRIALS_TYPE = 3 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS_TYPE = 2 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
     INITIAL_TRIALS = 20
 
     # [Upper, lower] bounds in milliseconds when choosing an
@@ -593,7 +593,7 @@ class Passive_odor_presentation(Protocol):
 
         # y-axis range. Change this if you want to re-scale or offset it.
         if self.FMRI:
-            y_range = DataRange1D(low=-300, high=300)  # for mri pressure sensor
+            y_range = DataRange1D(low=-400, high=400)  # for mri pressure sensor
         else:
             y_range = DataRange1D(low=-20, high=20)  # for training non-mri sniff sensor
         plot.value_range = y_range
