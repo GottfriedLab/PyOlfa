@@ -61,14 +61,14 @@ class Passive_odor_presentation(Protocol):
     # debugging.
     ARDUINO = 1
     OLFA = 1
-    FMRI = 0
+    FMRI = 1
 
     # Flag "LICKING_TRAINING" to indicate whether we are training mouse to lick or not.
     # Set to 0 when not training, 0.5 when half time are given "free water"
     # During initial free water trials, free water is 100% given to mice
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
-    INITIAL_FREE_WATER_TRIALS = 10
+    INITIAL_FREE_WATER_TRIALS = 20
     LICKING_TRAINING = 0.5
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 5
@@ -94,7 +94,7 @@ class Passive_odor_presentation(Protocol):
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,
     # half of initial trials will be right and the rest is left
     INITIAL_TRIALS_TYPE = 2 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
-    INITIAL_TRIALS = 10
+    INITIAL_TRIALS = 20
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
@@ -166,7 +166,6 @@ class Passive_odor_presentation(Protocol):
     water_duration1 = Int(0, label="Left water duration")
     water_duration2 = Int(0, label="Right water duration")
     final_valve_duration = Int(0, label="Final valve duration")
-    final_valve_duration2 = Int(0, label="Final valve duration")
     training_times1 = Int(100, label="Left water licking training")
     training_times2 = Int(100, label="Right water licking training")
     response_window = Int(0, label="Response duration")
@@ -1174,7 +1173,6 @@ class Passive_odor_presentation(Protocol):
                         trial_type_id,
                         max_rewards,
                         final_valve_duration,
-                        final_valve_duration2,
                         response_window,
                         odorant_trigger_phase,
                         lick_grace_period,
@@ -1213,7 +1211,6 @@ class Passive_odor_presentation(Protocol):
         
         self.inter_trial_interval = inter_trial_interval
         self.final_valve_duration = final_valve_duration
-        self.final_valve_duration2 = final_valve_duration2
         self.response_window = self.LICKING_GRACE_PERIOD + self.RESPONSE_DURATION
         self.tr = self.TR
         self.licking_training = self.LICKING_TRAINING *10
@@ -1327,18 +1324,17 @@ class Passive_odor_presentation(Protocol):
         controller_dict = {
                     "trialNumber"                   : (1, db.Int, self.trial_number),
                     "final_valve_duration"          : (2, db.Int, self.final_valve_duration),
-                    "final_valve_duration2"         : (3, db.Int, self.final_valve_duration2),
-                    "response_window"               : (4, db.Int, self.response_window),
-                    "inter_trial_interval"          : (5, db.Int, self.inter_trial_interval),
-                    "odorant_trigger_phase"         : (6, db.Int, self.odorant_trigger_phase),
-                    "trial_type_id"                 : (7, db.Int, self.current_stimulus.id),
-                    "lick_grace_period"             : (8, db.Int, self.lick_grace_period),
-                    "tr"                            : (9, db.Int, self.tr),
-                    "licking_training"              : (10, db.Int, self.licking_training),
-                    "left_free_water"               : (11, db.Int, self.left_free_water),
-                    "right_free_water"              : (12, db.Int, self.right_free_water),
-                    "water_duration1"               : (13, db.Int, self.water_duration1),
-                    "water_duration2"               : (14, db.Int, self.water_duration2),
+                    "response_window"               : (3, db.Int, self.response_window),
+                    "inter_trial_interval"          : (4, db.Int, self.inter_trial_interval),
+                    "odorant_trigger_phase"         : (5, db.Int, self.odorant_trigger_phase),
+                    "trial_type_id"                 : (6, db.Int, self.current_stimulus.id),
+                    "lick_grace_period"             : (7, db.Int, self.lick_grace_period),
+                    "tr"                            : (8, db.Int, self.tr),
+                    "licking_training"              : (9, db.Int, self.licking_training),
+                    "left_free_water"               : (10, db.Int, self.left_free_water),
+                    "right_free_water"              : (11, db.Int, self.right_free_water),
+                    "water_duration1"               : (12, db.Int, self.water_duration1),
+                    "water_duration2"               : (13, db.Int, self.water_duration2),
         }
    
         return TrialParameters(
@@ -1377,7 +1373,6 @@ class Passive_odor_presentation(Protocol):
         params_def = {
             "trialNumber"                   : db.Int,
             "final_valve_duration"          : db.Int,
-            "final_valve_duration2"         : db.Int,
             "response_window"               : db.Int,
             "inter_trial_interval"          : db.Int,
             "odorant_trigger_phase"         : db.Int,
@@ -2048,7 +2043,6 @@ if __name__ == '__main__':
     trial_number = 0
     trial_type_id = 0
     final_valve_duration = 1000
-    final_valve_duration2 = 1050
     response_window = 3000
     lick_grace_period = 100
     max_rewards = 200
@@ -2077,7 +2071,6 @@ if __name__ == '__main__':
                                          trial_type_id,
                                          max_rewards,
                                          final_valve_duration,
-                                         final_valve_duration2,
                                          response_window,
                                          odorant_trigger_phase,
                                          lick_grace_period,

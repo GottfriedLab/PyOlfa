@@ -69,7 +69,6 @@
 #define WATERVALVE1 SOLENOID2
 #define WATERVALVE2 SOLENOID7
 #define FINALVALVE SOLENOID1
-#define FINALVALVE2 SOLENOID8
 #define FV_T DIGITAL8
 #define FAKE_MRI DIGITAL6
 #define MRI_TRIGGER DIGITAL7
@@ -94,7 +93,6 @@ char protocolName[] = "Passive_exposure_2AFC"; // should be less than 20 charact
 // Trial input parameters.
 //==============================================================================
 unsigned long final_valve_duration = 0;
-unsigned long final_valve_duration2 = 0;
 unsigned long response_window = 0;
 unsigned long inter_trial_interval = 0;
 // Sniff phase for starting the final valve onset time.
@@ -383,7 +381,6 @@ void loop() {
       // open final valve
       final_valve_onset = totalms;
       valveOnTimer(FINALVALVE, final_valve_duration);
-      valveOnTimer(FINALVALVE2, final_valve_duration2);
       valveOnTimer(FV_T, final_valve_duration);
       state = 8;
       break;

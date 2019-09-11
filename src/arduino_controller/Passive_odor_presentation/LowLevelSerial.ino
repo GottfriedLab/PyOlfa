@@ -288,7 +288,6 @@ void RunSerialCom(int code) {
 
       received_parameters = 0;
       final_valve_duration = readULongFromBytes();
-      final_valve_duration2 = readULongFromBytes();
       response_window = readULongFromBytes();
       inter_trial_interval = readULongFromBytes();
       odorant_trigger_phase = readULongFromBytes();
