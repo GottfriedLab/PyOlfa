@@ -66,9 +66,9 @@
 #define DIGITAL16 61
 
 // Valves attached to the behaviour box and their solenoid channels.
-#define WATERVALVE1 SOLENOID2
+#define WATERVALVE1 SOLENOID8
 #define WATERVALVE2 SOLENOID7
-#define FINALVALVE SOLENOID1
+#define FINALVALVE SOLENOID6
 #define FV_T DIGITAL8
 #define FAKE_MRI DIGITAL6
 #define MRI_TRIGGER DIGITAL7
