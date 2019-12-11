@@ -835,21 +835,21 @@ class Passive_odor_presentation(Protocol):
         for i in range(len(odorvalves_left_stimulus)):
             right_stimulus = LaserTrainStimulus(
                                     odorvalves = odorvalves_right_stimulus,
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(990, 10)],  # [(AIR, Nitrogen)]
                                     id = 0,
                                     description="Right stimulus",
                                     trial_type = "Right"
                                     )
             left_stimulus = LaserTrainStimulus(
                                     odorvalves = odorvalves_left_stimulus,
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(990, 10)],  # [(AIR, Nitrogen)]
                                     id = 1,
                                     description = "Left stimulus",
                                     trial_type = "Left"
                                     )
             no_stimulus = LaserTrainStimulus(
                                     odorvalves = [choice(odorvalves_no_stimulus)],
-                                    flows=[(900, 100)],  # [(AIR, Nitrogen)]
+                                    flows=[(990, 10)],  # [(AIR, Nitrogen)]
                                     id = 2,
                                     description="No stimulus",
                                     trial_type = "None"
@@ -977,7 +977,7 @@ class Passive_odor_presentation(Protocol):
                 
         self._left_trials_line = append(self._left_trials_line, leftcorrect*100)
         self._right_trials_line = append(self._right_trials_line, rightcorrect*100)
-        self.trial_number_tick = arange(0, len(self._right_trials_line))
+        self.trial_number_tick = append(self.trial_number_tick, self.trial_number)
         
         self.event_plot_data.set_data("trial_number_tick", self.trial_number_tick)        
         self.event_plot_data.set_data("_left_trials_line", self._left_trials_line)
