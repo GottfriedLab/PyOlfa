@@ -155,11 +155,9 @@ unsigned long inter_water_interval = 2000;
 // The chance of free water is given to mice during licking training
 unsigned long random_chance = 0;
 
-// Wait for 5 TR to start the experiment
-int TR_counts = 0;
+// Wait to start the experiment
 boolean on_hold = true;
-boolean TR_status = false;
-
+boolean gui_status = false;
 int trial = 0;
 
 void setup() {
@@ -317,8 +315,8 @@ void loop() {
   }
  
   if (on_hold) {
-     TR_status = hasDigitaled(3);
-     if (TR_status = !hasDigitaled(3)) {
+     gui_status = hasDigitaled(3);
+     if (gui_status = !hasDigitaled(3)) {
       on_hold = false;
      }
   }
@@ -326,23 +324,36 @@ void loop() {
   switch (state) {
 
     case 0: //waiting for initialization of trial
-        break;
+
+      break;
 
     case 1:
       // Python has uploaded the trial parameters to start a trial.
       // Wait for ITI to be over and wait for trigger before starting the trial.
-      if (((totalms - trial_end) > (inter_trial_interval)) && (!on_hold)) {
-        trial_start = totalms;
-        // Final valve trigger state
-        if (odorant_trigger_phase == EXHALATION) {
-          state = 2;
-        }
-        else if (odorant_trigger_phase == INHALATION) {
-          state = 4;
-        }
-        else if (odorant_trigger_phase == PHASE_INDEPENDENT) { 
-          state = 6;
-        }
+      if (!on_hold) {
+        if (trial < 1) {
+          if (hasDigitaled(3)) {
+            trial_end = totalms;
+            trial = trial + 1;
+          }
+        }   
+        else if ((totalms - trial_end) > inter_trial_interval) {
+            Serial1.write(0x80); // col 0, row 0
+            Serial1.print(trial_end);
+            Serial1.write(0x94);
+            Serial1.print(totalms);
+            trial_start = totalms;
+            // Final valve trigger state
+            if (odorant_trigger_phase == EXHALATION) {
+              state = 2;
+            }
+            else if (odorant_trigger_phase == INHALATION) {
+              state = 4;
+            }
+            else if (odorant_trigger_phase == PHASE_INDEPENDENT) { 
+              state = 6;
+            }
+         }
       }
       break;
 

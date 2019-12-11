@@ -1841,13 +1841,12 @@ class Passive_odor_presentation(Protocol):
                     new block..."
         
         # Generate an initial block of trials if needed.
-        if self.trial_number < self.INITIAL_TRIALS :
-            block_size = self.INITIAL_TRIALS + 1 - self.trial_number
+        if self.trial_number < self.INITIAL_TRIALS:
+            block_size = self.INITIAL_TRIALS
             if self.INITIAL_TRIALS_TYPE == 0:
                 self.stimulus_block = [self.STIMULI["Left"][0]] * block_size
             elif self.INITIAL_TRIALS_TYPE == 1:
                 self.stimulus_block = [self.STIMULI["Right"][0]] * block_size
-
             elif self.INITIAL_TRIALS_TYPE == 2: # right then left
                 self.stimulus_block = [self.STIMULI["Left"][0]] * (block_size/2)
                 if self.INITIAL_TRIALS and self.trial_number <= self.INITIAL_TRIALS/2:
@@ -2047,7 +2046,7 @@ if __name__ == '__main__':
     lick_grace_period = 100
     max_rewards = 200
     odorant_trigger_phase = 2
-    inter_trial_interval = 2000
+    inter_trial_interval = 15000
 
     # protocol parameter defaults
     mouse = 434  # can I make this an illegal value so that it forces me to change it????
