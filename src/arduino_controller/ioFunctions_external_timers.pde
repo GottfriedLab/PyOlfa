@@ -25,8 +25,8 @@ const PROGMEM int fmri_sniff_t_inh = {-50};// threshold crossing value for inhal
 const PROGMEM int fmri_sniff_t_exh = {50}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.
 const PROGMEM int fmri_offset = {570};
 const PROGMEM int sniff_sensor_offset = {-120};
-const PROGMEM int training_sniff_t_inh = {-2};// threshold crossing value for inhalation in ADC units. (-5000:5000)
-const PROGMEM int training_sniff_t_exh = {2}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.
+const PROGMEM int training_sniff_t_inh = {-3};// threshold crossing value for inhalation in ADC units. (-5000:5000)
+const PROGMEM int training_sniff_t_exh = {3}; // threshold crossing value for start of exhalation. Wanted this to be above the threashold value so that it is actually indicative of positive pressure.
 
 volatile unsigned long lastsnifftime = 0;  // last time the sniff signal crossed threshold
 
@@ -132,22 +132,16 @@ void ain(uint8_t arg) {
          // Record the sniff TTL
          if(recordsniffttl) {
                if(sniff_trigger && (sniffvalue < sniff_t_inh)) { //start inhale.
-                     // filter signals higher than 50Hz after first change
-                     if((t_ms-lastsnifftime) > 20) {
-                        sniff_trigger = false;
-                        lastsnifftime = t_ms;
-                        trig[trig_head_local] = lastsnifftime;
-                        trighead = (trig_head_local+1)%TRIGBUFF;
-                     }
+                    sniff_trigger = false;
+                    lastsnifftime = t_ms;
+                    trig[trig_head_local] = lastsnifftime;
+                    trighead = (trig_head_local+1)%TRIGBUFF;
                }
                else if(!sniff_trigger && (sniffvalue > sniff_t_exh)) { //start exhale
-                     // filter signals higher than 50Hz after first change
-                     if((t_ms-lastsnifftime) > 20) {
-                        sniff_trigger = true;
-                        lastsnifftime = t_ms;
-                        trig[trig_head_local] = lastsnifftime;
-                        trighead = (trig_head_local+1)%TRIGBUFF;
-                     }
+                    sniff_trigger = true;
+                    lastsnifftime = t_ms;
+                    trig[trig_head_local] = lastsnifftime;
+                    trighead = (trig_head_local+1)%TRIGBUFF;
                }
          }
     }

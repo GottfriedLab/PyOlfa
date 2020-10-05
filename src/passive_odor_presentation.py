@@ -69,7 +69,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 10
-    LICKING_TRAINING = 0.0001
+    LICKING_TRAINING = .001
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 3
 
@@ -89,19 +89,19 @@ class Passive_odor_presentation(Protocol):
     # Maximum trial duration to wait for, in seconds, before we assume problems
     # in communication.
     MAX_TRIAL_DURATION = 100
-    
+
     # Number of initial trials to help motivating the subject to start
     # responding to trials.Must be even number. If INITIAL_TRIALS_TYPE is 2 or 3,`
     # half of initial trials will be right and the rest is left
-    INITIAL_TRIALS_TYPE = 3 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
+    INITIAL_TRIALS_TYPE = 2 # 0: LEFT, 1: RIGHT, 2: RIGHT then LEFT,, 3: LEFT then RIGHT
     INITIAL_TRIALS = 10
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
     ITI_BOUNDS_CORRECT = [10000, 12000]
     # [Upper, lower] bounds for random inter trial interval assignment
-    # when the animal DID false alarm. Value is in milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [15000, 17000]
+    # when the animal DID false alarm. Value is ni milliseconds.
+    ITI_BOUNDS_FALSE_ALARM = [20000, 22000]
 
     # MRI sampleing rate
     TR = 1000
@@ -114,11 +114,11 @@ class Passive_odor_presentation(Protocol):
                           }
 
     # Mapping of sniff phase name to code sent to arduino_controller.
-    ODORANT_TRIGGER_PHASE = 0
+    ODORANT_TRIGGER_PHASE = 2
     SNIFF_PHASES = {
                     0: "Inhalation",
                     1: "Exhalation",
-                    2: "Independent"
+                    2: "Independent"  # This will have olfactometer go without any mouse.
                     }
 
     #--------------------------------------------------------------------------
@@ -1848,13 +1848,11 @@ class Passive_odor_presentation(Protocol):
             elif self.INITIAL_TRIALS_TYPE == 1:
                 self.stimulus_block = [self.STIMULI["Right"][0]] * block_size
             elif self.INITIAL_TRIALS_TYPE == 2: # right then left
-                self.stimulus_block = [self.STIMULI["Left"][0]] * (block_size/2)
-                if self.INITIAL_TRIALS and self.trial_number <= self.INITIAL_TRIALS/2:
-                    self.stimulus_block = [self.STIMULI["Right"][0]] * (block_size / 2)
+                self.stimulus_block = [self.STIMULI["Right"][0]] * (block_size / 2)
+                self.stimulus_block.extend([self.STIMULI["Left"][0]] * (block_size / 2))
             elif self.INITIAL_TRIALS_TYPE == 3: # left then right
-                self.stimulus_block = [self.STIMULI["Right"][0]] * (block_size/2)
-                if self.INITIAL_TRIALS and self.trial_number <= self.INITIAL_TRIALS/2:
-                    self.stimulus_block = [self.STIMULI["Left"][0]] * (block_size / 2)
+                self.stimulus_block = [self.STIMULI["Left"][0]]* (block_size/2)
+                self.stimulus_block.extend([self.STIMULI["Right"][0]]* (block_size/2))
             return
 
 
@@ -2055,9 +2053,9 @@ if __name__ == '__main__':
     stamp = time_stamp()
     tr = 1000
     licking_training = 0
-    initial_free_water_trials = 0
-    left_free_water = 0
-    right_free_water = 0
+    initial_free_water_trials = 1
+    left_free_water = 1
+    right_free_water = 1
     water_duration1 = 150
     water_duration2 = 150
 
