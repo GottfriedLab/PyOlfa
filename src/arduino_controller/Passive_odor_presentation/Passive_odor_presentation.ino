@@ -338,10 +338,6 @@ void loop() {
           }
         }   
         else if ((totalms - trial_end) > inter_trial_interval) {
-            Serial1.write(0x80); // col 0, row 0
-            Serial1.print(trial_end);
-            Serial1.write(0x94);
-            Serial1.print(totalms);
             trial_start = totalms;
             // Final valve trigger state
             if (odorant_trigger_phase == EXHALATION) {
