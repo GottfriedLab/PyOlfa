@@ -69,7 +69,7 @@ class Passive_odor_presentation(Protocol):
     # Afterwards, free water is given based on the licking training chance and during side preference
     # When mice have a few missed responses on certain side, it will given free water to the bad side for 100%
     INITIAL_FREE_WATER_TRIALS = 0
-    LICKING_TRAINING = .001
+    LICKING_TRAINING = 1
     SIDE_PREFERENCE_TRIALS = 3
     MISSED_RESPONSE_BEFORE_SIDE_PREFERENCE_TRIALS = 3
 
@@ -98,10 +98,10 @@ class Passive_odor_presentation(Protocol):
 
     # [Upper, lower] bounds in milliseconds when choosing an
     # inter trial interval for trials when there was no false alarm.
-    ITI_BOUNDS_CORRECT = [10000, 12000]
+    ITI_BOUNDS_CORRECT = [5000, 7000]
     # [Upper, lower] bounds for random inter trial interval assignment
     # when the animal DID false alarm. Value is ni milliseconds.
-    ITI_BOUNDS_FALSE_ALARM = [20000, 22000]
+    ITI_BOUNDS_FALSE_ALARM = [10000, 12000]
 
     # MRI sampleing rate
     TR = 1000
